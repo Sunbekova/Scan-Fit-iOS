@@ -65,15 +65,8 @@ struct RecentView: View {
                 modelContext.delete(fav)
             }
         } else {
-            let fav = FavoriteProductEntity(
-                id: recent.id,
-                productName: recent.title,
-                brand: recent.subtitle,
-                imageURL: recent.imageURL,
-                calories: recent.calories,
-                grade: recent.grade,
-                ingredients: recent.ingredients
-            )
+            let foodItem = recent.toFoodItem(isFavorite: true)
+            let fav = FavoriteProductEntity(from: foodItem)
             modelContext.insert(fav)
         }
         try? modelContext.save()

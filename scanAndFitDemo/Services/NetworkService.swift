@@ -28,7 +28,8 @@ actor NetworkService {
     static let shared = NetworkService()
 
     private let openFoodFactsBaseURL = "https://world.openfoodfacts.org"
-    private let aiBaseURL = "http://172.20.10.9"
+    //private let aiBaseURL = "http://172.20.10.9" //сотка
+    private let aiBaseURL = "http://192.168.0.103" //вайфай
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default

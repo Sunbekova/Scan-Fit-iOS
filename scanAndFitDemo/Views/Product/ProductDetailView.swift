@@ -336,15 +336,7 @@ struct ProductDetailView: View {
                 modelContext.delete(existing)
             }
         } else {
-            let entity = FavoriteProductEntity(
-                id: item.title,
-                productName: item.title,
-                brand: item.subtitle,
-                imageURL: item.imageURL,
-                calories: item.calories,
-                grade: item.grade,
-                ingredients: item.ingredients
-            )
+            let entity = FavoriteProductEntity(from: item)
             modelContext.insert(entity)
         }
         isFavorite.toggle()
@@ -354,15 +346,7 @@ struct ProductDetailView: View {
     // MARK: - Recent
 
     private func saveToRecent(_ item: FoodItem) {
-        let entity = RecentProductEntity(
-            id: item.title,
-            title: item.title,
-            subtitle: item.subtitle,
-            imageURL: item.imageURL,
-            calories: item.calories,
-            grade: item.grade,
-            ingredients: item.ingredients
-        )
+        let entity = RecentProductEntity(from: item)
         modelContext.insert(entity)
         try? modelContext.save()
     }

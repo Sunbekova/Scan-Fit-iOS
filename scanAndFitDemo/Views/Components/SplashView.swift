@@ -3,20 +3,20 @@ import SwiftUI
 struct SplashView: View {
     var body: some View {
         ZStack {
-            Color("AppGreen")
+            Image(AppImages.splashBackground)
+                .resizable()
+                .scaledToFill()
                 .ignoresSafeArea()
-            VStack(spacing: 16) {
-                Image(systemName: "barcode.viewfinder")
+
+            VStack(spacing: 20) {
+                Image(AppImages.mascot)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 80, height: 80)
-                    .foregroundColor(.white)
+                    .frame(width: 120, height: 120)
+
                 Text("ScanFit")
-                    .font(.system(size: 36, weight: .bold))
-                    .foregroundColor(.white)
-                Text("Your health companion")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.black)
             }
         }
     }

@@ -4,24 +4,30 @@ import SwiftData
 // MARK: - Food Item (in-memory domain model)
 
 struct FoodItem: Identifiable, Codable, Hashable {
-    var id: String { title }
+    let id: String
+
     let title: String
     let subtitle: String?
     let imageURL: String?
     let calories: String?
     let grade: String?
     var isFavorite: Bool
+
     let proteins: String
     let fat: String
     let carbs: String
+
     let description: String
+
     let cholesterol: String?
     let sodium: String?
     let sugars: String?
     let fiber: String?
+
     let ingredients: String?
 
     init(
+        id: String = UUID().uuidString, //if x barcode
         title: String,
         subtitle: String? = nil,
         imageURL: String? = nil,
@@ -38,6 +44,7 @@ struct FoodItem: Identifiable, Codable, Hashable {
         fiber: String? = "0g",
         ingredients: String? = nil
     ) {
+        self.id = id
         self.title = title
         self.subtitle = subtitle
         self.imageURL = imageURL
@@ -82,29 +89,36 @@ struct APIProduct: Codable {
         case ingredientsText = "ingredients_text"
         case ingredientsTextEn = "ingredients_text_en"
     }
+}
 
+extension APIProduct {
     func toFoodItem() -> FoodItem {
-        let cal = nutriments?.energyKcal100g.map { "\(Int($0)) kcal" } ?? "N/A"
-        let prot = nutriments?.proteins100g.map { String(format: "%.1fg", $0) } ?? "0g"
-        let fatStr = nutriments?.fat100g.map { String(format: "%.1fg", $0) } ?? "0g"
-        let carbStr = nutriments?.carbohydrates100g.map { String(format: "%.1fg", $0) } ?? "0g"
-        let sugarStr = nutriments?.sugars100g.map { String(format: "%.1fg", $0) } ?? "0g"
-        let fiberStr = nutriments?.fiber100g.map { String(format: "%.1fg", $0) } ?? "0g"
-        let sodiumStr = nutriments?.sodium100g.map { String(format: "%.3fg", $0) } ?? "0g"
+
+        let nutris = nutriments
+
+        let kcal = nutris?.energyKcalServing ?? nutris?.energyKcal100g ?? 0
 
         return FoodItem(
+            id: code ?? UUID().uuidString,
+
             title: productName ?? "Unknown Product",
             subtitle: brands,
             imageURL: imageURL,
-            calories: cal,
+
+            calories: "\(Int(kcal)) kcal",
             grade: nutriscoreGrade?.uppercased() ?? "B",
-            proteins: prot,
-            fat: fatStr,
-            carbs: carbStr,
-            sodium: sodiumStr,
-            sugars: sugarStr,
-            fiber: fiberStr,
-            ingredients: ingredientsTextEn ?? ingredientsText
+
+            proteins: "\(nutris?.proteinsServing ?? nutris?.proteins100g ?? 0)g",
+            fat: "\(nutris?.fatServing ?? nutris?.fat100g ?? 0)g",
+            carbs: "\(nutris?.carbohydratesServing ?? nutris?.carbohydrates100g ?? 0)g",
+            description: "",
+
+            cholesterol: "\(nutris?.cholesterolServing ?? nutris?.cholesterol100g ?? 0)mg",
+            sodium: "\(nutris?.sodiumServing ?? nutris?.sodium100g ?? 0)mg",
+            sugars: "\(nutris?.sugarsServing ?? nutris?.sugars100g ?? 0)g",
+            fiber: "\(nutris?.fiberServing ?? nutris?.fiber100g ?? 0)g",
+
+            ingredients: ingredientsText ?? ingredientsTextEn
         )
     }
 }
@@ -174,132 +188,3 @@ struct AnalysisMacros: Codable {
     let fats: Double?
 }
 
-// MARK: - SwiftData Persistence Entities
-
-@Model
-final class FavoriteProductEntity {
-    @Attribute(.unique) var id: String
-    var productName: String
-    var brand: String?
-    var imageURL: String?
-    var calories: String?
-    var grade: String?
-    var ingredients: String?
-
-    init(id: String, productName: String, brand: String?, imageURL: String?, calories: String?, grade: String?, ingredients: String?) {
-        self.id = id
-        self.productName = productName
-        self.brand = brand
-        self.imageURL = imageURL
-        self.calories = calories
-        self.grade = grade
-        self.ingredients = ingredients
-    }
-
-    func toFoodItem() -> FoodItem {
-        FoodItem(
-            title: productName,
-            subtitle: brand,
-            imageURL: imageURL,
-            calories: calories,
-            grade: grade,
-            isFavorite: true,
-            ingredients: ingredients
-        )
-    }
-}
-
-@Model
-final class RecentProductEntity {
-    @Attribute(.unique) var id: String
-    var title: String
-    var subtitle: String?
-    var imageURL: String?
-    var calories: String?
-    var grade: String?
-    var timestamp: Date
-    var ingredients: String?
-
-    init(id: String, title: String, subtitle: String?, imageURL: String?, calories: String?, grade: String?, ingredients: String?) {
-        self.id = id
-        self.title = title
-        self.subtitle = subtitle
-        self.imageURL = imageURL
-        self.calories = calories
-        self.grade = grade
-        self.timestamp = Date()
-        self.ingredients = ingredients
-    }
-
-    func toFoodItem(isFavorite: Bool = false) -> FoodItem {
-        FoodItem(
-            title: title,
-            subtitle: subtitle,
-            imageURL: imageURL,
-            calories: calories,
-            grade: grade,
-            isFavorite: isFavorite,
-            ingredients: ingredients
-        )
-    }
-}
-
-// MARK: - Health/Diet Models
-
-struct HealthData: Codable {
-    let categories: [HealthCategory]
-}
-
-struct HealthCategory: Codable, Identifiable {
-    let id: String
-    let categoryName: String
-    let items: [DietItem]
-
-    enum CodingKeys: String, CodingKey {
-        case id = "category_id"
-        case categoryName = "category_name"
-        case items
-    }
-}
-
-struct DietItem: Codable, Identifiable, Hashable {
-    let id: String
-    let name: String
-    let uiType: String
-    var isSelected: Bool = false
-    let maxLevels: Int?
-    let subOptions: [SubOption]?
-    let triggers: [String]?
-
-    enum CodingKeys: String, CodingKey {
-        case id, name
-        case uiType = "ui_type"
-        case isSelected, maxLevels = "max_levels"
-        case subOptions = "sub_options"
-        case triggers
-    }
-}
-
-struct SubOption: Codable, Identifiable, Hashable {
-    let id: String
-    let name: String
-    let uiType: String?
-    let triggers: [String]?
-    let maxLevels: Int?
-
-    enum CodingKeys: String, CodingKey {
-        case id, name
-        case uiType = "ui_type"
-        case triggers
-        case maxLevels = "max_levels"
-    }
-}
-
-// MARK: - Auth State
-
-enum AuthState: Equatable {
-    case loading
-    case unauthenticated
-    case profileIncomplete
-    case authenticated
-}

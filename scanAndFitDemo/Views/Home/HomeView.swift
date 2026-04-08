@@ -33,7 +33,7 @@ struct HomeView: View {
     private var headerSection: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Hi, \(authVM.displayName) 👋")
+                Text("Hi, \(authVM.displayName)")
                     .font(.system(size: 22, weight: .bold))
                 Text(Date().formatted(date: .long, time: .omitted))
                     .font(.subheadline)
@@ -86,89 +86,114 @@ struct HomeView: View {
     // MARK: - Calorie Card
 
     private var calorieCard: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
+        VStack(alignment: .leading, spacing: 12) {
+
+            HStack(spacing: 6) {
+                Image(systemName: "flame.fill")
+                    .foregroundColor(.green)
+
                 Text("Calories")
                     .font(.headline)
-                Spacer()
-                Text("\(trackerVM.totalCalories) / \(trackerVM.calorieLimit) kcal")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
             }
+
+            Text("\(trackerVM.totalCalories) kcal")
+                .font(.system(size: 32, weight: .bold))
+
+            Text("\(trackerVM.caloriesLeft) kcal left")
+                .font(.caption)
+                .foregroundColor(.gray)
 
             ProgressView(value: trackerVM.calorieProgress)
                 .tint(Color("AppGreen"))
-                .scaleEffect(x: 1, y: 2.5, anchor: .center)
-
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("\(trackerVM.totalCalories)")
-                        .font(.system(size: 24, weight: .bold))
-                    Text("Consumed")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                Spacer()
-                VStack(alignment: .trailing) {
-                    Text("\(trackerVM.caloriesLeft)")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(Color("AppGreen"))
-                    Text("Remaining")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
+                .scaleEffect(x: 1, y: 2.2)
+                .padding(.top, 6)
         }
-        .padding(18)
-        .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.06), radius: 8, y: 3)
+        .padding(20)
+        .background(Color(.systemGray6))
+        .cornerRadius(20)
     }
 
     // MARK: - Macros Row
 
     private var macrosRow: some View {
-        HStack(spacing: 12) {
-            MacroCard(title: "Protein", value: "\(Int(trackerVM.totalProteins))g",
-                      limit: "\(trackerVM.proteinLimit)g", progress: trackerVM.proteinProgress, color: .blue)
-            MacroCard(title: "Carbs", value: "\(Int(trackerVM.totalCarbs))g",
-                      limit: "\(trackerVM.carbLimit)g", progress: trackerVM.carbProgress, color: .orange)
-            MacroCard(title: "Fat", value: "\(Int(trackerVM.totalFat))g",
-                      limit: "\(trackerVM.fatLimit)g", progress: trackerVM.fatProgress, color: .pink)
+        HStack(spacing: 10) {
+            MacroCard(
+                title: "Proteins",
+                imageName: "ic_proteins", // Matches @drawable/ic_proteins
+                value: "\(Int(trackerVM.totalProteins)) g",
+                limit: "\(trackerVM.proteinLimit) g",
+                progress: trackerVM.proteinProgress,
+                color: .green
+            )
+
+            MacroCard(
+                title: "Fat",
+                imageName: "ic_fat",
+                value: "\(Int(trackerVM.totalFat)) g",
+                limit: "\(trackerVM.fatLimit) g",
+                progress: trackerVM.fatProgress,
+                color: .pink
+            )
+
+            MacroCard(
+                title: "Carbs",
+                imageName: "ic_carbs",
+                value: "\(Int(trackerVM.totalCarbs)) g",
+                limit: "\(trackerVM.carbLimit) g",
+                progress: trackerVM.carbProgress,
+                color: .orange
+            )
         }
     }
 
     // MARK: - Water
 
     private var waterSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Label("Water Intake", systemImage: "drop.fill")
-                    .font(.headline)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                // Left Side: Text
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Water balance")
+                        .font(.headline)
+                    
+                    Text("\(trackerVM.waterLiters, specifier: "%.2f")L")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(.blue)
+                    
+                    Text("Goal 1.75 L")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                
                 Spacer()
-                Text(String(format: "%.2f / 1.75 L", trackerVM.waterLiters))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                
+                Image(AppImages.homeWaterImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120, height: 100)
             }
 
-            HStack(spacing: 6) {
-                ForEach(0..<8) { idx in
+            HStack {
+                ForEach(0..<trackerVM.maxWaterGlasses, id: \.self) { i in
                     Button {
-                        if idx < trackerVM.waterGlasses { trackerVM.removeWater() }
-                        else if idx == trackerVM.waterGlasses { trackerVM.addWater() }
+                        if i < trackerVM.waterGlasses {
+                            trackerVM.removeWater()
+                        } else if i == trackerVM.waterGlasses {
+                            trackerVM.addWater()
+                        }
                     } label: {
-                        Image(systemName: idx < trackerVM.waterGlasses ? "drop.fill" : (idx == trackerVM.waterGlasses ? "drop.circle" : "drop"))
-                            .font(.title2)
-                            .foregroundColor(idx < trackerVM.waterGlasses ? Color.blue : .gray.opacity(0.4))
+                        Image(systemName: i < trackerVM.waterGlasses ? "drop.fill" : "drop")
+                            .font(.system(size: 20))
+                            .foregroundColor(i < trackerVM.waterGlasses ? .blue : .gray.opacity(0.4))
                     }
                     .frame(maxWidth: .infinity)
                 }
             }
+            .padding(.top, 10)
         }
-        .padding(18)
-        .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.06), radius: 8, y: 3)
+        .padding(24)
+        .background(Color(.systemGray6).opacity(0.5))
+        .cornerRadius(20)
     }
 }
 
@@ -176,6 +201,7 @@ struct HomeView: View {
 
 struct MacroCard: View {
     let title: String
+    let imageName: String
     let value: String
     let limit: String
     let progress: Double
@@ -183,13 +209,25 @@ struct MacroCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
+            HStack {
+                Image(imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 18, height: 18)
+                
+                Text(title)
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+            }
+            
             Text(value)
                 .font(.system(size: 18, weight: .bold))
+            
             ProgressView(value: progress)
                 .tint(color)
+                .scaleEffect(x: 1, y: 1.5)
+            
             Text("/ \(limit)")
                 .font(.caption2)
                 .foregroundColor(.secondary)
