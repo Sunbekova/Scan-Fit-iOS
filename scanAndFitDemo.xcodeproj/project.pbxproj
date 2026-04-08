@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		192812932F858F7600C1EDA3 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 192812922F858F7600C1EDA3 /* FirebaseAuth */; };
+		192812952F858F7600C1EDA3 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 192812942F858F7600C1EDA3 /* FirebaseCore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		1928123C2F858D1100C1EDA3 /* scanAndFitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = scanAndFitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -14,7 +19,7 @@
 		1928124E2F858D1300C1EDA3 /* Exceptions for "scanAndFitDemo" folder in "scanAndFitDemo" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				App/Info.plist,
 			);
 			target = 1928123B2F858D1100C1EDA3 /* scanAndFitDemo */;
 		};
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				192812952F858F7600C1EDA3 /* FirebaseCore in Frameworks */,
+				192812932F858F7600C1EDA3 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = scanAndFitDemo;
 			packageProductDependencies = (
+				192812922F858F7600C1EDA3 /* FirebaseAuth */,
+				192812942F858F7600C1EDA3 /* FirebaseCore */,
 			);
 			productName = scanAndFitDemo;
 			productReference = 1928123C2F858D1100C1EDA3 /* scanAndFitDemo.app */;
@@ -107,6 +116,9 @@
 			);
 			mainGroup = 192812332F858D1100C1EDA3;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				192812912F858F7600C1EDA3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1928123D2F858D1100C1EDA3 /* Products */;
 			projectDirPath = "";
@@ -146,10 +158,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = scanAndFitDemo/Info.plist;
+				INFOPLIST_FILE = scanAndFitDemo/App/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -173,10 +184,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = scanAndFitDemo/Info.plist;
+				INFOPLIST_FILE = scanAndFitDemo/App/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -333,6 +343,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		192812912F858F7600C1EDA3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.12.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		192812922F858F7600C1EDA3 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 192812912F858F7600C1EDA3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		192812942F858F7600C1EDA3 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 192812912F858F7600C1EDA3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 192812342F858D1100C1EDA3 /* Project object */;
 }

@@ -1,22 +1,37 @@
 //
 //  SceneDelegate.swift
-//  scanAndFitDemo
+//  scanFit
 //
-//  Created by Aisha Suanbekova Bakytjankyzy on 08.04.2026.
+//  Created by Aisha Suanbekova Bakytjankyzy on 07.04.2026.
 //
 
 import UIKit
+import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    let authViewModel = AuthViewModel()
+    let trackerViewModel = TrackerViewModel()
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        let rootView = RootView()
+            .environmentObject(authViewModel)
+            .environmentObject(trackerViewModel)
+
+                // 👇 Wrap it in UIHostingController
+        let hostingController = UIHostingController(rootView: rootView)
+
+                // 👇 Set as root
+        let window = UIWindow(windowScene: windowScene)
+        window.rootViewController = hostingController
+        self.window = window
+        window.makeKeyAndVisible()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

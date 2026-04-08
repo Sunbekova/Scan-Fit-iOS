@@ -101,9 +101,9 @@ struct APIProduct: Codable {
             proteins: prot,
             fat: fatStr,
             carbs: carbStr,
+            sodium: sodiumStr,
             sugars: sugarStr,
             fiber: fiberStr,
-            sodium: sodiumStr,
             ingredients: ingredientsTextEn ?? ingredientsText
         )
     }
