@@ -23,5 +23,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Release any resources specific to discarded scenes
     }
 }
-
-//private struct _MigrationGuide {}

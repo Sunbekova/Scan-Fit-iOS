@@ -25,7 +25,7 @@ actor NetworkService {
     static let shared = NetworkService()
 
     private let openFoodFactsBaseURL = "https://world.openfoodfacts.org"
-    private let aiBaseURL = "http://172.20.10.9" //сотка
+    private var aiBaseURL: String { AppConfig.aiServiceBaseURL }
     //private let aiBaseURL = "http://192.168.0.105" //вайфай
 
     private let session: URLSession = {
@@ -35,11 +35,8 @@ actor NetworkService {
         return URLSession(configuration: config)
     }()
 
-    private let decoder: JSONDecoder = {
-        let d = JSONDecoder()
-        return d
-    }()
-
+    private let decoder = JSONDecoder()
+    
     // MARK: - Open Food Facts
 
     func searchProducts(query: String, pageSize: Int = 50) async throws -> [APIProduct] {
@@ -72,41 +69,22 @@ actor NetworkService {
         return response.products
     }
 
-    // MARK: - AI Analysis
+    // MARK: - ии
 
     func analyzeImageScan(imageData: Data, healthInfo: String) async throws -> AnalysisResponse {
-        let url = URL(string: "\(aiBaseURL)/analyze-scan")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-
-        var body = Data()
-        body.appendMultipart(boundary: boundary, name: "file", filename: "scan.jpg", mimeType: "image/jpeg", data: imageData)
-        body.appendMultipartText(boundary: boundary, name: "health_info", value: healthInfo)
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        request.httpBody = body
-
-        let (data, response) = try await session.data(for: request)
-        try validateResponse(response)
-        return try decoder.decode(AnalysisResponse.self, from: data)
+        try await AINetworkService.shared.analyzeImageScan(
+            imageData: imageData,
+            healthInfo: healthInfo
+        )
     }
 
     func analyzeIngredients(ingredients: String, healthInfo: String) async throws -> AnalysisResponse {
-        let url = URL(string: "\(aiBaseURL)/ingredient")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let body = ["ingredients": ingredients, "health_info": healthInfo]
-        request.httpBody = try JSONEncoder().encode(body)
-
-        let (data, response) = try await session.data(for: request)
-        try validateResponse(response)
-        return try decoder.decode(AnalysisResponse.self, from: data)
+        try await AINetworkService.shared.analyzeIngredients(
+            ingredients: ingredients,
+            healthInfo: healthInfo
+        )
     }
-
+    
     private func get<T: Decodable>(url: URL) async throws -> T {
         let (data, response) = try await session.data(from: url)
         try validateResponse(response)
@@ -144,3 +122,11 @@ extension Data {
         append("\r\n".data(using: .utf8)!)
     }
 }
+
+private func addAuthHeader(_ request: inout URLRequest) throws {
+    guard let bearer = TokenManager.shared.bearerToken else {
+        throw NetworkError.invalidResponse
+    }
+    request.setValue(bearer, forHTTPHeaderField: "Authorization")
+}
+

@@ -9,7 +9,7 @@ actor BackendAuthService {
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest  = 30
+        config.timeoutIntervalForRequest = 30
         config.timeoutIntervalForResource = 60
         return URLSession(configuration: config)
     }()
@@ -30,7 +30,6 @@ actor BackendAuthService {
     }
 
     // POST /api/v1/auth/login
-
     func login(email: String, password: String) async throws -> BackendAuthResponse {
         let body = BackendLoginRequest(email: email, password: password)
         return try await post(path: "/api/v1/auth/login", body: body)
@@ -43,14 +42,12 @@ actor BackendAuthService {
     }
 
     // POST /api/v1/auth/refresh
-
     func refreshToken(_ refreshToken: String) async throws -> BackendAuthResponse {
         let body = BackendRefreshTokenRequest(refreshToken: refreshToken)
         return try await post(path: "/api/v1/auth/refresh", body: body)
     }
 
     // POST /api/v1/auth/password/forgot
-
     func forgotPassword(email: String) async throws -> BackendBaseResponse {
         let body = BackendForgotPasswordRequest(email: email)
         return try await post(path: "/api/v1/auth/password/forgot", body: body)
@@ -64,7 +61,6 @@ actor BackendAuthService {
     }
 
     // POST /api/v1/auth/password/reset
-
     func resetPassword(email: String, token: String, newPassword: String) async throws -> BackendBaseResponse {
         let body = BackendResetPasswordRequest(
             email: email,
@@ -94,7 +90,11 @@ actor BackendAuthService {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        if authenticated, let bearer = TokenManager.shared.bearerToken {
+        
+        if authenticated {
+            guard let bearer = TokenManager.shared.bearerToken else {
+                throw BackendError.notAuthenticated
+            }
             request.setValue(bearer, forHTTPHeaderField: "Authorization")
         }
         return request
@@ -103,14 +103,14 @@ actor BackendAuthService {
     private func execute<T: Decodable>(_ request: URLRequest) async throws -> T {
         let (data, response) = try await session.data(for: request)
 
-        print("URL:", request.url?.absoluteString ?? "")
-        print("RAW RESPONSE:", String(data: data, encoding: .utf8) ?? "nil")
+        print("URL: \(request.url?.absoluteString ?? "Unknown")")
+        print("RAW RESPONSE: \(String(data: data, encoding: .utf8) ?? "nil")")
 
         guard let http = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
         }
 
-        print("STATUS:", http.statusCode)
+        print("STATUS: \(http.statusCode)")
 
         guard (200..<300).contains(http.statusCode) else {
             if let errResponse = try? decoder.decode(BackendBaseResponse.self, from: data) {
@@ -122,7 +122,7 @@ actor BackendAuthService {
         do {
             return try decoder.decode(T.self, from: data)
         } catch {
-            print("DECODING FAILED:", error)
+            print("DECODING FAILED: \(error)")
             throw NetworkError.decodingError(error)
         }
     }
@@ -140,6 +140,5 @@ enum BackendError: LocalizedError {
         }
     }
 }
-
 
 private struct EmptyBody: Encodable {}

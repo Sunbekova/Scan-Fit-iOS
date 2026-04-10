@@ -9,7 +9,7 @@ actor BackendUserService {
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest  = 30
+        config.timeoutIntervalForRequest = 30
         config.timeoutIntervalForResource = 60
         return URLSession(configuration: config)
     }()
@@ -51,7 +51,6 @@ actor BackendUserService {
         return try await put(path: "/api/v1/user/diet-type/update/\(id)", body: req)
     }
 
-
     /// GET /api/v1/user/dietary-preference/list
     func getDietaryPreferences() async throws -> BackendDietTypeListResponse {
         return try await get(path: "/api/v1/user/dietary-preference/list")
@@ -75,7 +74,6 @@ actor BackendUserService {
         return try await put(path: "/api/v1/user/health-condition/update/\(id)", body: req)
     }
 
-
     /// GET /api/v1/user/disease/list
     func getDiseases() async throws -> BackendDiseaseListResponse {
         return try await get(path: "/api/v1/user/disease/list")
@@ -86,7 +84,6 @@ actor BackendUserService {
         let req = BackendUpdateDiseaseRequest(diseaseLevelId: diseaseLevelId, isActive: isActive)
         return try await put(path: "/api/v1/user/disease/update/\(id)", body: req)
     }
-
 
     /// GET /api/v1/user/disease-level/list
     func getDiseaseLevels() async throws -> BackendDiseaseLevelListResponse {
@@ -158,12 +155,17 @@ actor BackendUserService {
             await MainActor.run { TokenManager.shared.clearAll() }
             throw BackendError.apiError("Session expired. Please log in again.")
         }
+        
         guard (200..<300).contains(http.statusCode) else {
             if let errResponse = try? decoder.decode(BackendBaseResponse.self, from: data) {
-                throw BackendError.apiError(errResponse.message ?? "Server error \(http.statusCode)")
+                let raw = String(data: data, encoding: .utf8) ?? "No body"
+                print("422 ERROR BODY:", raw)
+
+                throw BackendError.apiError(errResponse.message ?? raw)
             }
             throw NetworkError.serverError(http.statusCode)
         }
+        
         do {
             return try decoder.decode(T.self, from: data)
         } catch {

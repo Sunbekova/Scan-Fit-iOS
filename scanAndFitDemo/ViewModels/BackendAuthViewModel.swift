@@ -9,20 +9,24 @@ final class BackendAuthViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isLoading = false
 
-    @Published var pinSent     = false
+    @Published var pinSent = false
     @Published var pinVerified = false
-    @Published var resetToken  = ""
+    private(set) var resetToken = ""
 
-    private let auth    = BackendAuthService.shared
+    private let auth = BackendAuthService.shared
     private let userSvc = BackendUserService.shared
-    private let tokens  = TokenManager.shared
+    private let tokens = TokenManager.shared
 
     var currentUser: BackendUserAccountData? {
-            user
-        }
-    
+        user
+    }
+
+    var userId: Int? {
+        tokens.userId
+    }
+
     var displayName: String {
-            user?.username ?? "User"
+        user?.username ?? user?.email ?? "User"
     }
     
 
@@ -36,10 +40,13 @@ final class BackendAuthViewModel: ObservableObject {
             state = .unauthenticated
             return
         }
-        // validate me- /user/me
+
         do {
             let resp = try await userSvc.getMe()
-            if resp.success {
+            if resp.success == true, let data = resp.data {
+                self.user = data
+                tokens.userId = data.id
+
                 let completed = UserDefaults.standard.bool(forKey: "profile_completed")
                 state = completed ? .authenticated : .profileIncomplete
             } else {
@@ -52,29 +59,34 @@ final class BackendAuthViewModel: ObservableObject {
 
     private func tryRefreshOrLogout() async {
         guard let refresh = tokens.refreshToken else {
-            tokens.clearAll()
-            state = .unauthenticated
+            logout()
             return
         }
+
         do {
             let resp = try await auth.refreshToken(refresh)
-            if resp.success, let data = resp.data {
+            if resp.success == true, let data = resp.data {
                 tokens.saveAuth(data)
+
+                let me = try await userSvc.getMe()
+                if let userData = me.data {
+                    self.user = userData
+                    tokens.userId = userData.id
+                }
+
                 let completed = UserDefaults.standard.bool(forKey: "profile_completed")
                 state = completed ? .authenticated : .profileIncomplete
             } else {
-                tokens.clearAll()
-                state = .unauthenticated
+                logout()
             }
         } catch {
-            tokens.clearAll()
-            state = .unauthenticated
+            logout()
         }
     }
 
 
     func login(email: String, password: String) async {
-        guard validate(email: email, password: password) else { return }
+        guard validateFields(email: email, password: password) else { return }
 
         isLoading = true
         errorMessage = nil
@@ -82,12 +94,13 @@ final class BackendAuthViewModel: ObservableObject {
 
         do {
             let resp = try await auth.login(email: email, password: password)
-            if resp.success, let data = resp.data {
+            if resp.success==true, let data = resp.data {
                 tokens.saveAuth(data)
+
                 let me = try await userSvc.getMe()
                 if let userData = me.data {
-                    tokens.userId = userData.id
                     self.user = userData
+                    tokens.userId = userData.id
                 }
 
                 let completed = UserDefaults.standard.bool(forKey: "profile_completed")
@@ -106,23 +119,26 @@ final class BackendAuthViewModel: ObservableObject {
             errorMessage = "Please enter a username"
             return
         }
-        guard validate(email: email, password: password) else { return }
+        guard validateFields(email: email, password: password) else { return }
+
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
 
         do {
             let resp = try await auth.register(username: username, email: email, password: password)
-            if resp.success, let data = resp.data {
+            if resp.success == true, let data = resp.data {
                 tokens.saveAuth(data)
 
                 let me = try await userSvc.getMe()
                 if let userData = me.data {
-                    tokens.userId = userData.id
                     self.user = userData
+                    tokens.userId = userData.id
                 }
 
                 state = .profileIncomplete
+            } else {
+                errorMessage = resp.message ?? "Registration failed"
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -133,10 +149,15 @@ final class BackendAuthViewModel: ObservableObject {
     func signOut() {
         Task {
             _ = try? await auth.logout()
-            tokens.clearAll()
-            UserDefaults.standard.removeObject(forKey: "profile_completed")
-            state = .unauthenticated
+            logout()
         }
+    }
+
+    private func logout() {
+        tokens.clearAll()
+        UserDefaults.standard.removeObject(forKey: "profile_completed")
+        user = nil
+        state = .unauthenticated
     }
 
 
@@ -145,13 +166,14 @@ final class BackendAuthViewModel: ObservableObject {
             errorMessage = "Please enter your email"
             return
         }
+
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
 
         do {
             let resp = try await auth.forgotPassword(email: email)
-            if resp.success ?? false{
+            if resp.success == true {
                 pinSent = true
             } else {
                 errorMessage = resp.message ?? "Could not send PIN"
@@ -167,14 +189,15 @@ final class BackendAuthViewModel: ObservableObject {
             errorMessage = "Please enter the PIN"
             return
         }
+
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
 
         do {
             let resp = try await auth.verifyPin(email: email, pin: pin)
-            if resp.success, let data = resp.data {
-                resetToken  = data.token
+            if resp.success == true, let data = resp.data {
+                resetToken = data.token
                 pinVerified = true
             } else {
                 errorMessage = resp.message ?? "Invalid PIN"
@@ -186,24 +209,21 @@ final class BackendAuthViewModel: ObservableObject {
 
 
     func resetPassword(email: String, newPassword: String) async {
-        guard !resetToken.isEmpty else {
-            errorMessage = "PIN verification required first"
-            return
-        }
         guard newPassword.count >= 6 else {
             errorMessage = "Password must be at least 6 characters"
             return
         }
+
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
 
         do {
             let resp = try await auth.resetPassword(email: email, token: resetToken, newPassword: newPassword)
-            if resp.success ?? false{
-                pinSent     = false
+            if resp.success == true{
+                pinSent = false
                 pinVerified = false
-                resetToken  = ""
+                resetToken = ""
                 state = .unauthenticated
             } else {
                 errorMessage = resp.message ?? "Reset failed"
@@ -213,24 +233,23 @@ final class BackendAuthViewModel: ObservableObject {
         }
     }
 
-
-    var userId: Int? { tokens.userId }
-
     func markProfileCompleted() {
         UserDefaults.standard.set(true, forKey: "profile_completed")
         state = .authenticated
     }
 
 
-    private func validate(email: String, password: String) -> Bool {
+    private func validateFields(email: String, password: String) -> Bool {
         guard !email.isEmpty, !password.isEmpty else {
             errorMessage = "Please fill in all fields"
             return false
         }
+
         guard password.count >= 6 else {
             errorMessage = "Password must be at least 6 characters"
             return false
         }
+
         return true
     }
 }

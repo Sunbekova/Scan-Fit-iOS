@@ -23,10 +23,11 @@ struct ForgotPasswordView: View {
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(Color(red: 0.1, green: 0.15, blue: 0.2))
 
-                    Text("Enter your email and we'll send reset instuctions.")
+                    Text("Enter your email and we'll send a 6-digit verification PIN.")
                         .font(.system(size: 16))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
                 }
                 .padding(.bottom, 40)
 
@@ -54,16 +55,18 @@ struct ForgotPasswordView: View {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         } else {
-                            Text("Send reset link")
+                            Text("Send PIN")
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(.white)
                         }
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 55)
-                    .background(Color("AppGreen")
-                    .cornerRadius(27.5)
-                    .shadow(color: Color("AppGreen").opacity(0.3), radius: 10, x: 0, y: 5))
+                    .background(
+                        Color("AppGreen")
+                            .cornerRadius(27.5)
+                            .shadow(color: Color("AppGreen").opacity(0.3), radius: 10, x: 0, y: 5)
+                    )
                 }
                 .disabled(email.isEmpty || authVM.isLoading)
                 .padding(.horizontal, 24)
@@ -79,7 +82,7 @@ struct ForgotPasswordView: View {
                     } label: {
                         Text("Sign in")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(Color(red: 0.9, green: 0.3, blue: 0.1)) // Orange color
+                            .foregroundColor(Color(red: 0.9, green: 0.3, blue: 0.1))
                     }
                 }
                 .padding(.top, 40)
@@ -88,11 +91,12 @@ struct ForgotPasswordView: View {
                 Spacer()
             }
             .background(Color.white.ignoresSafeArea())
-            .navigationDestination(isPresented: $showVerifyPin) {
-                VerifyPinView(email: email, authVM: authVM)
-            }
+            
             .onChange(of: authVM.pinSent) { sent in
                 if sent { showVerifyPin = true }
+            }
+            .navigationDestination(isPresented: $showVerifyPin) {
+                VerifyPinView(email: email, authVM: authVM)
             }
         }
     }

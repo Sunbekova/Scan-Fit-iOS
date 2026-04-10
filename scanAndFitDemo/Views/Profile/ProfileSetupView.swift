@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ProfileSetupView: View {
     @EnvironmentObject private var authVM: BackendAuthViewModel
+    @StateObject private var profileVM = UserProfileViewModel()
+    
     @State private var heightCm = ""
     @State private var weightKg = ""
     @State private var birthdate = Date()
@@ -9,14 +11,20 @@ struct ProfileSetupView: View {
     @State private var showDatePicker = false
     @State private var goToDietSelection = false
     
-    private let userDefaults = UserDefaults.standard
-    
     enum Gender: String, CaseIterable {
         case male = "Guy"
         case female = "Gal"
         case preferNotToSay = "Prefer not to say"
         
         var label: String {
+            switch self {
+            case .male: return "Male"
+            case .female: return "Female"
+            case .preferNotToSay: return "Other"
+            }
+        }
+        
+        var backendValue: String {
             switch self {
             case .male: return "Male"
             case .female: return "Female"
@@ -78,8 +86,7 @@ struct ProfileSetupView: View {
                             showDatePicker.toggle()
                         } label: {
                             HStack {
-                                Image(systemName: "calendar")
-                                    .foregroundColor(.secondary)
+                                Image(systemName: "calendar").foregroundColor(.secondary)
                                 Text(birthdate.formatted(date: .abbreviated, time: .omitted))
                                     .foregroundColor(.primary)
                                 Spacer()
@@ -98,24 +105,80 @@ struct ProfileSetupView: View {
                         }
                     }
                     
-                    SFPrimaryButton(title: "Continue") { saveAndContinue() }
-                        .padding(.top, 8)
+                    if let error = profileVM.errorMessage {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                    }
+                    
+                    SFPrimaryButton(title: "Continue", isLoading: profileVM.isLoading) {
+                        Task { await saveAndContinue() }
+                    }
+                    .padding(.top, 8)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
             }
-            .navigationDestination(isPresented: $goToDietSelection) { DietSelectionView() }
+            .navigationDestination(isPresented: $goToDietSelection) {
+                DietSelectionView()
+                    .environmentObject(authVM)
+                    .environmentObject(profileVM)
+            }
+        }
+        .onAppear {
+            Task {
+                await profileVM.loadAll()
+                // Pre-fill UI fields from VM data if they exist
+                if profileVM.hasMeasure {
+                    heightCm = String(profileVM.height)
+                    weightKg = String(profileVM.weight)
+                    
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "yyyy-MM-dd"
+                    formatter.locale = Locale(identifier: "en_US_POSIX")
+                    
+                    profileVM.birthDate = formatter.string(from: birthdate)
+                    if let date = formatter.date(from: profileVM.birthDate) {
+                        birthdate = date
+                    }
+                    
+                    if let matchedGender = Gender.allCases.first(where: { $0.backendValue == profileVM.gender }) {
+                        gender = matchedGender
+                    }
+                }
+            }
         }
     }
     
-    private func saveAndContinue() {
-        guard let uid = authVM.currentUser?.id else { return }
+    
+    private func saveAndContinue() async {
+        guard !heightCm.isEmpty, !weightKg.isEmpty else {
+            profileVM.errorMessage = "Please enter your height and weight"
+            return
+        }
+        
         let formatter = DateFormatter()
-        formatter.dateFormat = "dd.MM.yyyy"
-        userDefaults.set(heightCm, forKey: "user_height_\(uid)")
-        userDefaults.set(weightKg, forKey: "user_weight_\(uid)")
-        userDefaults.set(gender.rawValue, forKey: "user_gender_\(uid)")
-        userDefaults.set(formatter.string(from: birthdate), forKey: "user_birthdate_\(uid)")
-        goToDietSelection = true
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        
+        let ageYears = Calendar.current.dateComponents([.year], from: birthdate, to: Date()).year ?? 0
+        
+        guard ageYears > 0 else {
+            profileVM.errorMessage = "Invalid birth date"
+            return
+        }
+        
+        profileVM.height = Int(heightCm) ?? 170
+        profileVM.weight = Int(weightKg) ?? 70
+        profileVM.gender = gender.backendValue
+        profileVM.birthDate = formatter.string(from: birthdate)
+        profileVM.age = String(ageYears)
+        
+        await profileVM.saveMeasures()
+        
+        if profileVM.errorMessage == nil {
+            goToDietSelection = true
+        }
     }
 }

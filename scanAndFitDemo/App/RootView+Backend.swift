@@ -13,7 +13,6 @@ struct RootViewBackend: View {
                 .environmentObject(authVM)
 
         case .profileIncomplete:
-            // Navigate to profile setup — backend user exists but no measures yet
             ProfileSetupBackendView()
                 .environmentObject(authVM)
 
@@ -105,7 +104,7 @@ private struct ProfileSetupContent: View {
 
                 Button {
                     Task {
-                        profileVM.age    = age
+                        profileVM.age = age
                         profileVM.gender = gender
                         profileVM.height = Int(height)
                         profileVM.weight = Int(weight)
@@ -138,7 +137,7 @@ private struct ProfileSetupContent: View {
                     sectionHeader("Diet Type")
                     ForEach(profileVM.dietTypes) { item in
                         toggleRow(name: item.name, isActive: item.isActive) {
-                            Task { await profileVM.toggleDietType(id: item.id, isActive: !item.isActive) }
+                            Task { await profileVM.toggleDietType(item) }
                         }
                     }
                 }
@@ -147,7 +146,7 @@ private struct ProfileSetupContent: View {
                     sectionHeader("Health Conditions")
                     ForEach(profileVM.healthConditions) { item in
                         toggleRow(name: item.name, isActive: item.isActive) {
-                            Task { await profileVM.toggleHealthCondition(id: item.id, isActive: !item.isActive) }
+                            Task { await profileVM.toggleHealthCondition(item) }
                         }
                     }
                 }

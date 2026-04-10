@@ -2,17 +2,8 @@ import SwiftUI
 
 struct UserProfileView: View {
     @EnvironmentObject private var authVM: BackendAuthViewModel
+    @StateObject private var profileVM = UserProfileViewModel()
     @Environment(\.dismiss) private var dismiss
-    private let userDefaults = UserDefaults.standard
-
-    private var uid: Int { authVM.currentUser?.id ?? 0 }
-    private var email: String { authVM.currentUser?.email ?? "—" }
-    private var displayName: String { authVM.displayName }
-    private var height: String { userDefaults.string(forKey: "user_height_\(uid)") ?? "—" }
-    private var weight: String { userDefaults.string(forKey: "user_weight_\(uid)") ?? "—" }
-    private var birthdate: String { userDefaults.string(forKey: "user_birthdate_\(uid)") ?? "—" }
-    private var gender: String { userDefaults.string(forKey: "user_gender_\(uid)") ?? "—" }
-    private var diseases: [String] { userDefaults.stringArray(forKey: "user_diseases") ?? [] }
 
     var body: some View {
         ScrollView {
@@ -22,60 +13,102 @@ struct UserProfileView: View {
                         .fill(Color("AppGreen").opacity(0.15))
                         .frame(width: 88, height: 88)
                         .overlay(
-                            Text(String(authVM.displayName.prefix(1)).uppercased())
+                            Text(String((profileVM.username.isEmpty
+                                         ? profileVM.email
+                                         : profileVM.username).prefix(1)).uppercased())
                                 .font(.system(size: 36, weight: .bold))
                                 .foregroundColor(Color("AppGreen"))
                         )
-                    Text(displayName)
-                    Text(email)
+                    
+                    Text(profileVM.username.isEmpty ? profileVM.email : profileVM.username)
                         .font(.title2).fontWeight(.bold)
-                    Text(String(displayName.prefix(1)).uppercased())                        .font(.subheadline).foregroundColor(.secondary)
+                    
+                    Text(profileVM.email)
+                        .font(.subheadline).foregroundColor(.secondary)
                 }
                 .padding(.top, 16)
 
-                HStack(spacing: 0) {
-                    StatItem(label: "Height", value: "\(height) cm")
-                    Divider()
-                    StatItem(label: "Weight", value: "\(weight) kg")
-                    Divider()
-                    StatItem(label: "Born", value: birthdate)
-                }
-                .frame(height: 70)
-                .background(Color(.systemGray6))
-                .cornerRadius(14)
+                if profileVM.isLoading {
+                    ProgressView()
+                        .padding(.top, 50)
+                } else {
+                    
+                    HStack(spacing: 0) {
+                        StatItem(label: "Height",
+                                 value: profileVM.height > 0 ? "\(profileVM.height) cm" : "—")
+                        Divider()
+                        StatItem(label: "Weight",
+                                 value: profileVM.weight > 0 ? "\(profileVM.weight) kg" : "—")
+                        Divider()
+                        StatItem(label: "Born",
+                                 value: profileVM.birthDate.isEmpty ? "-" : profileVM.birthDate)
+                    }
+                    .frame(height: 70)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(14)
 
-                if !diseases.isEmpty {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Health Conditions")
-                            .font(.headline)
-                        FlowLayout(spacing: 8) {
-                            ForEach(diseases, id: \.self) { tag in
-                                Text(tag)
-                                    .font(.caption)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
-                                    .background(Color("AppGreen").opacity(0.15))
-                                    .foregroundColor(Color("AppGreen"))
-                                    .cornerRadius(20)
+                    let activeTags = (profileVM.healthConditions.filter(\.isActive).map(\.name)
+                                    + profileVM.diseases.filter(\.isActive).map(\.name))
+                    
+                    if !activeTags.isEmpty {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Health Conditions")
+                                .font(.headline)
+                            
+                            FlowLayout(spacing: 8) {
+                                ForEach(activeTags, id: \.self) { tag in
+                                    Text(tag)
+                                        .font(.caption)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(Color("AppGreen").opacity(0.15))
+                                        .foregroundColor(Color("AppGreen"))
+                                        .cornerRadius(20)
+                                }
                             }
                         }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(16)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(14)
-                    .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
-                }
-
-                Button(role: .destructive) {
-                    authVM.signOut()
-                } label: {
-                    Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.red.opacity(0.1))
-                        .foregroundColor(.red)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(16)
+                        .background(Color(.systemBackground))
                         .cornerRadius(14)
+                        .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
+                    }
+                    
+                    let activeDiets = profileVM.dietTypes.filter(\.isActive).map(\.name)
+                    if !activeDiets.isEmpty {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Diet Preferences")
+                                .font(.headline)
+                            
+                            FlowLayout(spacing: 8) {
+                                ForEach(activeDiets, id: \.self) { tag in
+                                    Text(tag)
+                                        .font(.caption)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(Color.blue.opacity(0.1))
+                                        .foregroundColor(.blue)
+                                        .cornerRadius(20)
+                                }
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(16)
+                        .background(Color(.systemBackground))
+                        .cornerRadius(14)
+                        .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
+                    }
+
+                    Button(role: .destructive) {
+                        authVM.signOut()
+                    } label: {
+                        Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.red.opacity(0.1))
+                            .foregroundColor(.red)
+                            .cornerRadius(14)
+                    }
                 }
             }
             .padding(.horizontal, 20)
@@ -86,9 +119,13 @@ struct UserProfileView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button { dismiss() } label: {
-                    Image(systemName: "chevron.left").foregroundColor(Color("AppGreen"))
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(Color("AppGreen"))
                 }
             }
+        }
+        .task {
+            await profileVM.loadAll()
         }
     }
 }
@@ -105,7 +142,6 @@ struct StatItem: View {
         .frame(maxWidth: .infinity)
     }
 }
-
 
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8

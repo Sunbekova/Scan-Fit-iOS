@@ -5,8 +5,12 @@ struct VerifyPinView: View {
     @ObservedObject var authVM: BackendAuthViewModel
     @Environment(\.dismiss) private var dismiss
     
-    @State private var pin = ""
+    @State private var digits = Array(repeating: "", count: 6)
+    @FocusState private var focusedIndex: Int?
     @State private var showResetPassword = false
+    
+    private var pinCode: String { digits.joined() }
+    private var isComplete: Bool { digits.allSatisfy { $0.count == 1 } }
     
     let appBlue = Color("AppGreen")
     let appLinkOrange = Color(red: 0.95, green: 0.35, blue: 0.15)
@@ -32,10 +36,10 @@ struct VerifyPinView: View {
                     Spacer().frame(height: 12)
                     
                     Group {
-                        Text("Enter the6-digit verification code sent to ")
+                        Text("Enter the 6-digit verification code sent to ")
                         + Text(email)
-                        .fontWeight(.bold)
-                        .foregroundColor(.black)
+                            .fontWeight(.bold)
+                            .foregroundColor(.black)
                     }
                     .font(.system(size: 16))
                     .foregroundColor(.secondary)
@@ -44,21 +48,9 @@ struct VerifyPinView: View {
                     
                     Spacer().frame(height: 40)
                     
-                    HStack(spacing: 8) {
-                        ForEach(0..<6) { index in
-                            if let digitChar = pin.indices.contains(pin.index(pin.startIndex, offsetBy: index)) ? pin[pin.index(pin.startIndex, offsetBy: index)] : nil {
-                                Text(String(digitChar))
-                                    .frame(width: 48, height: 56)
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(8)
-                                    .font(.title2.monospacedDigit().bold())
-                                    .foregroundColor(.primary)
-                            } else {
-                                Text(" ")
-                                    .frame(width: 48, height: 56)
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(8)
-                            }
+                    HStack(spacing: 10) {
+                        ForEach(0..<6, id: \.self) { i in
+                            pinBox(index: i)
                         }
                     }
                     .padding(.horizontal, 24)
@@ -73,23 +65,23 @@ struct VerifyPinView: View {
                     Spacer().frame(height: 32)
                     
                     Button {
-                        Task { await authVM.verifyPin(email: email, pin: pin) }
+                        Task { await authVM.verifyPin(email: email, pin: pinCode) }
                     } label: {
                         if authVM.isLoading {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         } else {
-                            Text("Reset Password")
+                            Text("Verify & Continue")
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(.white)
                         }
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
-                    .background(pin.count < 4 ? appBlue.opacity(0.6) : appBlue)
+                    .background(!isComplete ? appBlue.opacity(0.6) : appBlue)
                     .cornerRadius(28)
                     .shadow(color: appBlue.opacity(0.3), radius: 10, x: 0, y: 5)
-                    .disabled(pin.count < 4 || authVM.isLoading)
+                    .disabled(!isComplete || authVM.isLoading)
                     .padding(.horizontal, 24)
                     
                     Spacer().frame(height: 32)
@@ -120,97 +112,30 @@ struct VerifyPinView: View {
             }
         }
     }
-}
-
-// MARK: - ResetPassword
-
-struct ResetPasswordView: View {
-    let email: String
-    @ObservedObject var authVM: BackendAuthViewModel
-    @Environment(\.dismiss) private var dismiss
-    
-    @State private var newPassword = ""
-    @State private var confirmPassword = ""
-    
-    let appCornerRadius: CGFloat = 28
     
     
-    var body: some View {
-        ZStack {
-            Color.white.ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                Spacer().frame(height: 60)
-                
-                Image(AppImages.mascot)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 100, height: 120)
-                
-                Spacer().frame(height: 40)
-                
-                Text("Reset Password")
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(Color(red: 0.1, green: 0.15, blue: 0.2))
-                
-                Spacer().frame(height: 12)
-                
-                Text("Create a new password that is different from previous passwords.")
-                    .font(.system(size: 16))
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
-                
-                Spacer().frame(height: 40)
-                
-                
-                VStack(spacing: 16) {
-                    CleanSecureField(placeholder: "New password", text: $newPassword)
-                    CleanSecureField(placeholder: "Confirm new password", text: $confirmPassword)
-                }
-                .padding(.horizontal, 24)
-                
-                if let error = authVM.errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .font(.caption)
-                        .padding(.top, 16)
-                }
-                
-                Spacer().frame(height: 32)
-                
-            
-                Button {
-                    Task { await authVM.resetPassword(email: email, newPassword: newPassword) }
-                } label: {
-                    if authVM.isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    } else {
-                        Text("Reset Password")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.white)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(Color("AppGreen"))
-                .cornerRadius(appCornerRadius)
-                .shadow(color: Color("AppGreen").opacity(0.3), radius: 10, x: 0, y: 5)
-                .disabled(!canSubmit || authVM.isLoading)
-                .padding(.horizontal, 24)
-                
-                Spacer()            }
-        }
-        .navigationBarHidden(true)
-        .onChange(of: authVM.state) { newState in
-            if newState == .unauthenticated {
-                dismiss()
+    @ViewBuilder
+    private func pinBox(index: Int) -> some View {
+        TextField("", text: $digits[index])
+            .keyboardType(.numberPad)
+            .textContentType(.oneTimeCode)
+            .multilineTextAlignment(.center)
+            .font(.title2.monospacedDigit().bold())
+            .frame(width: 44, height: 52)
+            .background(Color(.systemGray6))
+            .cornerRadius(10)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(focusedIndex == index ? appBlue : Color.clear, lineWidth: 2)
+            )
+            .focused($focusedIndex, equals: index)
+            .onChange(of: digits[index]) { val in
+                if val.count > 1 { digits[index] = String(val.last!) }
+                if digits[index].count == 1, index < 5 { focusedIndex = index + 1 }
+                if digits[index].isEmpty, index > 0 { focusedIndex = index - 1 }
             }
-        }
-    }
-    
-    private var canSubmit: Bool {
-        newPassword.count >= 6 && newPassword == confirmPassword
+            .onAppear {
+                if index == 0 { focusedIndex = 0 }
+            }
     }
 }

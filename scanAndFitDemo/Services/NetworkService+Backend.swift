@@ -33,7 +33,7 @@ actor AINetworkService {
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest  = 60
+        config.timeoutIntervalForRequest = 60
         config.timeoutIntervalForResource = 180
         return URLSession(configuration: config)
     }()
@@ -42,7 +42,9 @@ actor AINetworkService {
 
 
     func analyzeImageScan(imageData: Data, healthInfo: String) async throws -> AnalysisResponse {
-        let url = URL(string: "\(aiBaseURL)/analyze-scan")!
+        guard let url = URL(string: "\(aiBaseURL)/analyze-scan") else {
+            throw NetworkError.invalidURL
+        }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
 
@@ -63,7 +65,9 @@ actor AINetworkService {
 
 
     func analyzeIngredients(ingredients: String, healthInfo: String) async throws -> AnalysisResponse {
-        let url = URL(string: "\(aiBaseURL)/ingredient")!
+        guard let url = URL(string: "\(aiBaseURL)/ingredient")else {
+            throw NetworkError.invalidURL
+        }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

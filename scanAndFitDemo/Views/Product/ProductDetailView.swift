@@ -201,7 +201,7 @@ struct ProductDetailView: View {
                 HStack {
                     Image(systemName: isGood ? "checkmark.seal.fill" : "xmark.seal.fill")
                         .foregroundColor(isGood ? .green : .red)
-                    Text(isGood ? "✅ Safe to consume" : "❌ Use with caution")
+                    Text(isGood ? "Safe to consume" : "Use with caution")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                     Spacer()
@@ -233,10 +233,10 @@ struct ProductDetailView: View {
                 // AI-only risks list
                 let risks = response.risks ?? []
                 if risks.isEmpty {
-                    NutrientRow(name: "Health Risks", value: "None detected ✨")
+                    NutrientRow(name: "Health Risks", value: "None detected")
                 } else {
                     ForEach(risks, id: \.self) { risk in
-                        NutrientRow(name: "⚠️ Risk", value: risk)
+                        NutrientRow(name: "Risk", value: risk)
                         Divider()
                     }
                 }

@@ -64,6 +64,7 @@ struct BackendAuthResponse: Codable {
 }
 
 struct BackendAuthData: Codable {
+    let id: Int?
     let accessToken: String
     let expiresIn: Int
     let refreshToken: String
@@ -71,6 +72,7 @@ struct BackendAuthData: Codable {
     let role: BackendUserRole?
 
     enum CodingKeys: String, CodingKey {
+        case id
         case accessToken = "access_token"
         case expiresIn = "expires_in"
         case refreshToken = "refresh_token"
@@ -333,3 +335,6 @@ struct BackendUserCaloriesData: Codable {
 struct BackendCreateUserCaloriesRequest: Codable {
     let calories: Int
 }
+
+extension BackendDietType: Nameable, Activeable {}
+extension BackendDisease: Nameable, Activeable {}

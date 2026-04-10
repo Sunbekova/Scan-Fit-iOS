@@ -1,9 +1,6 @@
 import Foundation
 import Security
 
-// MARK: - TokenManager
-// Mirrors Android's SessionManager — stores access token, refresh token, user ID
-// Uses iOS Keychain for secure storage (more secure than UserDefaults)
 
 final class TokenManager {
     static let shared = TokenManager()
@@ -12,9 +9,9 @@ final class TokenManager {
     private let service = "com.scanfit.app"
 
     private enum Key: String {
-        case accessToken  = "access_token"
+        case accessToken = "access_token"
         case refreshToken = "refresh_token"
-        case userId       = "user_id"
+        case userId = "user_id"
     }
 
 
@@ -26,7 +23,6 @@ final class TokenManager {
         }
     }
 
-
     var refreshToken: String? {
         get { load(key: .refreshToken) }
         set {
@@ -34,7 +30,6 @@ final class TokenManager {
             else { delete(key: .refreshToken) }
         }
     }
-
 
     var userId: Int? {
         get {
@@ -53,29 +48,30 @@ final class TokenManager {
         return "Bearer \(token)"
     }
 
-    var isLoggedIn: Bool { accessToken != nil }
-
-
-    func saveAuth(_ data: BackendAuthData) {
-        accessToken  = data.accessToken
-        refreshToken = data.refreshToken
+    var isLoggedIn: Bool {
+        accessToken != nil
     }
 
+    func saveAuth(_ data: BackendAuthData) {
+        accessToken = data.accessToken
+        refreshToken = data.refreshToken
+        userId = data.id
+    }
 
     func clearAll() {
-        accessToken  = nil
+        accessToken = nil
         refreshToken = nil
-        userId       = nil
+        userId = nil
     }
 
 
     private func save(key: Key, value: String) {
         let data = Data(value.utf8)
         let query: [CFString: Any] = [
-            kSecClass:       kSecClassGenericPassword,
+            kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
             kSecAttrAccount: key.rawValue,
-            kSecValueData:   data
+            kSecValueData: data
         ]
         SecItemDelete(query as CFDictionary)
         SecItemAdd(query as CFDictionary, nil)
@@ -83,23 +79,27 @@ final class TokenManager {
 
     private func load(key: Key) -> String? {
         let query: [CFString: Any] = [
-            kSecClass:            kSecClassGenericPassword,
-            kSecAttrService:      service,
-            kSecAttrAccount:      key.rawValue,
-            kSecReturnData:       true,
-            kSecMatchLimit:       kSecMatchLimitOne
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
+            kSecAttrAccount: key.rawValue,
+            kSecReturnData: true,
+            kSecMatchLimit: kSecMatchLimitOne
         ]
+        
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
+        
         guard status == errSecSuccess,
               let data = result as? Data,
-              let str = String(data: data, encoding: .utf8) else { return nil }
+              let str = String(data: data, encoding: .utf8) else {
+            return nil
+        }
         return str
     }
 
     private func delete(key: Key) {
         let query: [CFString: Any] = [
-            kSecClass:       kSecClassGenericPassword,
+            kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
             kSecAttrAccount: key.rawValue
         ]
