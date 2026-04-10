@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - Network Error
-
 enum NetworkError: LocalizedError {
     case invalidURL
     case invalidResponse
@@ -22,14 +20,13 @@ enum NetworkError: LocalizedError {
     }
 }
 
-// MARK: - Network Service
 
 actor NetworkService {
     static let shared = NetworkService()
 
     private let openFoodFactsBaseURL = "https://world.openfoodfacts.org"
-    //private let aiBaseURL = "http://172.20.10.9" //сотка
-    private let aiBaseURL = "http://192.168.0.103" //вайфай
+    private let aiBaseURL = "http://172.20.10.9" //сотка
+    //private let aiBaseURL = "http://192.168.0.105" //вайфай
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
@@ -110,8 +107,6 @@ actor NetworkService {
         return try decoder.decode(AnalysisResponse.self, from: data)
     }
 
-    // MARK: - Generic GET
-
     private func get<T: Decodable>(url: URL) async throws -> T {
         let (data, response) = try await session.data(from: url)
         try validateResponse(response)
@@ -132,7 +127,6 @@ actor NetworkService {
     }
 }
 
-// MARK: - Data Extension for Multipart
 
 extension Data {
     mutating func appendMultipart(boundary: String, name: String, filename: String, mimeType: String, data: Data) {

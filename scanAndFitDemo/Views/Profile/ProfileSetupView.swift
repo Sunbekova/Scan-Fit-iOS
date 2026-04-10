@@ -1,21 +1,21 @@
 import SwiftUI
 
 struct ProfileSetupView: View {
-    @EnvironmentObject private var authVM: AuthViewModel
+    @EnvironmentObject private var authVM: BackendAuthViewModel
     @State private var heightCm = ""
     @State private var weightKg = ""
     @State private var birthdate = Date()
     @State private var gender: Gender = .preferNotToSay
     @State private var showDatePicker = false
     @State private var goToDietSelection = false
-
+    
     private let userDefaults = UserDefaults.standard
-
+    
     enum Gender: String, CaseIterable {
         case male = "Guy"
         case female = "Gal"
         case preferNotToSay = "Prefer not to say"
-
+        
         var label: String {
             switch self {
             case .male: return "Male"
@@ -24,7 +24,7 @@ struct ProfileSetupView: View {
             }
         }
     }
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -36,7 +36,7 @@ struct ProfileSetupView: View {
                             .font(.subheadline).foregroundColor(.secondary)
                     }
                     .padding(.top, 24)
-
+                    
                     // Gender
                     VStack(alignment: .leading, spacing: 10) {
                         Label("Gender", systemImage: "person.fill")
@@ -53,7 +53,7 @@ struct ProfileSetupView: View {
                             }
                         }
                     }
-
+                    
                     // Height
                     VStack(alignment: .leading, spacing: 10) {
                         Label("Height (cm)", systemImage: "ruler")
@@ -61,7 +61,7 @@ struct ProfileSetupView: View {
                         SFTextField(placeholder: "e.g. 175", text: $heightCm, icon: "ruler")
                             .keyboardType(.numberPad)
                     }
-
+                    
                     // Weight
                     VStack(alignment: .leading, spacing: 10) {
                         Label("Weight (kg)", systemImage: "scalemass")
@@ -69,7 +69,7 @@ struct ProfileSetupView: View {
                         SFTextField(placeholder: "e.g. 70", text: $weightKg, icon: "scalemass")
                             .keyboardType(.numberPad)
                     }
-
+                    
                     // Birthdate
                     VStack(alignment: .leading, spacing: 10) {
                         Label("Date of Birth", systemImage: "calendar")
@@ -97,7 +97,7 @@ struct ProfileSetupView: View {
                                 .labelsHidden()
                         }
                     }
-
+                    
                     SFPrimaryButton(title: "Continue") { saveAndContinue() }
                         .padding(.top, 8)
                 }
@@ -107,9 +107,9 @@ struct ProfileSetupView: View {
             .navigationDestination(isPresented: $goToDietSelection) { DietSelectionView() }
         }
     }
-
+    
     private func saveAndContinue() {
-        guard let uid = authVM.currentUser?.uid else { return }
+        guard let uid = authVM.currentUser?.id else { return }
         let formatter = DateFormatter()
         formatter.dateFormat = "dd.MM.yyyy"
         userDefaults.set(heightCm, forKey: "user_height_\(uid)")

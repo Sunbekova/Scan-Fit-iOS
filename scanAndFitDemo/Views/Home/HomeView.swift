@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    @EnvironmentObject private var authVM: AuthViewModel
+    @EnvironmentObject private var authVM: BackendAuthViewModel
     @EnvironmentObject private var trackerVM: TrackerViewModel
     @State private var showProfile = false
 

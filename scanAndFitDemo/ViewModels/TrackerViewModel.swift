@@ -49,7 +49,7 @@ final class TrackerViewModel: ObservableObject {
         waterGlasses -= 1
     }
 
-    // MARK: - Week Days
+    // MARK: - Week
 
     func weekDays(for date: Date) -> [Date] {
         let calendar = Calendar.current
@@ -64,7 +64,7 @@ final class TrackerViewModel: ObservableObject {
     }
 }
 
-// MARK: - String Extensions
+// MARK: - String
 
 private extension String {
     func toCleanDouble() -> Double {

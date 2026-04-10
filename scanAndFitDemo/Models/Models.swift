@@ -1,8 +1,6 @@
 import Foundation
 import SwiftData
 
-// MARK: - Food Item (in-memory domain model)
-
 struct FoodItem: Identifiable, Codable, Hashable {
     let id: String
 
@@ -161,7 +159,6 @@ struct Nutriments: Codable {
     }
 }
 
-// MARK: - AI Analysis Models
 
 struct AnalysisResponse: Codable {
     let healthScore: Int?

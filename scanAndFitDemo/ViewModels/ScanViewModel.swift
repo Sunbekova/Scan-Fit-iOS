@@ -22,7 +22,7 @@ final class ScanViewModel: ObservableObject {
         return diseases.isEmpty ? "None" : diseases.joined(separator: ", ")
     }
 
-    // MARK: - Analyze captured photo
+    // MARK: - Analyze img
 
     func analyzePhoto(_ image: UIImage) async {
         scanState = .analyzing
@@ -41,7 +41,7 @@ final class ScanViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Analyze text ingredients
+    // MARK: - ingredients
 
     func analyzeIngredients(_ text: String) async {
         scanState = .analyzing
@@ -58,7 +58,6 @@ final class ScanViewModel: ObservableObject {
         capturedImage = nil
     }
 
-    // MARK: - Private Helpers
 
     private func compressImage(_ image: UIImage) -> Data? {
         let maxDimension: CGFloat = 1024

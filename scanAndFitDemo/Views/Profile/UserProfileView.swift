@@ -1,11 +1,13 @@
 import SwiftUI
 
 struct UserProfileView: View {
-    @EnvironmentObject private var authVM: AuthViewModel
+    @EnvironmentObject private var authVM: BackendAuthViewModel
     @Environment(\.dismiss) private var dismiss
     private let userDefaults = UserDefaults.standard
 
-    private var uid: String { authVM.currentUser?.uid ?? "" }
+    private var uid: Int { authVM.currentUser?.id ?? 0 }
+    private var email: String { authVM.currentUser?.email ?? "—" }
+    private var displayName: String { authVM.displayName }
     private var height: String { userDefaults.string(forKey: "user_height_\(uid)") ?? "—" }
     private var weight: String { userDefaults.string(forKey: "user_weight_\(uid)") ?? "—" }
     private var birthdate: String { userDefaults.string(forKey: "user_birthdate_\(uid)") ?? "—" }
@@ -15,7 +17,6 @@ struct UserProfileView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // Avatar
                 VStack(spacing: 10) {
                     Circle()
                         .fill(Color("AppGreen").opacity(0.15))
@@ -25,14 +26,13 @@ struct UserProfileView: View {
                                 .font(.system(size: 36, weight: .bold))
                                 .foregroundColor(Color("AppGreen"))
                         )
-                    Text(authVM.displayName)
+                    Text(displayName)
+                    Text(email)
                         .font(.title2).fontWeight(.bold)
-                    Text(authVM.currentUser?.email ?? "")
-                        .font(.subheadline).foregroundColor(.secondary)
+                    Text(String(displayName.prefix(1)).uppercased())                        .font(.subheadline).foregroundColor(.secondary)
                 }
                 .padding(.top, 16)
 
-                // Stats
                 HStack(spacing: 0) {
                     StatItem(label: "Height", value: "\(height) cm")
                     Divider()
@@ -44,7 +44,6 @@ struct UserProfileView: View {
                 .background(Color(.systemGray6))
                 .cornerRadius(14)
 
-                // Conditions
                 if !diseases.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Health Conditions")
@@ -68,7 +67,6 @@ struct UserProfileView: View {
                     .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
                 }
 
-                // Sign out
                 Button(role: .destructive) {
                     authVM.signOut()
                 } label: {
@@ -108,7 +106,6 @@ struct StatItem: View {
     }
 }
 
-// MARK: - Flow Layout (tag cloud)
 
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8

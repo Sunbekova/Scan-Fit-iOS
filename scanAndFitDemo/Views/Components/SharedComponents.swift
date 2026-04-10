@@ -1,7 +1,5 @@
 import SwiftUI
 
-// MARK: - Primary Button
-
 struct SFPrimaryButton: View {
     let title: String
     var isLoading: Bool = false
@@ -14,80 +12,69 @@ struct SFPrimaryButton: View {
                     ProgressView().tint(.white)
                 } else {
                     Text(title)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 52)
-            .background(isLoading ? Color("AppGreen").opacity(0.7) : Color("AppGreen"))
-            .cornerRadius(14)
+            .frame(height: 56)
+            .background(Color("AppGreen"))
+            .cornerRadius(28)
+            .shadow(color: Color("AppGreen").opacity(0.3), radius: 10, x: 0, y: 5)
         }
         .disabled(isLoading)
     }
 }
 
 // MARK: - Text Field
-
 struct SFTextField: View {
     let placeholder: String
     @Binding var text: String
-    let icon: String
-
+    var icon: String? = nil
+    
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: icon)
-                .foregroundColor(.secondary)
-                .frame(width: 20)
+            if let iconName = icon, !iconName.isEmpty {
+                Image(systemName: iconName)
+                    .foregroundColor(.secondary)
+                    .frame(width: 20)
+            }            
             TextField(placeholder, text: $text)
+                .font(.system(size: 16))
+                .autocapitalization(.none)
         }
-        .padding()
-        .background(Color(.systemGray6))
+        .padding(.horizontal, 20)
+        .frame(height: 56)
+        .background(Color(.systemGray6).opacity(0.6))
         .cornerRadius(12)
     }
 }
 
 // MARK: - Secure Field
-
-struct SFSecureField: View {
+struct CleanSecureField: View {
     let placeholder: String
     @Binding var text: String
-    @Binding var showPassword: Bool
-
+    
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "lock")
-                .foregroundColor(.secondary)
-                .frame(width: 20)
-            Group {
-                if showPassword {
-                    TextField(placeholder, text: $text)
-                } else {
-                    SecureField(placeholder, text: $text)
-                }
-            }
-            Button { showPassword.toggle() } label: {
-                Image(systemName: showPassword ? "eye.slash" : "eye")
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
+        SecureField(placeholder, text: $text)
+            .font(.system(size: 16))
+            .autocapitalization(.none)
+            .textContentType(.newPassword)
+            .padding()
+            .frame(height: 56)
+            .background(Color(.systemGray6).opacity(0.6))
+            .cornerRadius(12)
     }
 }
 
 // MARK: - Food Row View
-
 struct FoodRowView: View {
     let item: FoodItem
     let showFavorite: Bool
     let onFavoriteToggle: (() -> Void)?
 
     var body: some View {
-        HStack(spacing: 12) {
-            // Image
+        HStack(spacing: 16) {
             Group {
                 if let urlStr = item.imageURL, let url = URL(string: urlStr) {
                     AsyncImage(url: url) { phase in
@@ -102,100 +89,77 @@ struct FoodRowView: View {
                     placeholderImage
                 }
             }
-            .frame(width: 56, height: 56)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .frame(width: 60, height: 60)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
 
-            // Info
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .lineLimit(1)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.primary)
+                
                 if let subtitle = item.subtitle, !subtitle.isEmpty {
                     Text(subtitle)
-                        .font(.caption)
+                        .font(.system(size: 14))
                         .foregroundColor(.secondary)
-                        .lineLimit(1)
                 }
-                HStack(spacing: 6) {
+                
+                HStack(spacing: 8) {
                     if let cal = item.calories {
                         Text(cal)
-                            .font(.caption)
+                            .font(.system(size: 12))
                             .foregroundColor(.secondary)
                     }
                     if let grade = item.grade {
-                        Text(grade.uppercased())
-                            .font(.caption2)
-                            .fontWeight(.bold)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(gradeColor(grade).opacity(0.15))
-                            .foregroundColor(gradeColor(grade))
-                            .cornerRadius(4)
+                        GradeBadgeView(grade: grade)
                     }
                 }
             }
 
             Spacer()
 
-            // Favorite icon
             if showFavorite, let toggle = onFavoriteToggle {
                 Button(action: toggle) {
                     Image(systemName: item.isFavorite ? "heart.fill" : "heart")
-                        .foregroundColor(item.isFavorite ? .red : .gray)
+                        .font(.system(size: 20))
+                        .foregroundColor(item.isFavorite ? .red : .gray.opacity(0.5))
                 }
-                .buttonStyle(.plain)
             }
         }
         .padding(12)
-        .background(Color(.systemBackground))
-        .cornerRadius(14)
-        .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(16)
     }
 
     private var placeholderImage: some View {
-        RoundedRectangle(cornerRadius: 10)
+        RoundedRectangle(cornerRadius: 12)
             .fill(Color("AppGreen").opacity(0.1))
             .overlay(
-                Image(systemName: "fork.knife")
+                Image(systemName: "carrot.fill")
                     .foregroundColor(Color("AppGreen").opacity(0.5))
             )
-    }
-
-    private func gradeColor(_ grade: String) -> Color {
-        switch grade.uppercased() {
-        case "A": return .green
-        case "B": return Color(hex: "#8BC34A")
-        case "C": return .yellow
-        case "D": return .orange
-        case "E": return .red
-        default: return .gray
-        }
     }
 }
 
 // MARK: - Grade Badge
-
 struct GradeBadgeView: View {
     let grade: String
 
     var color: Color {
         switch grade.uppercased() {
-        case "A": return Color(hex: "#2E7D32")
-        case "B": return Color(hex: "#8BC34A")
-        case "C": return Color(hex: "#FBC02D")
-        case "D": return Color(hex: "#F57C00")
-        case "E": return Color(hex: "#D32F2F")
+        case "A": return Color.green
+        case "B": return Color.green.opacity(0.7)
+        case "C": return Color.yellow
+        case "D": return Color.orange
+        case "E": return Color.red
         default: return .gray
         }
     }
 
     var body: some View {
         Text(grade.uppercased())
-            .font(.caption)
-            .fontWeight(.bold)
+            .font(.system(size: 12, weight: .black))
             .foregroundColor(.white)
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 10)
             .padding(.vertical, 4)
             .background(color)
             .cornerRadius(6)

@@ -1,13 +1,12 @@
 import SwiftUI
 
 struct DietSelectionView: View {
-    @EnvironmentObject private var authVM: AuthViewModel
+    @EnvironmentObject private var authVM: BackendAuthViewModel
     @State private var selectedItems: Set<String> = []
     @State private var categories: [HealthCategory] = []
 
     private let userDefaults = UserDefaults.standard
 
-    // Built-in diet/condition categories
     private let builtInCategories: [HealthCategory] = [
         HealthCategory(
             id: "diet",
