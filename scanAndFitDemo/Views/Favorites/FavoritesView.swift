@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct FavoritesView: View {
+    @EnvironmentObject private var trackerVM: TrackerViewModel
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \FavoriteProductEntity.productName) private var favorites: [FavoriteProductEntity]
     @State private var selectedItem: FoodItem?
@@ -28,15 +29,14 @@ struct FavoritesView: View {
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button("Clear All", role: .destructive) { deleteAll() }
-                                .foregroundColor(.red)
-                                .font(.subheadline)
+                                .foregroundColor(.red).font(.subheadline)
                         }
                     }
                 }
             }
             .navigationTitle("Favorites")
             .navigationDestination(item: $selectedItem) { item in
-                ProductDetailView(foodItem: item)
+                ProductDetailView(foodItem: item).environmentObject(trackerVM)
             }
         }
     }
@@ -44,21 +44,16 @@ struct FavoritesView: View {
     private var emptyState: some View {
         VStack(spacing: 16) {
             Image(systemName: "heart.slash")
-                .font(.system(size: 60))
-                .foregroundColor(.gray.opacity(0.4))
-            Text("No favorites yet")
-                .font(.headline)
+                .font(.system(size: 60)).foregroundColor(.gray.opacity(0.4))
+            Text("No favorites yet").font(.headline)
             Text("Tap the heart on any product to save it here.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
+                .font(.subheadline).foregroundColor(.secondary)
+                .multilineTextAlignment(.center).padding(.horizontal, 40)
         }
     }
 
     private func removeFavorite(_ fav: FavoriteProductEntity) {
-        modelContext.delete(fav)
-        try? modelContext.save()
+        modelContext.delete(fav); try? modelContext.save()
     }
 
     private func deleteItems(at offsets: IndexSet) {
@@ -67,7 +62,6 @@ struct FavoritesView: View {
     }
 
     private func deleteAll() {
-        favorites.forEach { modelContext.delete($0) }
-        try? modelContext.save()
+        favorites.forEach { modelContext.delete($0) }; try? modelContext.save()
     }
 }

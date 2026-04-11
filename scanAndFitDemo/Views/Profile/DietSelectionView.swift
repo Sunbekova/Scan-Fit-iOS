@@ -54,7 +54,7 @@ struct DietSelectionView: View {
                             items: profileVM.diseases
                         ) { item in
                             let levelId = item.diseaseLevel?.id ?? 1
-                            Task { await profileVM.toggleDisease(item, levelId: levelId) }
+                            Task { await profileVM.toggleDisease(item, levelId: levelId, isActive: !item.isActive) }
                         }
                     }
 

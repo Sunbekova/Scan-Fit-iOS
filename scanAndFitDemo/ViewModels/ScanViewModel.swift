@@ -18,21 +18,34 @@ final class ScanViewModel: ObservableObject {
 
     private let session: URLSession = {
         let cfg = URLSessionConfiguration.default
-        cfg.timeoutIntervalForRequest = 60
-        cfg.timeoutIntervalForResource = 180
+        cfg.timeoutIntervalForRequest = 120
+        cfg.timeoutIntervalForResource = 240
         return URLSession(configuration: cfg)
     }()
-    private let decoder = JSONDecoder()
 
     // MARK: - Health + AI
 
     private var healthInfo: String {
-        if let vm = profileVM, !vm.healthInfoForAI.isEmpty, vm.healthInfoForAI != "None" {
+        if let vm = profileVM, !vm.healthInfoForAI.isEmpty, vm.healthInfoForAI != "None reported" {
             return vm.healthInfoForAI
         }
-        // Backward compatibility for users who haven't updated their profile to the cloud yet
         let legacy = UserDefaults.standard.stringArray(forKey: "user_diseases") ?? []
         return legacy.isEmpty ? "None" : legacy.joined(separator: ", ")
+    }
+
+    private func fetchUserProfileJson() async -> String? {
+        do {
+            let resp = try await BackendUserService.shared.getUserDetails()
+            if let data = resp.data {
+                let encoder = JSONEncoder()
+                encoder.keyEncodingStrategy = .convertToSnakeCase
+                if let jsonData = try? encoder.encode(data),
+                   let str = String(data: jsonData, encoding: .utf8) {
+                    return str
+                }
+            }
+        } catch {}
+        return nil
     }
 
     // MARK: - Analyze img
@@ -61,10 +74,14 @@ final class ScanViewModel: ObservableObject {
 
     func analyzeIngredients(_ text: String) async {
         scanState = .analyzing
+        let userProfileJson = await fetchUserProfileJson()
         do {
-            let response = try await AINetworkService.shared.analyzeIngredients(
+            let response = try await AINetworkService.shared.analyzeIngredientsFull(
                 ingredients: text,
-                healthInfo: healthInfo)
+                healthInfo: userProfileJson != nil ? "User health profile JSON:\n\(userProfileJson!)" : healthInfo,
+                productJson: nil,
+                userProfileJson: userProfileJson
+            )
             scanState = .result(response)
         } catch {
             scanState = .error(error.localizedDescription)
@@ -76,12 +93,10 @@ final class ScanViewModel: ObservableObject {
         capturedImage = nil
     }
 
-
     private func compressImage(_ image: UIImage) -> Data? {
         let maxDimension: CGFloat = 1024
         let scale = min(1.0, maxDimension / max(image.size.width, image.size.height))
-        let targetSize = CGSize(width: image.size.width * scale,
-                                height: image.size.height * scale)
+        let targetSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
         let renderer = UIGraphicsImageRenderer(size: targetSize)
         let resized = renderer.image { _ in image.draw(in: CGRect(origin: .zero, size: targetSize)) }
         return resized.jpegData(compressionQuality: 0.6)

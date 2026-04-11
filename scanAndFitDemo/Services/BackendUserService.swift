@@ -9,69 +9,62 @@ actor BackendUserService {
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 30
-        config.timeoutIntervalForResource = 60
+        config.timeoutIntervalForRequest = 60
+        config.timeoutIntervalForResource = 180
         return URLSession(configuration: config)
     }()
 
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
-
     /// GET /api/v1/user/me
     func getMe() async throws -> BackendUserAccountResponse {
         return try await get(path: "/api/v1/user/me")
     }
 
+    func getUserRole() async throws -> BackendUserRoleResponse {
+        return try await get(path: "/api/v1/user/me/role")
+    }
 
-    /// POST /api/v1/user/measure/create
+    func getUserDetails() async throws -> BackendUserDetailsResponse {
+        return try await get(path: "/api/v1/user/me/details")
+    }
+
     func createMeasure(_ req: BackendUserMeasureRequest) async throws -> BackendUserMeasureResponse {
         return try await post(path: "/api/v1/user/measure/create", body: req)
     }
 
-    /// GET /api/v1/user/measure/get
     func getMeasure() async throws -> BackendUserMeasureResponse {
         return try await get(path: "/api/v1/user/measure/get")
     }
 
-    /// PUT /api/v1/user/measure/update
     func updateMeasure(_ req: BackendUpdateUserMeasureRequest) async throws -> BackendUserMeasureResponse {
         return try await put(path: "/api/v1/user/measure/update", body: req)
     }
 
 
-    /// GET /api/v1/user/diet-type/list
     func getDietTypes() async throws -> BackendDietTypeListResponse {
         return try await get(path: "/api/v1/user/diet-type/list")
     }
 
-    /// PUT /api/v1/user/diet-type/update/:id
     func updateDietType(id: Int, isActive: Bool) async throws -> BackendUpdateDietTypeResponse {
-        let req = BackendUpdateDietTypeRequest(isActive: isActive)
-        return try await put(path: "/api/v1/user/diet-type/update/\(id)", body: req)
+        return try await put(path: "/api/v1/user/diet-type/update/\(id)", body: BackendUpdateDietTypeRequest(isActive: isActive))
     }
 
-    /// GET /api/v1/user/dietary-preference/list
     func getDietaryPreferences() async throws -> BackendDietTypeListResponse {
         return try await get(path: "/api/v1/user/dietary-preference/list")
     }
 
-    /// PUT /api/v1/user/dietary-preference/update/:id
     func updateDietaryPreference(id: Int, isActive: Bool) async throws -> BackendUpdateDietTypeResponse {
-        let req = BackendUpdateDietTypeRequest(isActive: isActive)
-        return try await put(path: "/api/v1/user/dietary-preference/update/\(id)", body: req)
+        return try await put(path: "/api/v1/user/dietary-preference/update/\(id)", body: BackendUpdateDietTypeRequest(isActive: isActive))
     }
 
-
-    /// GET /api/v1/user/health-condition/list
     func getHealthConditions() async throws -> BackendDietTypeListResponse {
         return try await get(path: "/api/v1/user/health-condition/list")
     }
 
-    /// PUT /api/v1/user/health-condition/update/:id
     func updateHealthCondition(id: Int, isActive: Bool) async throws -> BackendUpdateDietTypeResponse {
-        let req = BackendUpdateDietTypeRequest(isActive: isActive)
-        return try await put(path: "/api/v1/user/health-condition/update/\(id)", body: req)
+        return try await put(path: "/api/v1/user/health-condition/update/\(id)", body: BackendUpdateDietTypeRequest(isActive: isActive))
     }
 
     /// GET /api/v1/user/disease/list
@@ -79,40 +72,70 @@ actor BackendUserService {
         return try await get(path: "/api/v1/user/disease/list")
     }
 
-    /// PUT /api/v1/user/disease/update/:id
     func updateDisease(id: Int, diseaseLevelId: Int, isActive: Bool) async throws -> BackendUpdateDietTypeResponse {
-        let req = BackendUpdateDiseaseRequest(diseaseLevelId: diseaseLevelId, isActive: isActive)
-        return try await put(path: "/api/v1/user/disease/update/\(id)", body: req)
+        return try await put(path: "/api/v1/user/disease/update/\(id)", body: BackendUpdateDiseaseRequest(diseaseLevelId: diseaseLevelId, isActive: isActive))
     }
 
-    /// GET /api/v1/user/disease-level/list
     func getDiseaseLevels() async throws -> BackendDiseaseLevelListResponse {
         return try await get(path: "/api/v1/user/disease-level/list")
     }
 
 
-    /// GET /api/v1/user/weight-management/get
     func getWeightManagement() async throws -> BackendWeightManagementResponse {
         return try await get(path: "/api/v1/user/weight-management/get")
     }
 
-    /// PUT /api/v1/user/weight-management/update
     func updateWeightManagement(_ req: BackendUpdateWeightManagementRequest) async throws -> BackendUpdateDietTypeResponse {
         return try await put(path: "/api/v1/user/weight-management/update", body: req)
     }
 
 
-    /// GET /api/v1/user/user-calories/today
     func getTodayCalories() async throws -> BackendUserCaloriesResponse {
         return try await get(path: "/api/v1/user/user-calories/today")
     }
 
-    /// POST /api/v1/user/user-calories/create
-    func createCaloriesEntry(calories: Int) async throws -> BackendUserCaloriesResponse {
-        let req = BackendCreateUserCaloriesRequest(calories: calories)
-        return try await post(path: "/api/v1/user/user-calories/create", body: req)
+    func getCaloriesByDay(day: String) async throws -> BackendUserCaloriesResponse {
+        return try await get(path: "/api/v1/user/user-calories?day=\(day)")
     }
 
+    func updateUserCalories(day: String, req: BackendUpdateUserCaloriesRequest) async throws -> BackendUserCaloriesResponse {
+        return try await putWithQuery(path: "/api/v1/user/user-calories/update", query: "day=\(day)", body: req)
+    }
+
+    func refreshTodayCalories() async throws -> BackendUserCaloriesResponse {
+        return try await put(path: "/api/v1/user/user-calories/today/refresh", body: EmptyBody())
+    }
+
+    func getTodayWater() async throws -> BackendUserWaterResponse {
+        return try await get(path: "/api/v1/user/user-water/today")
+    }
+
+    func getWaterByDay(day: String) async throws -> BackendUserWaterResponse {
+        return try await get(path: "/api/v1/user/user-water?day=\(day)")
+    }
+
+    func updateWater(day: String, water: Int) async throws -> BackendUserWaterResponse {
+        return try await putWithQuery(path: "/api/v1/user/user-water/update", query: "day=\(day)", body: BackendUpdateUserWaterRequest(water: water))
+    }
+
+    func createUserDailyEat(_ req: BackendCreateUserDailyEatRequest) async throws -> BackendCreateUserDailyEatResponse {
+        return try await post(path: "/api/v1/product/user-daily-eat/create", body: req)
+    }
+
+    func createProductScan(_ req: BackendCreateProductScanRequest) async throws -> BackendCreateProductScanResponse {
+        return try await post(path: "/api/v1/product/product-scans/create", body: req)
+    }
+
+    func updateProductScan(id: Int, _ req: BackendCreateProductScanRequest) async throws -> BackendCreateProductScanResponse {
+        return try await put(path: "/api/v1/product/product-scans/update/\(id)", body: req)
+    }
+
+    func getProductScanByName(productName: String) async throws -> BackendProductScanResponse {
+        let encoded = productName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? productName
+        return try await get(path: "/api/v1/product/product-scans/get-by-product-name?product_name=\(encoded)")
+    }
+
+    private struct EmptyBody: Codable {}
 
     private func get<Response: Decodable>(path: String) async throws -> Response {
         let request = try buildRequest(path: path, method: "GET")
@@ -127,6 +150,12 @@ actor BackendUserService {
 
     private func put<Body: Encodable, Response: Decodable>(path: String, body: Body) async throws -> Response {
         var request = try buildRequest(path: path, method: "PUT")
+        request.httpBody = try encoder.encode(body)
+        return try await execute(request)
+    }
+
+    private func putWithQuery<Body: Encodable, Response: Decodable>(path: String, query: String, body: Body) async throws -> Response {
+        var request = try buildRequest(path: "\(path)?\(query)", method: "PUT")
         request.httpBody = try encoder.encode(body)
         return try await execute(request)
     }
@@ -155,17 +184,12 @@ actor BackendUserService {
             await MainActor.run { TokenManager.shared.clearAll() }
             throw BackendError.apiError("Session expired. Please log in again.")
         }
-        
         guard (200..<300).contains(http.statusCode) else {
             if let errResponse = try? decoder.decode(BackendBaseResponse.self, from: data) {
-                let raw = String(data: data, encoding: .utf8) ?? "No body"
-                print("422 ERROR BODY:", raw)
-
-                throw BackendError.apiError(errResponse.message ?? raw)
+                throw BackendError.apiError(errResponse.message ?? "Error \(http.statusCode)")
             }
             throw NetworkError.serverError(http.statusCode)
         }
-        
         do {
             return try decoder.decode(T.self, from: data)
         } catch {

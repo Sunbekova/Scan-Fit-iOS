@@ -2,6 +2,7 @@ import SwiftUI
 import PhotosUI
 
 struct ScanView: View {
+    @EnvironmentObject private var trackerVM: TrackerViewModel
     @StateObject private var viewModel = ScanViewModel()
     @State private var cameraCoordinator: CameraView.Coordinator?
     @State private var capturedForCamera: UIImage?
@@ -11,26 +12,21 @@ struct ScanView: View {
     @State private var analysisResult: AnalysisResponse?
     @State private var navigateToBrowse = false
     @State private var navigateToSearch = false
+    @State private var showIngredientInput = false
+    @State private var ingredientText = ""
 
     var body: some View {
         NavigationStack {
             ZStack {
                 // Camera preview
-                CameraRepresentable(capturedImage: $capturedForCamera,
-                                    coordinator: $cameraCoordinator)
-                    .ignoresSafeArea()
+                CameraRepresentable(capturedImage: $capturedForCamera, coordinator: $cameraCoordinator).ignoresSafeArea()
 
-                // Overlay UI
                 VStack {
-                    // Top bar
                     HStack {
                         Button { navigateToSearch = true } label: {
                             Image(systemName: "magnifyingglass")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                                .padding(10)
-                                .background(.ultraThinMaterial)
-                                .cornerRadius(10)
+                                .font(.title2).foregroundColor(.white)
+                                .padding(10).background(.ultraThinMaterial).cornerRadius(10)
                         }
                         Spacer()
                         Button { navigateToBrowse = true } label: {
@@ -38,60 +34,44 @@ struct ScanView: View {
                                 Image(systemName: "square.grid.2x2")
                                 Text("Browse")
                             }
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(10)
+                            .font(.subheadline).foregroundColor(.white)
+                            .padding(.horizontal, 14).padding(.vertical, 8)
+                            .background(.ultraThinMaterial).cornerRadius(10)
                         }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 60)
-
+                    .padding(.horizontal, 20).padding(.top, 60)
                     Spacer()
-
-                    // Viewfinder frame
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(Color.white.opacity(0.8), lineWidth: 2)
                         .frame(width: 260, height: 260)
                         .overlay(
-                            Image(systemName: "viewfinder")
-                                .font(.system(size: 40))
-                                .foregroundColor(.white.opacity(0.5))
+                            VStack(spacing: 8) {
+                                Image(systemName: "viewfinder")
+                                    .font(.system(size: 40)).foregroundColor(.white.opacity(0.5))
+                                Text("Point at a product or label")
+                                    .font(.caption).foregroundColor(.white.opacity(0.7))
+                            }
                         )
-
                     Spacer()
-
-                    // Status / loading
+                    // Loading
                     if case .analyzing = viewModel.scanState {
                         VStack(spacing: 8) {
-                            ProgressView()
-                                .tint(.white)
-                                .scaleEffect(1.4)
-                            Text("Analyzing... 30-40 sec")
-                                .foregroundColor(.white)
-                                .font(.subheadline)
+                            ProgressView().tint(.white).scaleEffect(1.4)
+                            Text("Analyzing… 30–40 sec")
+                                .foregroundColor(.white).font(.subheadline)
                         }
                         .padding(.bottom, 20)
                     }
 
-                    // Bottom controls
-                    HStack(spacing: 40) {
-                        // Gallery picker
+                    HStack(spacing: 36) {
+                        // Gallery
                         PhotosPicker(selection: $selectedPhoto, matching: .images) {
                             Image(systemName: "photo.on.rectangle")
-                                .font(.title)
-                                .foregroundColor(.white)
+                                .font(.title).foregroundColor(.white)
                                 .frame(width: 52, height: 52)
-                                .background(.ultraThinMaterial)
-                                .cornerRadius(14)
+                                .background(.ultraThinMaterial).cornerRadius(14)
                         }
-
-                        // Capture button
-                        Button {
-                            cameraCoordinator?.capture()
-                        } label: {
+                        Button { cameraCoordinator?.capture() } label: {
                             ZStack {
                                 Circle().fill(Color.white).frame(width: 72, height: 72)
                                 Circle().stroke(Color.white.opacity(0.5), lineWidth: 3).frame(width: 82, height: 82)
@@ -99,8 +79,12 @@ struct ScanView: View {
                         }
                         .disabled(viewModel.scanState == .analyzing)
 
-                        // Placeholder for symmetry
-                        Color.clear.frame(width: 52, height: 52)
+                        Button { showIngredientInput = true } label: {
+                            Image(systemName: "text.cursor")
+                                .font(.title).foregroundColor(.white)
+                                .frame(width: 52, height: 52)
+                                .background(.ultraThinMaterial).cornerRadius(14)
+                        }
                     }
                     .padding(.bottom, 50)
                 }
@@ -129,23 +113,74 @@ struct ScanView: View {
             )) {
                 Button("OK") { viewModel.reset() }
             } message: {
-                if case .error(let msg) = viewModel.scanState {
-                    Text(msg)
+                if case .error(let msg) = viewModel.scanState { Text(msg) }
+            }
+            .sheet(isPresented: $showIngredientInput) {
+                IngredientInputSheet(text: $ingredientText) {
+                    showIngredientInput = false
+                    Task { await viewModel.analyzeIngredients(ingredientText) }
                 }
             }
             .navigationDestination(isPresented: $navigateToResult) {
                 if let result = analysisResult {
                     ProductDetailView(analysisResponse: result)
+                        .environmentObject(trackerVM)
                         .onDisappear { viewModel.reset() }
                 }
             }
-            .navigationDestination(isPresented: $navigateToBrowse) { CategoriesView() }
-            .navigationDestination(isPresented: $navigateToSearch) { SearchView() }
+            .navigationDestination(isPresented: $navigateToBrowse) {
+                CategoriesView().environmentObject(trackerVM)
+            }
+            .navigationDestination(isPresented: $navigateToSearch) {
+                SearchView().environmentObject(trackerVM)
+            }
         }
     }
 }
 
-// MARK: - Thin representable that exposes coordinator
+struct IngredientInputSheet: View {
+    @Binding var text: String
+    let onAnalyze: () -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                Text("Enter product name or ingredients")
+                    .font(.subheadline).foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+
+                TextEditor(text: $text)
+                    .frame(height: 180)
+                    .padding(12)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(14)
+                    .font(.body)
+
+                Button {
+                    guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+                    onAnalyze()
+                } label: {Text("Analyze with AI")
+                        .font(.headline).foregroundColor(.white)
+                        .frame(maxWidth: .infinity).padding(16)
+                        .background(Color("AppGreen")).cornerRadius(14)
+                }
+                .disabled(text.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+            .padding(20)
+            .navigationTitle("Type Ingredients")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
+        .presentationDetents([.medium])
+    }
+}
+
+// MARK: - Camera Representable
 
 private struct CameraRepresentable: UIViewControllerRepresentable {
     @Binding var capturedImage: UIImage?
@@ -153,25 +188,16 @@ private struct CameraRepresentable: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> CameraViewController {
         let vc = CameraViewController()
-        vc.onCapture = { image in
-            DispatchQueue.main.async { capturedImage = image }
-        }
+        vc.onCapture = { image in DispatchQueue.main.async { capturedImage = image } }
         DispatchQueue.main.async { coordinator = context.coordinator.inner }
         return vc
     }
 
     func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {}
-
     func makeCoordinator() -> Coordinator { Coordinator() }
 
     final class Coordinator {
         var inner = CameraView.Coordinator()
-    }
-}
-
-extension ScanViewModel {
-    static var analyzing: Bool {
-        false
     }
 }
 

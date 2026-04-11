@@ -12,25 +12,45 @@ final class UserProfileViewModel: ObservableObject {
     @Published var email = ""
 
     @Published var age = ""
-    @Published var gender = "Male"
-    @Published var height = 170
-    @Published var weight = 70
+    @Published var gender = ""
+    @Published var height = 0
+    @Published var weight = 0
     @Published var birthDate = ""
+    @Published var bloodPressure = 0
+    @Published var cholesterol = 0
+    @Published var bmi = 0
+    @Published var dailyCaloriesGoal = 2000
+    @Published var dailyWaterGoal = 8
     @Published var hasMeasure = false
 
     @Published var dietTypes: [BackendDietType] = []
     @Published var dietaryPrefs: [BackendDietType] = []
-    @Published var healthConditions:[BackendDietType] = []
+    @Published var healthConditions: [BackendDietType] = []
     @Published var diseases: [BackendDisease] = []
     @Published var diseaseLevels: [BackendDiseaseLevel] = []
 
     @Published var weightGoal = ""
-    @Published var targetWeight = 65
-    @Published var weeklyChange = 0
+    @Published var targetWeight = 0
+    @Published var targetDate = ""
+    @Published var weeklyChange = 1
+
+    var bmiString: String {
+        guard height > 0, weight > 0 else { return "—" }
+        let hm = Double(height) / 100.0
+        let val = Double(weight) / (hm * hm)
+        return String(format: "%.1f", val)
+    }
+
+    var targetDateDisplay: String {
+        guard !targetDate.isEmpty else { return "Not set" }
+        let inFmt = DateFormatter(); inFmt.dateFormat = "yyyy-MM-dd"
+        let outFmt = DateFormatter(); outFmt.dateFormat = "dd MMM yyyy"
+        if let d = inFmt.date(from: targetDate) { return outFmt.string(from: d) }
+        return targetDate
+    }
 
     private let userSvc = BackendUserService.shared
     private let tokens = TokenManager.shared
-
 
     func loadAll() async {
         isLoading = true
@@ -57,10 +77,15 @@ final class UserProfileViewModel: ObservableObject {
 
             if let m = measure?.data {
                 age = m.age ?? ""
-                gender = m.gender ?? "Male"
-                height = m.height ?? 170
-                weight = m.weight ?? 70
+                gender = m.gender ?? ""
+                height = m.height ?? 0
+                weight = m.weight ?? 0
                 birthDate = m.birthDate ?? ""
+                bloodPressure = m.bloodPressure ?? 0
+                cholesterol = m.cholesterol ?? 0
+                bmi = m.bmi ?? 0
+                dailyCaloriesGoal = m.dailyCaloriesGoal ?? 2000
+                dailyWaterGoal = m.dailyWaterGoal ?? 8
                 hasMeasure = true
             }
 
@@ -72,70 +97,78 @@ final class UserProfileViewModel: ObservableObject {
 
             if let w = wm?.data {
                 weightGoal = w.goal ?? ""
-                targetWeight = w.targetWeight ?? 65
-                weeklyChange = w.weeklyWeightChange ?? 0
+                targetWeight = w.targetWeight ?? 0
+                targetDate = w.targetDate ?? ""
+                weeklyChange = w.weeklyWeightChange ?? 1
             }
-
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
-    // MARK: - Save/Update
-
     func saveMeasures(customBirthDate: String? = nil) async {
-        isLoading = true
-        errorMessage = nil
-        defer { isLoading = false }
-
-        guard let uid = tokens.userId else {
-            errorMessage = "Not authenticated"
-            return
-        }
-
-        let finalBirthDate = customBirthDate ?? self.birthDate
-        let bmiValue = calculateBMI()
-
+        isLoading = true; defer { isLoading = false }
+        guard let uid = tokens.userId else { errorMessage = "Not authenticated"; return }
+        let finalBirthDate = customBirthDate ?? birthDate
+        let bmiVal = calculateBMI()
+        let ageStr = calculateAge(from: finalBirthDate)
         do {
             if hasMeasure {
                 let req = BackendUpdateUserMeasureRequest(
-                    age: age, birthDate: finalBirthDate, bloodPressure: 120,
-                    bmi: bmiValue, cholesterol: 180,
-                    dailyCaloriesGoal: 2000, dailyWaterGoal: 8,
+                    age: ageStr, birthDate: finalBirthDate,
+                    bloodPressure: bloodPressure, bmi: bmiVal, cholesterol: cholesterol,
+                    dailyCaloriesGoal: dailyCaloriesGoal, dailyWaterGoal: dailyWaterGoal,
                     gender: gender, height: height, weight: weight
                 )
-                _ = try await userSvc.updateMeasure(req)
+                let resp = try await userSvc.updateMeasure(req)
+                if let d = resp.data { applyMeasureData(d) }
             } else {
                 let req = BackendUserMeasureRequest(
-                    age: age, birthDate: finalBirthDate, bloodPressure: 120,
-                    bmi: bmiValue, cholesterol: 180,
-                    dailyCaloriesGoal: 2000, dailyWaterGoal: 8,
+                    age: ageStr, birthDate: finalBirthDate,
+                    bloodPressure: bloodPressure, bmi: bmiVal, cholesterol: cholesterol,
+                    dailyCaloriesGoal: dailyCaloriesGoal, dailyWaterGoal: dailyWaterGoal,
                     gender: gender, height: height, userId: uid, weight: weight
                 )
-                _ = try await userSvc.createMeasure(req)
-                hasMeasure = true
+                let resp = try await userSvc.createMeasure(req)
+                if let d = resp.data { applyMeasureData(d); hasMeasure = true }
             }
-            successMessage = "Profile saved successfully"
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+            successMessage = "Saved"
+        } catch { errorMessage = error.localizedDescription }
     }
 
-    // MARK: -Diet toggle
+    private func applyMeasureData(_ d: BackendUserMeasureData) {
+        age = d.age ?? ""
+        gender = d.gender ?? gender
+        height = d.height ?? height
+        weight = d.weight ?? weight
+        birthDate = d.birthDate ?? birthDate
+        bloodPressure = d.bloodPressure ?? bloodPressure
+        cholesterol = d.cholesterol ?? cholesterol
+        bmi = d.bmi ?? bmi
+        dailyCaloriesGoal = d.dailyCaloriesGoal ?? dailyCaloriesGoal
+        dailyWaterGoal = d.dailyWaterGoal ?? dailyWaterGoal
+    }
+
+    // MARK: - Togg
 
     func toggleDietType(_ item: BackendDietType) async {
         let newActive = !item.isActive
         do {
             _ = try await userSvc.updateDietType(id: item.id, isActive: newActive)
             if let idx = dietTypes.firstIndex(where: { $0.id == item.id }) {
-                dietTypes[idx] = BackendDietType(
-                    id: item.id, name: item.name,
-                    isActive: newActive, category: item.category
-                )
+                dietTypes[idx] = BackendDietType(id: item.id, name: item.name, isActive: newActive, category: item.category)
             }
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+        } catch { errorMessage = error.localizedDescription }
+    }
+
+    func toggleDietaryPreference(_ item: BackendDietType) async {
+        let newActive = !item.isActive
+        do {
+            _ = try await userSvc.updateDietaryPreference(id: item.id, isActive: newActive)
+            if let idx = dietaryPrefs.firstIndex(where: { $0.id == item.id }) {
+                dietaryPrefs[idx] = BackendDietType(id: item.id, name: item.name, isActive: newActive, category: item.category)
+            }
+        } catch { errorMessage = error.localizedDescription }
     }
 
     func toggleHealthCondition(_ item: BackendDietType) async {
@@ -143,78 +176,64 @@ final class UserProfileViewModel: ObservableObject {
         do {
             _ = try await userSvc.updateHealthCondition(id: item.id, isActive: newActive)
             if let idx = healthConditions.firstIndex(where: { $0.id == item.id }) {
-                healthConditions[idx] = BackendDietType(
-                    id: item.id, name: item.name,
-                    isActive: newActive, category: item.category
-                )
+                healthConditions[idx] = BackendDietType(id: item.id, name: item.name, isActive: newActive, category: item.category)
             }
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+        } catch { errorMessage = error.localizedDescription }
     }
 
-    func toggleDisease(_ item: BackendDisease, levelId: Int) async {
-        let newActive = !item.isActive
+    func toggleDisease(_ item: BackendDisease, levelId: Int, isActive: Bool) async {
+        let isVip = TokenManager.shared.userRole == "vip"
+        if !isVip && isActive && !item.isActive {
+            let activeCount = diseases.filter(\.isActive).count
+            if activeCount >= 3 { errorMessage = "Basic users can activate up to 3 diseases"; return }
+        }
         do {
-            _ = try await userSvc.updateDisease(id: item.id, diseaseLevelId: levelId, isActive: newActive)
+            _ = try await userSvc.updateDisease(id: item.id, diseaseLevelId: levelId, isActive: isActive)
             if let idx = diseases.firstIndex(where: { $0.id == item.id }) {
-                diseases[idx] = BackendDisease(
-                    id: item.id, code: item.code,
-                    name: item.name, description: item.description,
-                    diseaseLevel: item.diseaseLevel, isActive: newActive
-                )
+                diseases[idx] = BackendDisease(id: item.id, code: item.code, name: item.name,
+                    description: item.description, diseaseLevel: item.diseaseLevel, isActive: isActive)
             }
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+        } catch { errorMessage = error.localizedDescription }
     }
-    
-    func toggleDietaryPreference(_ item: BackendDietType) async {
-        let newActive = !item.isActive
-        do {
-            _ = try await userSvc.updateDietaryPreference(id: item.id, isActive: newActive)
-            if let idx = dietaryPrefs.firstIndex(where: { $0.id == item.id }) {
-                dietaryPrefs[idx] = BackendDietType(
-                    id: item.id,
-                    name: item.name,
-                    isActive: newActive,
-                    category: item.category
-                )
-            }
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-
 
     func saveWeightManagement() async {
-        isLoading = true
-        defer { isLoading = false }
-
+        isLoading = true; defer { isLoading = false }
         do {
+            let normalizedDate = targetDate.isEmpty ? nil : targetDate
             let req = BackendUpdateWeightManagementRequest(
                 goal: weightGoal.isEmpty ? nil : weightGoal,
-                targetDate: nil,
-                targetWeight: targetWeight,
+                targetDate: normalizedDate,
+                targetWeight: targetWeight > 0 ? targetWeight : nil,
                 weeklyWeightChange: weeklyChange
             )
             _ = try await userSvc.updateWeightManagement(req)
-            successMessage = "Weight goal saved"
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+            successMessage = "Weight management updated"
+        } catch { errorMessage = error.localizedDescription }
+    }
+
+    func refreshTodayCalories() async {
+        do {
+            _ = try await userSvc.refreshTodayCalories()
+            successMessage = "Calories refreshed"
+        } catch { errorMessage = error.localizedDescription }
     }
 
     var healthInfoForAI: String {
-        let activeConditions = healthConditions.filter(\.isActive).map(\.name)
-        let activeDiseases = diseases.filter(\.isActive).map(\.name)
-        
-        let all = activeConditions + activeDiseases
-        return all.isEmpty ? "None reported" : all.joined(separator: ", ")
+        let active = healthConditions.filter(\.isActive).map(\.name)
+            + diseases.filter(\.isActive).map(\.name)
+        return active.isEmpty ? "None reported" : active.joined(separator: ", ")
     }
+
     private func calculateBMI() -> Int {
         guard height > 0 else { return 22 }
-        let heightM = Double(height) / 100.0
-        return Int(Double(weight) / (heightM * heightM))
+        let hm = Double(height) / 100.0
+        return Int(Double(weight) / (hm * hm))
+    }
+
+    private func calculateAge(from dateStr: String) -> String {
+        let fmt = DateFormatter(); fmt.dateFormat = "yyyy-MM-dd"
+        guard let dob = fmt.date(from: dateStr) else { return "0" }
+        let comps = Calendar.current.dateComponents([.year], from: dob, to: Date())
+        return "\(comps.year ?? 0)"
     }
 }
