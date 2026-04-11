@@ -10,6 +10,6 @@ enum AppImages {
     static let mascot = "mascot"
     static let tracker = "traker"
     static let homeWaterImage = "waterPic"
-    static let homeWaterBottel = "water"
+    static let homeWaterBottel = "waterBottle"
 }
 

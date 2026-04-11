@@ -41,6 +41,13 @@ struct RecentView: View {
             .navigationDestination(item: $selectedItem) { item in
                 ProductDetailView(foodItem: item).environmentObject(trackerVM)
             }
+            .onChange(of: recents) { oldValue, newValue in
+                if newValue.count > 20 {
+                    let extra = newValue.suffix(from: 20)
+                    extra.forEach { modelContext.delete($0) }
+                    try? modelContext.save()
+                }
+            }
         }
     }
 

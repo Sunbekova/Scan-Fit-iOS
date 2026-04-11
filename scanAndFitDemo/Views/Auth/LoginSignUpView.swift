@@ -165,7 +165,7 @@ struct SignUpView: View {
                     Spacer().frame(height: 32)
                     
                     SFPrimaryButton(title: "Register", isLoading: authVM.isLoading) {
-                        Task { await authVM.signUp(username: username, email: email, password: password) }
+                        Task { await authVM.signUp(name: username, email: email, password: password) }
                     }
                     .padding(.horizontal, 24)
                     

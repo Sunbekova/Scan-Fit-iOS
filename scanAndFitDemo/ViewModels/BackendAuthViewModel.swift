@@ -4,7 +4,6 @@ import Combine
 @MainActor
 final class BackendAuthViewModel: ObservableObject {
 
-    @Published var user: BackendUserAccountData?
     @Published var state: AuthState = .loading
     @Published var errorMessage: String?
     @Published var isLoading = false
@@ -15,11 +14,9 @@ final class BackendAuthViewModel: ObservableObject {
 
     private let auth = BackendAuthService.shared
     private let userSvc = BackendUserService.shared
-    private let tokens = TokenManager.shared
+    private let tokens  = TokenManager.shared
 
-    var currentUser: BackendUserAccountData? { user }
-    var userId: Int? { tokens.userId }
-    var displayName: String { user?.username ?? user?.email ?? "User" }
+    var displayName: String = ""
 
     init() {
         Task { await restoreSession() }
@@ -28,108 +25,66 @@ final class BackendAuthViewModel: ObservableObject {
 
     func restoreSession() async {
         guard tokens.isLoggedIn else { state = .unauthenticated; return }
+
         do {
-            let resp = try await userSvc.getMe()
-            if resp.success == true, let data = resp.data {
-                self.user = data
-                tokens.userId = data.id
-                await refreshUserRole()
-                let completed = UserDefaults.standard.bool(forKey: "profile_completed")
-                state = completed ? .authenticated : .profileIncomplete
-            } else {
-                await tryRefreshOrLogout()
+            let me = try await userSvc.getMe()
+            guard me.success, let userData = me.data else {
+                await tryRefreshOrLogout(); return
             }
+            displayName = userData.username ?? userData.email
+            state = await resolveProfileState()
         } catch {
             await tryRefreshOrLogout()
         }
     }
 
-    private func tryRefreshOrLogout() async {
-        guard let refresh = tokens.refreshToken else { logout(); return }
-        do {
-            let resp = try await auth.refreshToken(refresh)
-            if resp.success == true, let data = resp.data {
-                tokens.saveAuth(data)
-                let me = try await userSvc.getMe()
-                if let userData = me.data {
-                    self.user = userData
-                    tokens.userId = userData.id
-                }
-                await refreshUserRole()
-                let completed = UserDefaults.standard.bool(forKey: "profile_completed")
-                state = completed ? .authenticated : .profileIncomplete
-            } else {
-                logout()
-            }
-        } catch { logout() }
-    }
-
-    private func refreshUserRole() async {
-        do {
-            let resp = try await userSvc.getUserRole()
-            if let code = resp.data?.code {
-                tokens.userRole = code.lowercased()
-            }
-        } catch {}
-    }
-
     func login(email: String, password: String) async {
         guard validateFields(email: email, password: password) else { return }
-        isLoading = true
-        errorMessage = nil
+        isLoading = true; errorMessage = nil
         defer { isLoading = false }
 
         do {
             let resp = try await auth.login(email: email, password: password)
-            if resp.success == true, let data = resp.data {
-                tokens.saveAuth(data)
-                let me = try await userSvc.getMe()
-                if let userData = me.data { self.user = userData; tokens.userId = userData.id }
-                await refreshUserRole()
-                let completed = UserDefaults.standard.bool(forKey: "profile_completed")
-                state = completed ? .authenticated : .profileIncomplete
-            } else { errorMessage = resp.message ?? "Login failed" }
-        } catch { errorMessage = error.localizedDescription }
+            guard resp.success, let d = resp.data else {
+                errorMessage = resp.message ?? "Login failed"; return
+            }
+            tokens.saveAuth(d)
+            displayName = email.components(separatedBy: "@").first ?? email
+            state = await resolveProfileState()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
-    func signUp(username: String, email: String, password: String) async {
-        guard !username.isEmpty else { errorMessage = "Please enter a username"; return }
+    func signUp(name: String, email: String, password: String) async {
+        guard !name.isEmpty else { errorMessage = "Please enter your name"; return }
         guard validateFields(email: email, password: password) else { return }
         isLoading = true; errorMessage = nil; defer { isLoading = false }
         do {
-            let resp = try await auth.register(username: username, email: email, password: password)
-            if resp.success == true, let data = resp.data {
-                tokens.saveAuth(data)
-                let me = try await userSvc.getMe()
-                if let userData = me.data { self.user = userData; tokens.userId = userData.id }
-                await refreshUserRole()
-                state = .profileIncomplete
-            } else { errorMessage = resp.message ?? "Registration failed" }
-        } catch { errorMessage = error.localizedDescription }
+            let resp = try await auth.register(username: name, email: email, password: password)
+            guard resp.success, let d = resp.data else {
+                errorMessage = resp.message ?? "Registration failed"; return
+            }
+            tokens.saveAuth(d)
+            displayName = name
+            state = .profileIncomplete
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
     func signOut() {
-        Task { _ = try? await auth.logout(); logout() }
+        Task {
+            _ = try? await auth.logout()
+            tokens.clearAll()
+            state = .unauthenticated
+        }
     }
-
-    private func logout() {
-        tokens.clearAll()
-        UserDefaults.standard.removeObject(forKey: "profile_completed")
-        user = nil
-        state = .unauthenticated
-    }
-
 
     func forgotPassword(email: String) async {
-        guard !email.isEmpty else {
-            errorMessage = "Please enter your email"
-            return
-        }
-
-        isLoading = true
-        errorMessage = nil
+        guard !email.isEmpty else { errorMessage = "Please enter your email"; return }
+        isLoading = true; errorMessage = nil
         defer { isLoading = false }
-
         do {
             let resp = try await auth.forgotPassword(email: email)
             if resp.success == true { pinSent = true }
@@ -142,7 +97,7 @@ final class BackendAuthViewModel: ObservableObject {
         isLoading = true; errorMessage = nil; defer { isLoading = false }
         do {
             let resp = try await auth.verifyPin(email: email, pin: pin)
-            if resp.success == true, let data = resp.data { resetToken = data.token; pinVerified = true }
+            if resp.success==true, let d = resp.data { resetToken = d.token; pinVerified = true}
             else { errorMessage = resp.message ?? "Invalid PIN" }
         } catch { errorMessage = error.localizedDescription }
     }
@@ -158,13 +113,41 @@ final class BackendAuthViewModel: ObservableObject {
     }
 
     func markProfileCompleted() {
-        UserDefaults.standard.set(true, forKey: "profile_completed")
+        UserDefaults.standard.set(true, forKey: "profile_completed_\(tokens.userId ?? 0)")
         state = .authenticated
     }
 
+    private func resolveProfileState() async -> AuthState {
+        let uid = tokens.userId ?? 0
+
+        if UserDefaults.standard.bool(forKey: "profile_completed_\(uid)") {return .authenticated}
+        do {
+            let resp = try await userSvc.getMeasure()
+            if resp.success, let data = resp.data,
+               (data.height ?? 0) > 0 || !(data.age ?? "").isEmpty {
+                UserDefaults.standard.set(true, forKey: "profile_completed_\(uid)")
+                return .authenticated
+            }
+        } catch {}
+        return .profileIncomplete
+    }
+
+    private func tryRefreshOrLogout() async {
+        guard let rt = tokens.refreshToken else { tokens.clearAll(); state = .unauthenticated; return }
+        do {
+            let resp = try await auth.refreshToken(rt)
+            if resp.success, let d = resp.data {
+                tokens.saveAuth(d)
+                state = await resolveProfileState()
+            } else { tokens.clearAll(); state = .unauthenticated }
+        } catch { tokens.clearAll(); state = .unauthenticated }
+    }
+
     private func validateFields(email: String, password: String) -> Bool {
-        guard !email.isEmpty, !password.isEmpty else { errorMessage = "Please fill in all fields"; return false }
-        guard password.count >= 6 else { errorMessage = "Password must be at least 6 characters"; return false }
+        guard !email.isEmpty, !password.isEmpty else {
+            errorMessage = "Please fill in all fields"; return false }
+        guard password.count >= 6 else {
+            errorMessage = "Password must be at least 6 characters"; return false }
         return true
     }
 }
