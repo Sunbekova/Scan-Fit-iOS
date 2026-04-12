@@ -174,9 +174,9 @@ struct NutrientRow: View {
         HStack {
             Text(name).font(.subheadline).foregroundColor(.primary)
             Spacer()
-            Text(value).font(.subheadline).fontWeight(.semibold)
+            Text(value).font(.subheadline).foregroundColor(.secondary)
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 8)
     }
 }
 
@@ -188,14 +188,15 @@ struct MacroProgressItem: View {
     var body: some View {
         VStack(spacing: 6) {
             ZStack {
-                Circle().stroke(color.opacity(0.2), lineWidth: 6)
-                Circle().trim(from: 0, to: min(value / maxValue, 1))
+                Circle().stroke(color.opacity(0.2), lineWidth: 6).frame(width: 60, height: 60)
+                Circle()
+                    .trim(from: 0, to: min(CGFloat(value / maxValue), 1.0))
                     .stroke(color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                Text(String(format: "%.0fg", value)).font(.caption2).fontWeight(.bold)
+                    .frame(width: 60, height: 60)
+                Text("\(Int(value))").font(.system(size: 13, weight: .bold))
             }
-            .frame(width: 60, height: 60)
-            Text(title).font(.caption).foregroundColor(.secondary)
+            Text(title).font(.caption2).foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity)
     }

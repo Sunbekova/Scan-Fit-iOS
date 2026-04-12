@@ -10,6 +10,7 @@ final class UserProfileViewModel: ObservableObject {
 
     @Published var username = ""
     @Published var email = ""
+    @Published var photoURL: String? = nil
 
     @Published var age = ""
     @Published var gender = ""
@@ -73,6 +74,7 @@ final class UserProfileViewModel: ObservableObject {
             if let userData = me.data {
                 username = userData.username ?? ""
                 email = userData.email
+                photoURL = userData.photo?.isEmpty == false ? userData.photo : nil
             }
 
             if let m = measure?.data {

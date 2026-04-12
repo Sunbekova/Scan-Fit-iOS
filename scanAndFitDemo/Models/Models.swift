@@ -239,6 +239,13 @@ struct AnalysisResponse: Codable {
     let productType: String?
     let verdict: String?
     let macros: AnalysisMacros?
+    let alternatives: [AnalysisAlternative]?
+    let scanImage: AnalysisScanImage?
+    let productPhoto: AnalysisProductPhoto?
+    let scanImageUrl: String?
+    let imagePath: String?
+    let dailyImpact: AnalysisDailyImpact?
+    let userContextUsed: AnalysisUserContextUsed?
 
     enum CodingKeys: String, CodingKey {
         case healthScore = "health_score"
@@ -247,7 +254,13 @@ struct AnalysisResponse: Codable {
         case isFood = "is_food"
         case productType = "product_type"
         case productName = "product_name"
-        case risks, sources, verdict, macros
+        case scanImage = "scan_image"
+        case productPhoto = "product_photo"
+        case scanImageUrl = "scan_image_url"
+        case imagePath = "image_path"
+        case dailyImpact = "daily_impact"
+        case userContextUsed = "user_context_used"
+        case risks, sources, verdict, macros, alternatives
     }
 }
 
@@ -256,10 +269,30 @@ struct AnalysisMacros: Codable {
     let proteins: Double?
     let carbs: Double?
     let fats: Double?
+    let fat: Double?
     let sugar: Double?
     let fiber: Double?
     let sodium: Double?
     let cholesterol: Double?
+    let vitaminA: Double?
+    let vitaminB12: Double?
+    let vitaminB6: Double?
+    let vitaminB9: Double?
+    let vitaminC: Double?
+    let vitaminD: Double?
+    let vitaminE: Double?
+    enum CodingKeys: String, CodingKey {
+        case calories, proteins, carbs, fats, fat, sugar, fiber, sodium, cholesterol
+        case vitaminA = "vitamin_a"
+        case vitaminB12 = "vitamin_b12"
+        case vitaminB6 = "vitamin_b6"
+        case vitaminB9 = "vitamin_b9"
+        case vitaminC = "vitamin_c"
+        case vitaminD = "vitamin_d"
+        case vitaminE = "vitamin_e"
+    }
+    /// Resolved fat value (API sometimes returns "fat" sometimes "fats")
+    var resolvedFat: Double? { fats ?? fat }
 }
 
 struct AnalysisRisk: Codable, Identifiable {
@@ -293,6 +326,92 @@ struct AnalysisSource: Codable, Identifiable {
     enum CodingKeys: String, CodingKey {
         case title, url
         case sourceType = "source_type"
+    }
+}
+
+struct AnalysisAlternative: Codable, Identifiable {
+    var id: String { name ?? UUID().uuidString }
+    let name: String?
+    let reason: String?
+    let kaspiLink: String?
+    enum CodingKeys: String, CodingKey {
+        case name, reason
+        case kaspiLink = "kaspi_link"
+    }
+}
+
+struct AnalysisScanImage: Codable {
+    let bucket: String?
+    let key: String?
+    let contentType: String?
+    let url: String?
+    enum CodingKeys: String, CodingKey {
+        case bucket, key, url
+        case contentType = "content_type"
+    }
+}
+
+struct AnalysisProductPhoto: Codable {
+    let name: String?
+    let imageUrl: String?
+    let barcode: String?
+    let brand: String?
+    let source: String?
+    enum CodingKeys: String, CodingKey {
+        case name, barcode, brand, source
+        case imageUrl = "image_url"
+    }
+}
+
+struct AnalysisDailyImpact: Codable {
+    let calories: AnalysisDailyImpactItem?
+    let carbs: AnalysisDailyImpactItem?
+    let fat: AnalysisDailyImpactItem?
+    let fiber: AnalysisDailyImpactItem?
+    let proteins: AnalysisDailyImpactItem?
+    let sodium: AnalysisDailyImpactItem?
+    let sugar: AnalysisDailyImpactItem?
+    let vitaminA: AnalysisDailyImpactItem?
+    let vitaminB12: AnalysisDailyImpactItem?
+    let vitaminB6: AnalysisDailyImpactItem?
+    let vitaminB9: AnalysisDailyImpactItem?
+    let vitaminC: AnalysisDailyImpactItem?
+    let vitaminD: AnalysisDailyImpactItem?
+    let vitaminE: AnalysisDailyImpactItem?
+    let water: AnalysisDailyImpactItem?
+    enum CodingKeys: String, CodingKey {
+        case calories, carbs, fat, fiber, proteins, sodium, sugar, water
+        case vitaminA = "vitamin_a"; case vitaminB12 = "vitamin_b12"
+        case vitaminB6 = "vitamin_b6"; case vitaminB9 = "vitamin_b9"
+        case vitaminC = "vitamin_c"; case vitaminD = "vitamin_d"; case vitaminE = "vitamin_e"
+    }
+}
+
+struct AnalysisDailyImpactItem: Codable {
+    let amountInProduct: Double?
+    let consumedToday: Double?
+    let goalToday: Double?
+    let afterThisProduct: Double?
+    let remainingToGoal: Double?
+    let status: String?
+    let message: String?
+    let unit: String?
+    enum CodingKeys: String, CodingKey {
+        case status, message, unit
+        case amountInProduct = "amount_in_product"
+        case consumedToday = "consumed_today"
+        case goalToday = "goal_today"
+        case afterThisProduct = "after_this_product"
+        case remainingToGoal = "remaining_to_goal"
+    }
+}
+
+struct AnalysisUserContextUsed: Codable {
+    let hasUserInformation: Bool?
+    let hasLegacyHealthInfo: Bool?
+    enum CodingKeys: String, CodingKey {
+        case hasUserInformation = "has_user_information"
+        case hasLegacyHealthInfo = "has_legacy_health_info"
     }
 }
 

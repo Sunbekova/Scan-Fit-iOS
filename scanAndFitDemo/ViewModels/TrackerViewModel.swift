@@ -19,6 +19,8 @@ final class TrackerViewModel: ObservableObject {
     @Published var selectedDate: Date = Date()
     @Published var isLoading: Bool = false
 
+    @Published var firstAvailableDate: Date? = nil
+
     let maxWaterGlasses = 7
     let waterGlassMl = 250
 
@@ -43,12 +45,36 @@ final class TrackerViewModel: ObservableObject {
     var waterGoalLiters: Double { Double(waterGoalMl) / 1000.0 }
     var waterProgress: Double { waterGoalMl > 0 ? min(Double(waterGlasses * waterGlassMl) / Double(waterGoalMl), 1.0) : 0 }
 
+    var isTodaySelected: Bool { isSameDay(selectedDate, Date()) }
+
+    func canSelectDate(_ date: Date) -> Bool {
+        guard let first = firstAvailableDate else { return true }
+        return normalizedDay(date) >= normalizedDay(first)
+    }
+
     func loadForDate(_ date: Date) {
         let isToday = isSameDay(date, Date())
         let dayStr = dateFormatter.string(from: date)
         Task {
             await fetchCalories(isToday: isToday, day: dayStr)
             await fetchWater(isToday: isToday, day: dayStr)
+        }
+    }
+
+    func loadFirstAvailableDay() async {
+        if let saved = UserDefaults.standard.string(forKey: "user_first_day"),
+           let date = dateFormatter.date(from: saved) {
+            firstAvailableDate = normalizedDay(date)
+        }
+        if let resp = try? await BackendUserService.shared.getUserCaloriesFirstDay(),
+           let firstDay = resp.data?.firstDay,
+           let date = dateFormatter.date(from: firstDay) {
+            UserDefaults.standard.set(firstDay, forKey: "user_first_day")
+            firstAvailableDate = normalizedDay(date)
+            if let first = firstAvailableDate, normalizedDay(selectedDate) < first {
+                selectedDate = first
+                loadForDate(first)
+            }
         }
     }
 
@@ -60,9 +86,7 @@ final class TrackerViewModel: ObservableObject {
             if resp.success, let data = resp.data {
                 applyCaloriesData(data)
             }
-        } catch {
-            // silently fail – keep last values
-        }
+        } catch {}
     }
 
     private func fetchWater(isToday: Bool, day: String) async {
@@ -94,16 +118,15 @@ final class TrackerViewModel: ObservableObject {
         waterGoalMl = goalMl
     }
 
-
     func addWater() {
-        guard waterGlasses < maxWaterGlasses else { return }
+        guard waterGlasses < maxWaterGlasses, isTodaySelected else { return }
         let newCount = waterGlasses + 1
         waterGlasses = newCount
         syncWater(count: newCount)
     }
 
     func removeWater() {
-        guard waterGlasses > 0 else { return }
+        guard waterGlasses > 0, isTodaySelected else { return }
         let newCount = waterGlasses - 1
         waterGlasses = newCount
         syncWater(count: newCount)
@@ -122,7 +145,6 @@ final class TrackerViewModel: ObservableObject {
         }
     }
 
-
     func addFood(_ item: FoodItem) {
         totalCalories += item.calories?.toCleanInt() ?? 0
         totalProteins += item.proteins.toCleanDouble()
@@ -138,6 +160,10 @@ final class TrackerViewModel: ObservableObject {
 
     func isSameDay(_ d1: Date, _ d2: Date) -> Bool {
         Calendar.current.isDate(d1, inSameDayAs: d2)
+    }
+
+    func normalizedDay(_ date: Date) -> Date {
+        Calendar.current.startOfDay(for: date)
     }
 
     var selectedDayString: String { dateFormatter.string(from: selectedDate) }

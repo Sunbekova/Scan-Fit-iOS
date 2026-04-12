@@ -3,89 +3,119 @@ import SwiftUI
 struct NutrientDetailSheet: View {
     let data: BackendUserCaloriesData?
     let day: String
+    var onShowHistory: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
+    private let isVip = TokenManager.shared.isVip
 
-    private var isVip: Bool { TokenManager.shared.userRole == "vip" }
+    private struct NutrientRow: Identifiable {
+        let id = UUID()
+        let name: String
+        let consumed: Double?
+        let goal: Double?
+        let unit: String
+        let isPremium: Bool
+    }
+
+    private var rows: [NutrientRow] {
+        let d = data?.daily
+        let g = data
+        return [
+            NutrientRow(name: "Calories",    consumed: d?.calories.map(Double.init), goal: g?.calories.map(Double.init), unit: "kcal", isPremium: false),
+            NutrientRow(name: "Carbs", consumed: d?.carbs, goal: g?.carbs, unit: "g", isPremium: false),
+            NutrientRow(name: "Protein", consumed: d?.proteins,goal: g?.proteins, unit: "g", isPremium: false),
+            NutrientRow(name: "Fats", consumed: d?.fat, goal: g?.fat, unit: "g", isPremium: false),
+            NutrientRow(name: "Sodium", consumed: d?.sodium, goal: g?.sodium, unit: "mg", isPremium: true),
+            NutrientRow(name: "Fiber", consumed: d?.fiber, goal: g?.fiber, unit: "g", isPremium: true),
+            NutrientRow(name: "Sugar", consumed: d?.sugar, goal: g?.sugar, unit: "g", isPremium: true),
+            NutrientRow(name: "Cholesterol", consumed: d?.cholesterol, goal: g?.cholesterol, unit: "mg", isPremium: true),
+            NutrientRow(name: "Vitamin A", consumed: d?.vitaminA, goal: g?.vitaminA, unit: "mcg", isPremium: true),
+            NutrientRow(name: "Vitamin B12", consumed: d?.vitaminB12, goal: g?.vitaminB12, unit: "mcg", isPremium: true),
+            NutrientRow(name: "Vitamin B6", consumed: d?.vitaminB6, goal: g?.vitaminB6, unit: "mg", isPremium: true),
+            NutrientRow(name: "Vitamin B9", consumed: d?.vitaminB9, goal: g?.vitaminB9, unit: "mcg", isPremium: true),
+            NutrientRow(name: "Vitamin C", consumed: d?.vitaminC, goal: g?.vitaminC, unit: "mg", isPremium: true),
+            NutrientRow(name: "Vitamin D", consumed: d?.vitaminD, goal: g?.vitaminD, unit: "mcg", isPremium: true),
+            NutrientRow(name: "Vitamin E", consumed: d?.vitaminE, goal: g?.vitaminE, unit: "mg", isPremium: true),
+        ]
+    }
 
     var body: some View {
         NavigationStack {
-            List {
-                Section {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
                     Text(day)
                         .font(.caption)
                         .foregroundColor(.secondary)
-                }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+                        .padding(.bottom, 16)
 
-                Section("Basic Nutrients") {
-                    nutrientRow("Calories", consumed: data?.daily?.calories.map { Double($0) }, goal: data?.calories.map { Double($0) }, unit: "kcal")
-                    nutrientRow("Carbs", consumed: data?.daily?.carbs, goal: data?.carbs, unit: "g")
-                    nutrientRow("Protein", consumed: data?.daily?.proteins, goal: data?.proteins, unit: "g")
-                    nutrientRow("Fats", consumed: data?.daily?.fat, goal: data?.fat, unit: "g")
-                }
+                    ForEach(Array(rows.enumerated()), id: \.element.id) { idx, row in
+                        let isLocked = row.isPremium && !isVip
+                        HStack {
+                            Text(row.name)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(isLocked ? .secondary : .primary)
+                            Spacer()
+                            if isLocked {
+                                Text("ScanFit Pro")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(Color(hex: "#2F6BFF"))
+                                    .padding(.horizontal, 10).padding(.vertical, 4)
+                                    .background(Color(hex: "#E8F0FF"))
+                                    .cornerRadius(20)
+                            } else {
+                                Text(formatValue(row))
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 14)
+                        .opacity(isLocked ? 0.72 : 1.0)
 
-                Section("Premium Nutrients") {
-                    premiumNutrientRow("Sodium", consumed: data?.daily?.sodium, goal: data?.sodium, unit: "mg")
-                    premiumNutrientRow("Fiber", consumed: data?.daily?.fiber, goal: data?.fiber, unit: "g")
-                    premiumNutrientRow("Sugar", consumed: data?.daily?.sugar, goal: data?.sugar, unit: "g")
-                    premiumNutrientRow("Cholesterol", consumed: data?.daily?.cholesterol, goal: data?.cholesterol, unit: "mg")
-                    premiumNutrientRow("Vitamin A", consumed: data?.daily?.vitaminA, goal: data?.vitaminA, unit: "mcg")
-                    premiumNutrientRow("Vitamin B12", consumed: data?.daily?.vitaminB12, goal: data?.vitaminB12, unit: "mcg")
-                    premiumNutrientRow("Vitamin B6", consumed: data?.daily?.vitaminB6, goal: data?.vitaminB6, unit: "mg")
-                    premiumNutrientRow("Vitamin C", consumed: data?.daily?.vitaminC, goal: data?.vitaminC, unit: "mg")
-                    premiumNutrientRow("Vitamin D", consumed: data?.daily?.vitaminD, goal: data?.vitaminD, unit: "mcg")
-                    premiumNutrientRow("Vitamin E", consumed: data?.daily?.vitaminE, goal: data?.vitaminE, unit: "mg")
+                        if idx < rows.count - 1 {
+                            Divider().padding(.leading, 20)
+                        }
+                    }
+
+                    // See all history button
+                    Button {
+                        dismiss()
+                        onShowHistory?()
+                    } label: {
+                        Text("See all history")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(16)
+                            .background(Color(hex: "#111827"))
+                            .cornerRadius(14)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    .padding(.bottom, 8)
                 }
             }
             .navigationTitle("Nutrients")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Close") { dismiss() }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") { dismiss() }
                 }
             }
         }
+        .presentationDetents([.large])
     }
 
-    @ViewBuilder
-    private func nutrientRow(_ name: String, consumed: Double?, goal: Double?, unit: String) -> some View {
-        HStack {
-            Text(name).font(.body)
-            Spacer()
-            Text(formatPair(consumed, goal, unit))
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
+    private func formatValue(_ row: NutrientRow) -> String {
+        let c = row.consumed ?? 0
+        let g = row.goal ?? 0
+        return "\(formatAmt(c)) / \(formatAmt(g)) \(row.unit)"
     }
 
-    @ViewBuilder
-    private func premiumNutrientRow(_ name: String, consumed: Double?, goal: Double?, unit: String) -> some View {
-        HStack {
-            Text(name).font(.body).opacity(isVip ? 1 : 0.6)
-            Spacer()
-            if isVip {
-                Text(formatPair(consumed, goal, unit))
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            } else {
-                Text("ScanFit Pro")
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .foregroundColor(.blue)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(Color.blue.opacity(0.1))
-                    .cornerRadius(20)
-            }
-        }
-    }
-
-    private func formatPair(_ consumed: Double?, _ goal: Double?, _ unit: String) -> String {
-        let c = formatAmount(consumed ?? 0)
-        let g = formatAmount(goal ?? 0)
-        return "\(c) / \(g) \(unit)"
-    }
-
-    private func formatAmount(_ v: Double) -> String {
+    private func formatAmt(_ v: Double) -> String {
         v.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(v))" : String(format: "%.1f", v)
     }
 }

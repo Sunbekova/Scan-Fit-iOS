@@ -9,6 +9,7 @@ struct MainTabView: View {
         TabView(selection: $selectedTab) {
             HomeView()
                 .environmentObject(trackerVM)
+                .environmentObject(authVM)
                 .tabItem { Label("Home", systemImage: "house.fill") }
                 .tag(0)
 
@@ -26,8 +27,9 @@ struct MainTabView: View {
                 .tag(3)
         }
         .accentColor(Color("AppGreen"))
-        .onAppear {
+        .task {
             trackerVM.loadForDate(trackerVM.selectedDate)
+            await trackerVM.loadFirstAvailableDay()
         }
     }
 }

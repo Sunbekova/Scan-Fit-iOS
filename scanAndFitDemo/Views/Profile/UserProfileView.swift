@@ -77,18 +77,24 @@ struct UserProfileView: View {
         .task { await profileVM.loadAll() }
     }
 
-    // MARK: - Profile Header
-
     private var profileHeader: some View {
         HStack(spacing: 16) {
-            Circle()
-                .fill(Color("AppGreen").opacity(0.15))
-                .frame(width: 64, height: 64)
-                .overlay(
-                    Text(String((profileVM.username.isEmpty ? profileVM.email : profileVM.username).prefix(1)).uppercased())
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color("AppGreen"))
-                )
+            // Avatar with photo support
+            Group {
+                if let photoURL = profileVM.photoURL, let url = URL(string: photoURL) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let img):
+                            img.resizable().scaledToFill()
+                                .frame(width: 64, height: 64).clipShape(Circle())
+                        default:
+                            defaultProfileAvatar
+                        }
+                    }
+                } else {
+                    defaultProfileAvatar
+                }
+            }
             VStack(alignment: .leading, spacing: 2) {
                 Text(profileVM.username.isEmpty ? "User" : profileVM.username)
                     .font(.title3).fontWeight(.bold)
@@ -97,12 +103,23 @@ struct UserProfileView: View {
                 let roleText = TokenManager.shared.userRole == "vip" ? "ScanFit Pro" : "Basic"
                 Text(roleText)
                     .font(.caption).fontWeight(.semibold)
-                    .foregroundColor(roleText == "ScanFit Pro" ? .blue : .secondary)
+                    .foregroundColor(roleText == "ScanFit Pro" ? Color(hex: "#FBBF24") : .secondary)
                     .padding(.horizontal, 8).padding(.vertical, 2)
-                    .background((roleText == "ScanFit Pro" ? Color.blue : Color.gray).opacity(0.1))
+                    .background((roleText == "ScanFit Pro" ? Color(hex: "#0F172A") : Color.gray).opacity(roleText == "ScanFit Pro" ? 1.0 : 0.1))
                     .cornerRadius(10)
             }
             Spacer()
         }
+    }
+
+    private var defaultProfileAvatar: some View {
+        Circle()
+            .fill(Color("AppGreen").opacity(0.15))
+            .frame(width: 64, height: 64)
+            .overlay(
+                Text(String((profileVM.username.isEmpty ? profileVM.email : profileVM.username).prefix(1)).uppercased())
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(Color("AppGreen"))
+            )
     }
 }

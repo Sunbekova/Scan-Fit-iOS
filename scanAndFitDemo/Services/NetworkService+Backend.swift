@@ -94,3 +94,46 @@ actor AINetworkService {
         guard (200..<300).contains(http.statusCode) else { throw NetworkError.serverError(http.statusCode) }
     }
 }
+
+extension Data {
+    mutating func appendMultipart(boundary: String, username: String, filename: String, mimeType: String, data: Data) {
+        self.append("--\(boundary)\r\n".data(using: .utf8)!)
+        self.append("Content-Disposition: form-data; name=\"\(username)\"; filename=\"\(filename)\"\r\n".data(using: .utf8)!)
+        self.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
+        self.append(data)
+        self.append("\r\n".data(using: .utf8)!)
+    }
+
+    mutating func appendMultipartText(boundary: String, username: String, value: String) {
+        self.append("--\(boundary)\r\n".data(using: .utf8)!)
+        self.append("Content-Disposition: form-data; name=\"\(username)\"\r\n\r\n".data(using: .utf8)!)
+        self.append(value.data(using: .utf8)!)
+        self.append("\r\n".data(using: .utf8)!)
+    }
+}
+
+extension AINetworkService {
+    /// Analyze scan image with full user context (mirrors Android ScanFragment with user_information param)
+    func analyzeImageScanWithUserContext(
+        imageData: Data,
+        healthInfo: String,
+        userInformationJson: String?
+    ) async throws -> AnalysisResponse {
+        guard let url = URL(string: "\(aiBaseURL)/analyze-scan") else { throw NetworkError.invalidURL }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        var body = Data()
+        body.appendMultipart(boundary: boundary, name: "file", filename: "scan.jpg", mimeType: "image/jpeg", data: imageData)
+        body.appendMultipartText(boundary: boundary, name: "health_info", value: healthInfo)
+        if let userInfo = userInformationJson {
+            body.appendMultipartText(boundary: boundary, name: "user_information", value: userInfo)
+        }
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+        let (data, response) = try await session.data(for: request)
+        try validateResponse(response)
+        return try decoder.decode(AnalysisResponse.self, from: data)
+    }
+}

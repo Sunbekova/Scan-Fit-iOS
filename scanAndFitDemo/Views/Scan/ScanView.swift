@@ -14,20 +14,27 @@ struct ScanView: View {
     @State private var navigateToSearch = false
     @State private var showIngredientInput = false
     @State private var ingredientText = ""
+    @State private var showProPage = false
+    @State private var limitAlert: String?
 
     var body: some View {
         NavigationStack {
             ZStack {
                 // Camera preview
-                CameraRepresentable(capturedImage: $capturedForCamera, coordinator: $cameraCoordinator).ignoresSafeArea()
+                CameraRepresentable(capturedImage: $capturedForCamera, coordinator: $cameraCoordinator)
+                    .ignoresSafeArea()
 
                 VStack {
+                    // Top bar
                     HStack {
                         Button { navigateToSearch = true } label: {
                             Image(systemName: "magnifyingglass")
                                 .font(.title2).foregroundColor(.white)
                                 .padding(10).background(.ultraThinMaterial).cornerRadius(10)
                         }
+                        Spacer()
+                        // Scan limit badge
+                        scanLimitBadge
                         Spacer()
                         Button { navigateToBrowse = true } label: {
                             HStack(spacing: 4) {
@@ -40,7 +47,10 @@ struct ScanView: View {
                         }
                     }
                     .padding(.horizontal, 20).padding(.top, 60)
+
                     Spacer()
+
+                    // Viewfinder frame
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(Color.white.opacity(0.8), lineWidth: 2)
                         .frame(width: 260, height: 260)
@@ -52,7 +62,9 @@ struct ScanView: View {
                                     .font(.caption).foregroundColor(.white.opacity(0.7))
                             }
                         )
+
                     Spacer()
+
                     // Loading
                     if case .analyzing = viewModel.scanState {
                         VStack(spacing: 8) {
@@ -63,14 +75,15 @@ struct ScanView: View {
                         .padding(.bottom, 20)
                     }
 
+                    // Bottom controls
                     HStack(spacing: 36) {
-                        // Gallery
                         PhotosPicker(selection: $selectedPhoto, matching: .images) {
                             Image(systemName: "photo.on.rectangle")
                                 .font(.title).foregroundColor(.white)
                                 .frame(width: 52, height: 52)
                                 .background(.ultraThinMaterial).cornerRadius(14)
                         }
+
                         Button { cameraCoordinator?.capture() } label: {
                             ZStack {
                                 Circle().fill(Color.white).frame(width: 72, height: 72)
@@ -102,9 +115,13 @@ struct ScanView: View {
                 }
             }
             .onChange(of: viewModel.scanState) { _, state in
-                if case .result(let response) = state {
+                switch state {
+                case .result(let response):
                     analysisResult = response
                     navigateToResult = true
+                case .limitExceeded(let msg):
+                    limitAlert = msg
+                default: break
                 }
             }
             .alert("Scan Error", isPresented: .init(
@@ -114,6 +131,15 @@ struct ScanView: View {
                 Button("OK") { viewModel.reset() }
             } message: {
                 if case .error(let msg) = viewModel.scanState { Text(msg) }
+            }
+            .alert("Scan Limit Reached", isPresented: Binding(
+                get: { limitAlert != nil },
+                set: { if !$0 { limitAlert = nil; viewModel.reset() } }
+            )) {
+                Button("Upgrade to Pro") { showProPage = true; viewModel.reset() }
+                Button("Cancel", role: .cancel) { viewModel.reset() }
+            } message: {
+                Text(limitAlert ?? "You have used all your daily scans.")
             }
             .sheet(isPresented: $showIngredientInput) {
                 IngredientInputSheet(text: $ingredientText) {
@@ -134,6 +160,36 @@ struct ScanView: View {
             .navigationDestination(isPresented: $navigateToSearch) {
                 SearchView().environmentObject(trackerVM)
             }
+            .navigationDestination(isPresented: $showProPage) {
+                ProSubscriptionView()
+            }
+        }
+        .task { await viewModel.loadScanLimit() }
+    }
+
+//limit scan
+    @ViewBuilder
+    private var scanLimitBadge: some View {
+        if let limit = viewModel.scanLimitData {
+            let isUnlimited = limit.isUnlimited ?? false
+            let remaining = limit.remaining ?? 0
+            Button { showProPage = true } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: isUnlimited ? "infinity" : "camera.viewfinder")
+                        .font(.caption)
+                    if isUnlimited {
+                        Text("Pro")
+                            .font(.caption).fontWeight(.bold)
+                    } else {
+                        Text("\(remaining) left")
+                            .font(.caption).fontWeight(.semibold)
+                    }
+                }
+                .foregroundColor(isUnlimited ? Color(hex: "#FBBF24") : (remaining > 0 ? .white : .red))
+                .padding(.horizontal, 10).padding(.vertical, 6)
+                .background(.ultraThinMaterial)
+                .cornerRadius(10)
+            }
         }
     }
 }
@@ -149,18 +205,17 @@ struct IngredientInputSheet: View {
                 Text("Enter product name or ingredients")
                     .font(.subheadline).foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
-
                 TextEditor(text: $text)
                     .frame(height: 180)
                     .padding(12)
                     .background(Color(.systemGray6))
                     .cornerRadius(14)
                     .font(.body)
-
                 Button {
                     guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
                     onAnalyze()
-                } label: {Text("Analyze with AI")
+                } label: {
+                    Text("Analyze with AI")
                         .font(.headline).foregroundColor(.white)
                         .frame(maxWidth: .infinity).padding(16)
                         .background(Color("AppGreen")).cornerRadius(14)
@@ -179,8 +234,7 @@ struct IngredientInputSheet: View {
         .presentationDetents([.medium])
     }
 }
-
-// MARK: - Camera Representable
+//camera
 
 private struct CameraRepresentable: UIViewControllerRepresentable {
     @Binding var capturedImage: UIImage?
@@ -192,7 +246,6 @@ private struct CameraRepresentable: UIViewControllerRepresentable {
         DispatchQueue.main.async { coordinator = context.coordinator.inner }
         return vc
     }
-
     func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {}
     func makeCoordinator() -> Coordinator { Coordinator() }
 
@@ -205,7 +258,7 @@ extension ScanState: Equatable {
     static func == (lhs: ScanState, rhs: ScanState) -> Bool {
         switch (lhs, rhs) {
         case (.idle, .idle), (.analyzing, .analyzing): return true
-        case (.result, .result), (.error, .error): return true
+        case (.result, .result), (.error, .error), (.limitExceeded, .limitExceeded): return true
         default: return false
         }
     }

@@ -134,6 +134,55 @@ actor BackendUserService {
         let encoded = productName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? productName
         return try await get(path: "/api/v1/product/product-scans/get-by-product-name?product_name=\(encoded)")
     }
+    
+    // MARK: - Scan Limit
+    func getProductScanLimit() async throws -> BackendProductScanLimitResponse {
+        return try await get(path: "/api/v1/product/product-scans/limit")
+    }
+
+    func decreaseProductScanLimit() async throws -> BackendProductScanLimitDecreaseResponse {
+        return try await post(path: "/api/v1/product/product-scans/limit/decrease", body: EmptyBody())
+    }
+
+    // MARK: - First available day
+    func getUserCaloriesFirstDay() async throws -> BackendUserFirstDayResponse {
+        return try await get(path: "/api/v1/user/user-calories/first-day")
+    }
+
+    // MARK: - Consumption history
+    func getConsumptionHistory(from: String, to: String) async throws -> BackendConsumptionHistoryResponse {
+        return try await get(path: "/api/v1/users/me/consumption/history?from=\(from)&to=\(to)")
+    }
+
+    // MARK: - Change profile picture (multipart)
+    func changeProfilePicture(imageData: Data, filename: String) async throws -> BackendBaseResponse {
+        guard let url = URL(string: baseURL + "/api/v1/user/change-picture") else {
+            throw NetworkError.invalidURL
+        }
+        guard let bearer = TokenManager.shared.bearerToken else {
+            throw BackendError.notAuthenticated
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.setValue(bearer, forHTTPHeaderField: "Authorization")
+        var body = Data()
+        let fieldName = "file"
+        let mimeType = "image/jpeg"
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"\(fieldName)\"; filename=\"\(filename)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            throw NetworkError.invalidResponse
+        }
+        return try decoder.decode(BackendBaseResponse.self, from: data)
+    }
+
 
     private struct EmptyBody: Codable {}
 

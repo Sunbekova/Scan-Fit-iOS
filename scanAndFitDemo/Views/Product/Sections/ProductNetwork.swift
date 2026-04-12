@@ -1,4 +1,4 @@
-//productNetwork
+// productNetwork
 import SwiftUI
 
 extension ProductDetailView {
@@ -47,32 +47,77 @@ extension ProductDetailView {
     
     func addAIFoodToTracker() async {
         guard let resp = aiResponse, let macros = resp.macros else { return }
-        let item = FoodItem(
-            title: resp.productName ?? "AI Scan",
-            subtitle: "AI Scan",
-            calories: "\(Int(macros.calories ?? 0)) kcal",
-            proteins: "\(macros.proteins ?? 0)g",
-            fat: "\(macros.fats ?? 0)g",
-            carbs: "\(macros.carbs ?? 0)g"
+        let eatReq = BackendCreateUserDailyEatRequest(
+            calorie: Int(macros.calories ?? 0),
+            carbohydrate: Int(macros.carbs ?? 0),
+            cholesterol: Int(macros.cholesterol ?? 0),
+            fats: Int(macros.resolvedFat ?? 0),
+            fiber: Int(macros.fiber ?? 0),
+            portion: 1.0,
+            productName: resp.productName ?? "AI Scan",
+            protein: Int(macros.proteins ?? 0),
+            sodium: Int(macros.sodium ?? 0),
+            sugar: Int(macros.sugar ?? 0),
+            vitaminA: macros.vitaminA,
+            vitaminB12: macros.vitaminB12,
+            vitaminB6: macros.vitaminB6,
+            vitaminB9: macros.vitaminB9,
+            vitaminC: macros.vitaminC,
+            vitaminD: macros.vitaminD,
+            vitaminE: macros.vitaminE
         )
-        await addFoodToTracker(item)
+        let day = trackerVM.selectedDayString
+        let calReq = BackendUpdateUserCaloriesRequest(
+            calories: Int(macros.calories ?? 0),
+            carbs: Int(macros.carbs ?? 0),
+            fat: Int(macros.resolvedFat ?? 0),
+            proteins: Int(macros.proteins ?? 0),
+            fiber: Int(macros.fiber ?? 0),
+            sodium: Int(macros.sodium ?? 0),
+            sugar: Int(macros.sugar ?? 0),
+            cholesterol: Int(macros.cholesterol ?? 0),
+            vitaminA: macros.vitaminA,
+            vitaminB12: macros.vitaminB12,
+            vitaminB6: macros.vitaminB6,
+            vitaminB9: macros.vitaminB9,
+            vitaminC: macros.vitaminC,
+            vitaminD: macros.vitaminD,
+            vitaminE: macros.vitaminE
+        )
+        do {
+            _ = try await BackendUserService.shared.createUserDailyEat(eatReq)
+            let trackResp = try await BackendUserService.shared.updateUserCalories(day: day, req: calReq)
+            if trackResp.success, let data = trackResp.data { trackerVM.applyCaloriesData(data) }
+        } catch {
+            // Fallback: update local tracker only
+            let item = FoodItem(
+                title: resp.productName ?? "AI Scan", subtitle: "AI Scan",
+                calories: "\(Int(macros.calories ?? 0)) kcal",
+                proteins: "\(macros.proteins ?? 0)g",
+                fat: "\(macros.resolvedFat ?? 0)g",
+                carbs: "\(macros.carbs ?? 0)g"
+            )
+            trackerVM.addFood(item)
+        }
     }
     
     func startAIAnalysis(for item: FoodItem) async {
         isAnalyzing = true
         analysisFailed = false
         let queryText = item.ingredients.isNilOrEmpty
-        ? "Product: \(item.title). Ingredients unknown, analyze based on general knowledge."
-        : item.ingredients!
-        
-        // Build user profile JSON for AI
+            ? "Product: \(item.title). Ingredients unknown, analyze based on general knowledge."
+            : item.ingredients!
+
         let userProfileJson = await buildUserProfileJson()
         let productJson = buildProductJson(for: item)
-        
+        let healthInfo = userProfileJson != nil
+            ? "User health profile JSON:\n\(userProfileJson!)"
+            : "General Analysis"
+
         do {
             let response = try await AINetworkService.shared.analyzeIngredientsFull(
                 ingredients: queryText,
-                healthInfo: userProfileJson != nil ? "User health profile JSON:\n\(userProfileJson!)" : "General Analysis",
+                healthInfo: healthInfo,
                 productJson: productJson,
                 userProfileJson: userProfileJson
             )
@@ -83,7 +128,7 @@ extension ProductDetailView {
         }
         isAnalyzing = false
     }
-    
+
     func buildUserProfileJson() async -> String? {
         do {
             let resp = try await BackendUserService.shared.getUserDetails()
@@ -91,9 +136,7 @@ extension ProductDetailView {
                 let encoder = JSONEncoder()
                 encoder.keyEncodingStrategy = .convertToSnakeCase
                 if let jsonData = try? encoder.encode(data),
-                   let str = String(data: jsonData, encoding: .utf8) {
-                    return str
-                }
+                   let str = String(data: jsonData, encoding: .utf8) { return str }
             }
         } catch {}
         return nil

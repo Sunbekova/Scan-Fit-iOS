@@ -7,33 +7,53 @@ struct HomeView: View {
     @State private var showDatePicker = false
     @State var showNutrientSheet = false
     @State var nutrientCaloriesData: BackendUserCaloriesData? = nil
+    @State private var showProPage = false
+    @State private var showHistory = false
+    @State private var userPhotoURL: String? = nil
+    @State private var isVip = TokenManager.shared.isVip
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
                     headerSection
+                    if !isVip { proBanner }
                     CalendarSection(trackerVM: trackerVM)
-                    CalorieCard(trackerVM: trackerVM){loadAndShowNutrients()}
+                    CalorieCard(trackerVM: trackerVM) { loadAndShowNutrients() }
                     MacrosRow(trackerVM: trackerVM)
                     waterSection
+                    historyButton
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 32)
             }
             .navigationBarHidden(true)
-            .navigationDestination(isPresented: $showProfile) { UserProfileView() }
-            .sheet(isPresented: $showNutrientSheet) {
-                NutrientDetailSheet(data: nutrientCaloriesData, day: trackerVM.selectedDayString)
+            .navigationDestination(isPresented: $showProfile) {
+                UserProfileView().environmentObject(authVM)
             }
-            .onAppear { trackerVM.loadForDate(trackerVM.selectedDate) }
-            .onChange(of: trackerVM.selectedDate) { newDate in
+            .navigationDestination(isPresented: $showProPage) {
+                ProSubscriptionView()
+            }
+            .navigationDestination(isPresented: $showHistory) {
+                ConsumptionHistoryView(selectedDate: trackerVM.selectedDate)
+            }
+            .sheet(isPresented: $showNutrientSheet) {
+                NutrientDetailSheet(
+                    data: nutrientCaloriesData,
+                    day: trackerVM.selectedDayString,
+                    onShowHistory: { showNutrientSheet = false; showHistory = true }
+                )
+            }
+            .onAppear {
+                trackerVM.loadForDate(trackerVM.selectedDate)
+                isVip = TokenManager.shared.isVip
+                Task { await loadUserHeader() }
+            }
+            .onChange(of: trackerVM.selectedDate) { _, newDate in
                 trackerVM.loadForDate(newDate)
             }
         }
     }
-
-    // MARK: - Header
 
     private var headerSection: some View {
         HStack {
@@ -48,23 +68,79 @@ struct HomeView: View {
             }
             Spacer()
             Button { showProfile = true } label: {
-                Circle()
-                    .fill(Color("AppGreen").opacity(0.15))
-                    .frame(width: 44, height: 44)
-                    .overlay(
-                        Text(String(authVM.displayName.prefix(1)).uppercased())
-                            .font(.headline)
-                            .foregroundColor(Color("AppGreen"))
-                    )
+                Group {
+                    if let photoURL = userPhotoURL, let url = URL(string: photoURL) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let img):
+                                img.resizable().scaledToFill()
+                                    .frame(width: 44, height: 44)
+                                    .clipShape(Circle())
+                            default:
+                                avatarInitialCircle
+                            }
+                        }
+                    } else {
+                        avatarInitialCircle
+                    }
+                }
             }
         }
         .padding(.top, 12)
         .sheet(isPresented: $showDatePicker) {
-            DatePickerSheet(selectedDate: $trackerVM.selectedDate, isPresented: $showDatePicker)
+            DatePickerSheet(
+                selectedDate: $trackerVM.selectedDate,
+                isPresented: $showDatePicker,
+                minDate: trackerVM.firstAvailableDate
+            )
         }
     }
-    // MARK: - su
 
+    private var avatarInitialCircle: some View {
+        Circle()
+            .fill(Color("AppGreen").opacity(0.15))
+            .frame(width: 44, height: 44)
+            .overlay(
+                Text(String(authVM.displayName.prefix(1)).uppercased())
+                    .font(.headline)
+                    .foregroundColor(Color("AppGreen"))
+            )
+    }
+
+    private var proBanner: some View {
+        HStack(spacing: 16) {
+            Image(systemName: "crown.fill")
+                .font(.system(size: 24))
+                .foregroundColor(Color(hex: "#FBBF24"))
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Upgrade to ScanFit Pro")
+                    .font(.subheadline).fontWeight(.bold)
+                    .foregroundColor(.white)
+                Text("Unlimited AI scans & advanced tracking")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.8))
+            }
+            Spacer()
+            Button {
+                showProPage = true
+            } label: {
+                Text("Get Pro")
+                    .font(.caption).fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .background(Color(hex: "#17A34A"))
+                    .cornerRadius(20)
+            }
+        }
+        .padding(16)
+        .background(
+            LinearGradient(colors: [Color(hex: "#0F172A"), Color(hex: "#1E3A5F")],
+                           startPoint: .leading, endPoint: .trailing)
+        )
+        .cornerRadius(16)
+    }
+
+//water
     private var waterSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
@@ -78,12 +154,10 @@ struct HomeView: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer()
-                Image(AppImages.homeWaterImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 120, height: 100)
+                Image(systemName: "drop.fill")
+                    .font(.system(size: 56))
+                    .foregroundColor(.blue.opacity(0.2))
             }
-
             HStack {
                 ForEach(0..<trackerVM.maxWaterGlasses, id: \.self) { i in
                     Button {
@@ -98,13 +172,44 @@ struct HomeView: View {
                             .foregroundColor(i < trackerVM.waterGlasses ? .blue : .gray.opacity(0.4))
                     }
                     .frame(maxWidth: .infinity)
+                    .disabled(!trackerVM.isTodaySelected)
                 }
             }
             .padding(.top, 10)
+            if !trackerVM.isTodaySelected {
+                Text("Water can only be changed for today")
+                    .font(.caption).foregroundColor(.secondary)
+            }
         }
         .padding(24)
         .background(Color(.systemGray6).opacity(0.5))
         .cornerRadius(20)
     }
 
+//history
+    private var historyButton: some View {
+        Button {
+            showHistory = true
+        } label: {
+            HStack {
+                Image(systemName: "chart.bar.xaxis")
+                Text("View Nutrition History")
+                    .fontWeight(.semibold)
+                Spacer()
+                Image(systemName: "chevron.right")
+            }
+            .font(.subheadline)
+            .foregroundColor(Color("AppGreen"))
+            .padding(16)
+            .background(Color("AppGreen").opacity(0.08))
+            .cornerRadius(14)
+        }
+    }
+
+    private func loadUserHeader() async {
+        guard let resp = try? await BackendUserService.shared.getMe(),
+              let userData = resp.data else { return }
+        userPhotoURL = userData.photo?.isEmpty == false ? userData.photo : nil
+        isVip = TokenManager.shared.isVip
+    }
 }
