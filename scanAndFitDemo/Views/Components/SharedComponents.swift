@@ -165,3 +165,39 @@ struct GradeBadgeView: View {
             .cornerRadius(6)
     }
 }
+
+    //product
+struct NutrientRow: View {
+    let name: String
+    let value: String
+    var body: some View {
+        HStack {
+            Text(name).font(.subheadline).foregroundColor(.primary)
+            Spacer()
+            Text(value).font(.subheadline).fontWeight(.semibold)
+        }
+        .padding(.vertical, 10)
+    }
+}
+
+struct MacroProgressItem: View {
+    let title: String
+    let value: Double
+    let maxValue: Double
+    let color: Color
+    var body: some View {
+        VStack(spacing: 6) {
+            ZStack {
+                Circle().stroke(color.opacity(0.2), lineWidth: 6)
+                Circle().trim(from: 0, to: min(value / maxValue, 1))
+                    .stroke(color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                Text(String(format: "%.0fg", value)).font(.caption2).fontWeight(.bold)
+            }
+            .frame(width: 60, height: 60)
+            Text(title).font(.caption).foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+

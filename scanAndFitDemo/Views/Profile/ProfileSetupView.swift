@@ -129,7 +129,6 @@ struct ProfileSetupView: View {
         .onAppear {
             Task {
                 await profileVM.loadAll()
-                // Pre-fill UI fields from VM data if they exist
                 if profileVM.hasMeasure {
                     heightCm = String(profileVM.height)
                     weightKg = String(profileVM.weight)
@@ -150,7 +149,6 @@ struct ProfileSetupView: View {
             }
         }
     }
-    
     
     private func saveAndContinue() async {
         guard !heightCm.isEmpty, !weightKg.isEmpty else {
