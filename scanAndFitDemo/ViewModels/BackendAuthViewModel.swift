@@ -77,9 +77,8 @@ final class BackendAuthViewModel: ObservableObject {
             }
             tokens.saveAuth(d)
             displayName = name
-            let uid = d.id ?? 0
-            UserDefaults.standard.removeObject(forKey: "profile_completed_\(uid)")
-            state = .profileIncomplete
+            errorMessage = "You are signed up. Please sign in."
+            state = .unauthenticated
         } catch { errorMessage = error.localizedDescription }
     }
 

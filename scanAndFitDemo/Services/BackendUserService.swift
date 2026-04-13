@@ -9,8 +9,8 @@ actor BackendUserService {
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 60
-        config.timeoutIntervalForResource = 180
+        config.timeoutIntervalForRequest = 180
+        config.timeoutIntervalForResource = 240
         return URLSession(configuration: config)
     }()
 

@@ -86,6 +86,11 @@ struct ProfileSetupView: View {
                         Task { await saveAndContinue() }
                     }
                     .padding(.top, 8)
+//                //extrennye sluchay
+//                    Button("Force Logout") {
+//                        authVM.signOut()
+//                    }
+//                    .padding()
                 }
                 .padding(.horizontal, 24).padding(.bottom, 40)
             }

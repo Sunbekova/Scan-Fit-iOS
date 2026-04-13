@@ -145,9 +145,10 @@ struct HomeView: View {
                         .font(.subheadline).foregroundColor(.secondary)
                 }
                 Spacer()
-                Image(systemName: "drop.fill")
-                    .font(.system(size: 56))
-                    .foregroundColor(.blue.opacity(0.2))
+                Image((AppImages.homeWaterImage))
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120, height: 100)
             }
 
             let maxGlasses = trackerVM.maxWaterGlasses

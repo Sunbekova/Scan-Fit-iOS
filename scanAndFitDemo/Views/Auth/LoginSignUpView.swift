@@ -154,9 +154,9 @@ struct SignUpView: View {
                     }
                     .padding(.horizontal, 24)
                     
-                    if let error = authVM.errorMessage {
-                        Text(error)
-                            .foregroundColor(.red)
+                    if let message = authVM.errorMessage {
+                        Text(message)
+                            .foregroundColor(message.contains("signed up") ? .green : .red)
                             .font(.caption)
                             .padding(.horizontal, 24)
                             .padding(.top, 16)
@@ -165,7 +165,12 @@ struct SignUpView: View {
                     Spacer().frame(height: 32)
                     
                     SFPrimaryButton(title: "Register", isLoading: authVM.isLoading) {
-                        Task { await authVM.signUp(name: username, email: email, password: password) }
+                        Task {
+                            await authVM.signUp(name: username, email: email, password: password)
+                            if authVM.errorMessage == "You are signed up. Please sign in." {
+                                dismiss()
+                            }
+                        }
                     }
                     .padding(.horizontal, 24)
                     

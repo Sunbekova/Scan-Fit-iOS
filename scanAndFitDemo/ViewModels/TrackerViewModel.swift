@@ -118,14 +118,17 @@ final class TrackerViewModel: ObservableObject {
     func applyWaterData(_ data: BackendUserWaterData) {
         let consumedMl = data.daily?.water ?? data.water ?? 0
         let goalMl     = data.daily?.goal  ?? 1750
-        waterGlasses   = consumedMl / waterGlassMl
-        waterGoalMl    = goalMl
+        let newGlasses = Int(round(Double(consumedMl) / Double(waterGlassMl)))
+        if isWaterUpdating && newGlasses < waterGlasses {
+            return
+        }
+        waterGlasses = newGlasses
+        waterGoalMl  = goalMl
     }
-
     func tapWaterGlass(at index: Int) {
         guard isTodaySelected, !isWaterUpdating else { return }
         let maxGlasses = maxWaterGlasses
-        let safeCount  = waterGlasses.clamped(to: 0...maxGlasses)
+        let safeCount = min(waterGlasses, maxGlasses)
         
         if index < safeCount {
             removeWater ()
@@ -134,12 +137,12 @@ final class TrackerViewModel: ObservableObject {
         
     func addWater() {
         guard isTodaySelected, !isWaterUpdating else { return }
-        setWaterTo((waterGlasses + 1).clamped(to: 0...maxWaterGlasses))
+        setWaterTo(min(waterGlasses + 1, maxWaterGlasses))
     }
 
     func removeWater() {
         guard isTodaySelected, !isWaterUpdating, waterGlasses > 0 else { return }
-        setWaterTo((waterGlasses - 1).clamped(to: 0...maxWaterGlasses))
+        setWaterTo(max(waterGlasses - 1, 0))
     }
 
     private func setWaterTo(_ targetCount: Int) {
