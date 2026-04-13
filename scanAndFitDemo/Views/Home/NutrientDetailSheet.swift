@@ -20,14 +20,14 @@ struct NutrientDetailSheet: View {
         let d = data?.daily
         let g = data
         return [
-            NutrientRow(name: "Calories",    consumed: d?.calories.map(Double.init), goal: g?.calories.map(Double.init), unit: "kcal", isPremium: false),
-            NutrientRow(name: "Carbs", consumed: d?.carbs, goal: g?.carbs, unit: "g", isPremium: false),
-            NutrientRow(name: "Protein", consumed: d?.proteins,goal: g?.proteins, unit: "g", isPremium: false),
-            NutrientRow(name: "Fats", consumed: d?.fat, goal: g?.fat, unit: "g", isPremium: false),
-            NutrientRow(name: "Sodium", consumed: d?.sodium, goal: g?.sodium, unit: "mg", isPremium: true),
-            NutrientRow(name: "Fiber", consumed: d?.fiber, goal: g?.fiber, unit: "g", isPremium: true),
-            NutrientRow(name: "Sugar", consumed: d?.sugar, goal: g?.sugar, unit: "g", isPremium: true),
-            NutrientRow(name: "Cholesterol", consumed: d?.cholesterol, goal: g?.cholesterol, unit: "mg", isPremium: true),
+            NutrientRow(name: "Calories",    consumed: toDouble(d?.calories), goal: toDouble(g?.calories), unit: "kcal", isPremium: false),
+            NutrientRow(name: "Carbs", consumed: toDouble(d?.carbs), goal: toDouble(g?.carbs), unit: "g", isPremium: false),
+            NutrientRow(name: "Protein", consumed: toDouble(d?.proteins),goal: toDouble(g?.proteins), unit: "g", isPremium: false),
+            NutrientRow(name: "Fats", consumed: toDouble(d?.fat), goal: toDouble(g?.fat), unit: "g", isPremium: false),
+            NutrientRow(name: "Sodium", consumed: toDouble(d?.sodium), goal: toDouble(g?.sodium), unit: "mg", isPremium: true),
+            NutrientRow(name: "Fiber", consumed: toDouble(d?.fiber), goal: toDouble(g?.fiber), unit: "g", isPremium: true),
+            NutrientRow(name: "Sugar", consumed: toDouble(d?.sugar), goal: toDouble(g?.sugar), unit: "g", isPremium: true),
+            NutrientRow(name: "Cholesterol", consumed: toDouble(d?.cholesterol), goal: toDouble(g?.cholesterol), unit: "mg", isPremium: true),
             NutrientRow(name: "Vitamin A", consumed: d?.vitaminA, goal: g?.vitaminA, unit: "mcg", isPremium: true),
             NutrientRow(name: "Vitamin B12", consumed: d?.vitaminB12, goal: g?.vitaminB12, unit: "mcg", isPremium: true),
             NutrientRow(name: "Vitamin B6", consumed: d?.vitaminB6, goal: g?.vitaminB6, unit: "mg", isPremium: true),
@@ -117,5 +117,8 @@ struct NutrientDetailSheet: View {
 
     private func formatAmt(_ v: Double) -> String {
         v.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(v))" : String(format: "%.1f", v)
+    }
+    private func toDouble(_ value: Int?) -> Double? {
+        value.map { Double($0) }
     }
 }

@@ -26,8 +26,7 @@ struct UserProfileView: View {
                         Button(tab.rawValue) { selectedTab = tab }
                             .font(.subheadline)
                             .fontWeight(selectedTab == tab ? .bold : .regular)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, 16).padding(.vertical, 8)
                             .background(selectedTab == tab ? Color("AppGreen") : Color(.systemGray5))
                             .foregroundColor(selectedTab == tab ? .white : .primary)
                             .cornerRadius(20)
@@ -40,17 +39,20 @@ struct UserProfileView: View {
             Divider()
 
             if profileVM.isLoading {
-                Spacer()
-                ProgressView()
-                Spacer()
+                Spacer(); ProgressView(); Spacer()
             } else {
                 ScrollView {
                     VStack(spacing: 0) {
                         switch selectedTab {
-                        case .account: AccountSection(profileVM: profileVM, authVM: authVM)
-                        case .measurements: MeasurementsSection(profileVM: profileVM)
-                        case .dietary: DietarySection(profileVM: profileVM)
-                        case .diseases: DiseasesSection(profileVM: profileVM)
+                        case .account:
+                            AccountSection(profileVM: profileVM, authVM: authVM)
+                        case .measurements:
+                            MeasurementsSection(profileVM: profileVM)
+                                .environmentObject(authVM)
+                        case .dietary:
+                            DietarySection(profileVM: profileVM)
+                        case .diseases:
+                            DiseasesSection(profileVM: profileVM)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -62,24 +64,27 @@ struct UserProfileView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button { dismiss() } label: {Image(systemName: "chevron.left").foregroundColor(Color("AppGreen"))}
+                Button { dismiss() } label: {
+                    Image(systemName: "chevron.left").foregroundColor(Color("AppGreen"))
+                }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    Task { await profileVM.refreshTodayCalories() }
-                } label: {Image(systemName: "arrow.clockwise").foregroundColor(Color("AppGreen"))}
+                Button { Task { await profileVM.refreshTodayCalories() } } label: {
+                    Image(systemName: "arrow.clockwise").foregroundColor(Color("AppGreen"))
+                }
             }
         }
         .alert("Error", isPresented: Binding(
             get: { profileVM.errorMessage != nil },
             set: { if !$0 { profileVM.errorMessage = nil } }
-        )) {Button("OK", role: .cancel) { profileVM.errorMessage = nil }} message: {Text(profileVM.errorMessage ?? "")}
+        )) {
+            Button("OK", role: .cancel) { profileVM.errorMessage = nil }
+        } message: { Text(profileVM.errorMessage ?? "") }
         .task { await profileVM.loadAll() }
     }
 
     private var profileHeader: some View {
         HStack(spacing: 16) {
-            // Avatar with photo support
             Group {
                 if let photoURL = profileVM.photoURL, let url = URL(string: photoURL) {
                     AsyncImage(url: url) { phase in
@@ -87,13 +92,10 @@ struct UserProfileView: View {
                         case .success(let img):
                             img.resizable().scaledToFill()
                                 .frame(width: 64, height: 64).clipShape(Circle())
-                        default:
-                            defaultProfileAvatar
+                        default: defaultProfileAvatar
                         }
                     }
-                } else {
-                    defaultProfileAvatar
-                }
+                } else { defaultProfileAvatar }
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text(profileVM.username.isEmpty ? "User" : profileVM.username)
@@ -105,7 +107,8 @@ struct UserProfileView: View {
                     .font(.caption).fontWeight(.semibold)
                     .foregroundColor(roleText == "ScanFit Pro" ? Color(hex: "#FBBF24") : .secondary)
                     .padding(.horizontal, 8).padding(.vertical, 2)
-                    .background((roleText == "ScanFit Pro" ? Color(hex: "#0F172A") : Color.gray).opacity(roleText == "ScanFit Pro" ? 1.0 : 0.1))
+                    .background((roleText == "ScanFit Pro" ? Color(hex: "#0F172A") : Color.gray)
+                        .opacity(roleText == "ScanFit Pro" ? 1.0 : 0.1))
                     .cornerRadius(10)
             }
             Spacer()

@@ -74,8 +74,7 @@ struct HomeView: View {
                             switch phase {
                             case .success(let img):
                                 img.resizable().scaledToFill()
-                                    .frame(width: 44, height: 44)
-                                    .clipShape(Circle())
+                                    .frame(width: 44, height: 44).clipShape(Circle())
                             default:
                                 avatarInitialCircle
                             }
@@ -114,22 +113,16 @@ struct HomeView: View {
                 .foregroundColor(Color(hex: "#FBBF24"))
             VStack(alignment: .leading, spacing: 2) {
                 Text("Upgrade to ScanFit Pro")
-                    .font(.subheadline).fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .font(.subheadline).fontWeight(.bold).foregroundColor(.white)
                 Text("Unlimited AI scans & advanced tracking")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.8))
+                    .font(.caption).foregroundColor(.white.opacity(0.8))
             }
             Spacer()
-            Button {
-                showProPage = true
-            } label: {
+            Button { showProPage = true } label: {
                 Text("Get Pro")
-                    .font(.caption).fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .font(.caption).fontWeight(.bold).foregroundColor(.white)
                     .padding(.horizontal, 14).padding(.vertical, 8)
-                    .background(Color(hex: "#17A34A"))
-                    .cornerRadius(20)
+                    .background(Color(hex: "#17A34A")).cornerRadius(20)
             }
         }
         .padding(16)
@@ -140,7 +133,6 @@ struct HomeView: View {
         .cornerRadius(16)
     }
 
-//water
     private var waterSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
@@ -150,66 +142,85 @@ struct HomeView: View {
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.blue)
                     Text(String(format: "Goal %.2f L", trackerVM.waterGoalLiters))
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(.subheadline).foregroundColor(.secondary)
                 }
                 Spacer()
                 Image(systemName: "drop.fill")
                     .font(.system(size: 56))
                     .foregroundColor(.blue.opacity(0.2))
             }
-            HStack {
-                ForEach(0..<trackerVM.maxWaterGlasses, id: \.self) { i in
+
+            let maxGlasses = trackerVM.maxWaterGlasses
+            let safeCount  = trackerVM.waterGlasses.clamped(to: 0...maxGlasses)
+
+            HStack(spacing: 4) {
+                ForEach(0..<maxGlasses, id: \.self) { i in
                     Button {
-                        if i < trackerVM.waterGlasses {
-                            trackerVM.removeWater()
-                        } else if i == trackerVM.waterGlasses {
-                            trackerVM.addWater()
-                        }
+                        trackerVM.tapWaterGlass(at: i)
                     } label: {
-                        Image(systemName: i < trackerVM.waterGlasses ? "drop.fill" : "drop")
-                            .font(.system(size: 20))
-                            .foregroundColor(i < trackerVM.waterGlasses ? .blue : .gray.opacity(0.4))
+                        waterGlassIcon(index: i, safeCount: safeCount)
                     }
                     .frame(maxWidth: .infinity)
-                    .disabled(!trackerVM.isTodaySelected)
+                    .disabled(!trackerVM.isTodaySelected || trackerVM.isWaterUpdating)
                 }
             }
             .padding(.top, 10)
-            if !trackerVM.isTodaySelected {
-                Text("Water can only be changed for today")
-                    .font(.caption).foregroundColor(.secondary)
-            }
+            .opacity(trackerVM.isWaterUpdating ? 0.45 : (trackerVM.isTodaySelected ? 1.0 : 0.6))
+            waterHintText
         }
         .padding(24)
         .background(Color(.systemGray6).opacity(0.5))
         .cornerRadius(20)
     }
 
-//history
-    private var historyButton: some View {
-        Button {
-            showHistory = true
-        } label: {
-            HStack {
-                Image(systemName: "chart.bar.xaxis")
-                Text("View Nutrition History")
-                    .fontWeight(.semibold)
-                Spacer()
-                Image(systemName: "chevron.right")
+    @ViewBuilder
+    private func waterGlassIcon(index: Int, safeCount: Int) -> some View {
+        let isFilled   = index < safeCount
+        let isNext     = index == safeCount
+
+        Image(systemName: isFilled ? "drop.fill" : (isNext ? "drop.circle" : "drop"))
+            .font(.system(size: 22))
+            .foregroundColor(
+                isFilled ? .blue :
+                isNext   ? Color("AppGreen") :
+                           .gray.opacity(0.35)
+            )
+    }
+
+    @ViewBuilder
+    private var waterHintText: some View {
+        if !trackerVM.isTodaySelected {
+            Text("Past days are read-only. Water can only be changed for today")
+                .font(.caption).foregroundColor(.secondary)
+        } else if trackerVM.isWaterUpdating {
+            HStack(spacing: 6) {
+                ProgressView().scaleEffect(0.7)
+                Text("Saving water…").font(.caption).foregroundColor(.secondary)
             }
-            .font(.subheadline)
-            .foregroundColor(Color("AppGreen"))
-            .padding(16)
-            .background(Color("AppGreen").opacity(0.08))
-            .cornerRadius(14)
+        } else if let err = trackerVM.waterError {
+            Text(err).font(.caption).foregroundColor(.red)
+        } else {
+            Text("Tap an empty cup to add water, or a filled cup to remove it")
+                .font(.caption).foregroundColor(.secondary)
         }
     }
 
+    private var historyButton: some View {
+        Button { showHistory = true } label: {
+            HStack {
+                Image(systemName: "chart.bar.xaxis")
+                Text("View Nutrition History").fontWeight(.semibold)
+                Spacer()
+                Image(systemName: "chevron.right")
+            }
+            .font(.subheadline).foregroundColor(Color("AppGreen"))
+            .padding(16).background(Color("AppGreen").opacity(0.08)).cornerRadius(14)
+        }
+    }
     private func loadUserHeader() async {
         guard let resp = try? await BackendUserService.shared.getMe(),
               let userData = resp.data else { return }
         userPhotoURL = userData.photo?.isEmpty == false ? userData.photo : nil
-        isVip = TokenManager.shared.isVip
+        isVip        = TokenManager.shared.isVip
     }
 }

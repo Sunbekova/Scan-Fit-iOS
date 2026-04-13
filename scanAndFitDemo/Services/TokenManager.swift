@@ -12,26 +12,47 @@ final class TokenManager {
         case refreshToken = "refresh_token"
         case userId = "user_id"
         case userRole = "user_role"
+        case expiresAt = "expires_at"
     }
 
     var accessToken: String? {
         get { load(key: .accessToken) }
-        set { newValue.map { save(key: .accessToken, value: $0) } ?? delete(key: .accessToken) }
+        set {
+            if let v = newValue { save(key: .accessToken, value: v) }
+            else { delete(key: .accessToken) }
+        }
     }
 
     var refreshToken: String? {
         get { load(key: .refreshToken) }
-        set { newValue.map { save(key: .refreshToken, value: $0) } ?? delete(key: .refreshToken) }
+        set {
+            if let v = newValue { save(key: .refreshToken, value: v) }
+            else { delete(key: .refreshToken) }
+        }
     }
 
     var userId: Int? {
         get { load(key: .userId).flatMap { Int($0) } }
-        set { newValue.map { save(key: .userId, value: String($0)) } ?? delete(key: .userId) }
+        set {
+            if let v = newValue { save(key: .userId, value: String(v)) }
+            else { delete(key: .userId) }
+        }
     }
 
     var userRole: String? {
         get { load(key: .userRole) }
-        set { newValue.map { save(key: .userRole, value: $0) } ?? delete(key: .userRole) }
+        set {
+            if let v = newValue { save(key: .userRole, value: v) }
+            else { delete(key: .userRole) }
+        }
+    }
+
+    var expiresAt: Double? {
+        get { load(key: .expiresAt).flatMap { Double($0) } }
+        set {
+            if let v = newValue { save(key: .expiresAt, value: String(v)) }
+            else { delete(key: .expiresAt) }
+        }
     }
 
     var isVip: Bool { userRole?.lowercased() == "vip" }
@@ -41,13 +62,28 @@ final class TokenManager {
         return "Bearer \(token)"
     }
 
-    var isLoggedIn: Bool { accessToken != nil }
+    var isLoggedIn: Bool {
+        guard accessToken != nil else { return false }
+        if let exp = expiresAt, Date().timeIntervalSince1970 > exp - 60 {
+            // Token is expired or expiring in <60s – caller should refresh
+            return refreshToken != nil
+        }
+        return true
+    }
+
+    var isTokenExpired: Bool {
+        guard accessToken != nil else { return true }
+        guard let exp = expiresAt else { return false }
+        return Date().timeIntervalSince1970 >= exp - 60
+    }
 
     func saveAuth(_ data: BackendAuthData) {
         accessToken = data.accessToken
         refreshToken = data.refreshToken
         userId = data.id
         if let roleCode = data.role?.code { userRole = roleCode }
+        let expiry = Date().timeIntervalSince1970 + Double(data.expiresIn)
+        expiresAt = expiry
     }
 
     func clearAll() {
@@ -55,6 +91,7 @@ final class TokenManager {
         refreshToken = nil
         userId = nil
         userRole = nil
+        expiresAt = nil
     }
 
     private func save(key: Key, value: String) {

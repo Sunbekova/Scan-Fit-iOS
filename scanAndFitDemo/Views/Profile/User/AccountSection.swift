@@ -10,80 +10,26 @@ struct AccountSection: View {
     @State private var navigateToPro = false
 
     private let isVip = TokenManager.shared.isVip
+    
+    private var activeTags: [String] {
+        (profileVM.healthConditions.filter(\.isActive).compactMap(\.name)
+         + profileVM.diseases.filter(\.isActive).compactMap(\.name))
+    }
+
+    private var activeDiets: [String] {
+        profileVM.dietTypes.filter(\.isActive).compactMap(\.name)
+    }
 
     var body: some View {
         VStack(spacing: 20) {
 
             avatarSection
-
-            HStack(spacing: 0) {
-                StatItem(label: "Height", value: profileVM.height > 0 ? "\(profileVM.height) cm" : "—")
-                Divider()
-                StatItem(label: "Weight", value: profileVM.weight > 0 ? "\(profileVM.weight) kg" : "—")
-                Divider()
-                StatItem(label: "BMI", value: profileVM.bmiString)
-            }
-            .frame(height: 70)
-            .background(Color(.systemGray6))
-            .cornerRadius(14)
-
             proCard
-
-            let activeTags = (profileVM.healthConditions.filter(\.isActive).map(\.name)
-                             + profileVM.diseases.filter(\.isActive).map(\.name))
-            if !activeTags.isEmpty {
-                sectionCard(title: "Health Conditions") {
-                    FlowLayout(spacing: 8) {
-                        ForEach(activeTags, id: \.self) { tag in
-                            Text(tag)
-                                .font(.caption)
-                                .padding(.horizontal, 12).padding(.vertical, 6)
-                                .background(Color("AppGreen").opacity(0.15))
-                                .foregroundColor(Color("AppGreen"))
-                                .cornerRadius(20)
-                        }
-                    }
-                }
-            }
-
-            let activeDiets = profileVM.dietTypes.filter(\.isActive).map(\.name)
-            if !activeDiets.isEmpty {
-                sectionCard(title: "Diet Preferences") {
-                    FlowLayout(spacing: 8) {
-                        ForEach(activeDiets, id: \.self) { tag in
-                            Text(tag)
-                                .font(.caption)
-                                .padding(.horizontal, 12).padding(.vertical, 6)
-                                .background(Color.blue.opacity(0.1))
-                                .foregroundColor(.blue)
-                                .cornerRadius(20)
-                        }
-                    }
-                }
-            }
-
-            Button {
-                Task { await profileVM.refreshTodayCalories() }
-            } label: {
-                Label("Refresh Today's Calories", systemImage: "arrow.clockwise")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color("AppGreen").opacity(0.1))
-                    .foregroundColor(Color("AppGreen"))
-                    .cornerRadius(14)
-            }
-
-            Button(role: .destructive) {
-                authVM.signOut()
-            } label: {
-                Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.red.opacity(0.1))
-                    .foregroundColor(.red)
-                    .cornerRadius(14)
-            }
-            .padding(.top, 8)
+            healthConditionsSection
+            dietSection
+            refreshButton
+            signOutButton
+            
         }
         .padding(.top, 16)
         .onChange(of: selectedPhoto) { _, item in
@@ -161,7 +107,7 @@ struct AccountSection: View {
                         .font(.subheadline).fontWeight(.bold)
                         .foregroundColor(isVip ? Color(hex: "#FBBF24") : .primary)
                     Text(isVip ? "Unlimited scans & all features" : "Tap to upgrade to Pro")
-                        .font(.caption).foregroundColor(.secondary)
+                        .font(.caption).foregroundColor(Color("AppGreen"))
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
@@ -195,5 +141,69 @@ struct AccountSection: View {
         } catch {
             photoUploadError = error.localizedDescription
         }
+    }
+    
+    private var healthConditionsSection: some View {
+        Group {
+            if !activeTags.isEmpty {
+                sectionCard(title: "Health Conditions") {
+                    FlowLayout(spacing: 8) {
+                        ForEach(activeTags, id: \.self) { tag in
+                            tagView(tag, color: Color("AppGreen"))
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private var dietSection: some View {
+        Group {
+            if !activeDiets.isEmpty {
+                sectionCard(title: "Diet Preferences") {
+                    FlowLayout(spacing: 8) {
+                        ForEach(activeDiets, id: \.self) { tag in
+                            tagView(tag, color: .blue)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    private func tagView(_ text: String, color: Color) -> some View {
+        Text(text)
+            .font(.caption)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(color.opacity(0.15))
+            .foregroundColor(color)
+            .cornerRadius(20)
+    }
+    
+    private var refreshButton: some View {
+        Button {
+            Task { await profileVM.refreshTodayCalories() }
+        } label: {
+            Label("Refresh Today's Calories", systemImage: "arrow.clockwise")
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color("AppGreen").opacity(0.1))
+                .foregroundColor(Color("AppGreen"))
+                .cornerRadius(14)
+        }
+    }
+    
+    private var signOutButton: some View {
+        Button(role: .destructive) {
+            authVM.signOut()
+        } label: {
+            Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.red.opacity(0.1))
+                .foregroundColor(.red)
+                .cornerRadius(14)
+        }
+        .padding(.top, 8)
     }
 }

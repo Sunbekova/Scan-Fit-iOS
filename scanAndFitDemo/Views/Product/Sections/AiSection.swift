@@ -1,4 +1,4 @@
-// AI verdict section - matches Android ProductDetailFragment AI layout
+// AI verdict section
 import SwiftUI
 
 extension ProductDetailView {

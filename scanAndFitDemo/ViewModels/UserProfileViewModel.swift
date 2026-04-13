@@ -38,104 +38,96 @@ final class UserProfileViewModel: ObservableObject {
     var bmiString: String {
         guard height > 0, weight > 0 else { return "—" }
         let hm = Double(height) / 100.0
-        let val = Double(weight) / (hm * hm)
-        return String(format: "%.1f", val)
+        return String(format: "%.1f", Double(weight) / (hm * hm))
     }
-
     var targetDateDisplay: String {
         guard !targetDate.isEmpty else { return "Not set" }
         let inFmt = DateFormatter(); inFmt.dateFormat = "yyyy-MM-dd"
         let outFmt = DateFormatter(); outFmt.dateFormat = "dd MMM yyyy"
-        if let d = inFmt.date(from: targetDate) { return outFmt.string(from: d) }
-        return targetDate
+        return inFmt.date(from: targetDate).map { outFmt.string(from: $0) } ?? targetDate
     }
 
     private let userSvc = BackendUserService.shared
-    private let tokens = TokenManager.shared
+    private let tokens  = TokenManager.shared
 
     func loadAll() async {
-        isLoading = true
-        errorMessage = nil
-        defer { isLoading = false }
+        isLoading = true; errorMessage = nil; defer { isLoading = false }
+        async let meTask = try? userSvc.getMe()
+        async let measureTask = try? userSvc.getMeasure()
+        async let dietTask = try? userSvc.getDietTypes()
+        async let prefTask = try? userSvc.getDietaryPreferences()
+        async let condTask = try? userSvc.getHealthConditions()
+        async let diseaseTask = try? userSvc.getDiseases()
+        async let levelTask = try? userSvc.getDiseaseLevels()
+        async let wmTask = try? userSvc.getWeightManagement()
 
-        async let meTask = userSvc.getMe()
-        async let measureTask = (try? userSvc.getMeasure())
-        async let dietTask = (try? userSvc.getDietTypes())
-        async let prefTask = (try? userSvc.getDietaryPreferences())
-        async let condTask = (try? userSvc.getHealthConditions())
-        async let diseaseTask = (try? userSvc.getDiseases())
-        async let levelTask = (try? userSvc.getDiseaseLevels())
-        async let weightMgmtTask = (try? userSvc.getWeightManagement())
+        let (me, measure, diet, prefs, conds, diseases2, levels, wm) =
+            await (meTask, measureTask, dietTask, prefTask, condTask, diseaseTask, levelTask, wmTask)
 
-        do {
-            let (me, measure, diet, prefs, conds, diseasesResp, levels, wm) =
-                try await (meTask, measureTask, dietTask, prefTask, condTask, diseaseTask, levelTask, weightMgmtTask)
-
-            if let userData = me.data {
-                username = userData.username ?? ""
-                email = userData.email
-                photoURL = userData.photo?.isEmpty == false ? userData.photo : nil
-            }
-
-            if let m = measure?.data {
-                age = m.age ?? ""
-                gender = m.gender ?? ""
-                height = m.height ?? 0
-                weight = m.weight ?? 0
-                birthDate = m.birthDate ?? ""
-                bloodPressure = m.bloodPressure ?? 0
-                cholesterol = m.cholesterol ?? 0
-                bmi = m.bmi ?? 0
-                dailyCaloriesGoal = m.dailyCaloriesGoal ?? 2000
-                dailyWaterGoal = m.dailyWaterGoal ?? 8
-                hasMeasure = true
-            }
-
-            dietTypes = diet?.data ?? []
-            dietaryPrefs = prefs?.data ?? []
-            healthConditions = conds?.data ?? []
-            diseases = diseasesResp?.data ?? []
-            diseaseLevels = levels?.data ?? []
-
-            if let w = wm?.data {
-                weightGoal = w.goal ?? ""
-                targetWeight = w.targetWeight ?? 0
-                targetDate = w.targetDate ?? ""
-                weeklyChange = w.weeklyWeightChange ?? 1
-            }
-        } catch {
-            errorMessage = error.localizedDescription
+        if let userData = me?.data {
+            username = userData.username ?? ""; email = userData.email
+            photoURL = userData.photo?.isEmpty == false ? userData.photo : nil
+        }
+        if let m = measure?.data {
+            age = m.age ?? ""; gender = m.gender ?? ""; height = m.height ?? 0; weight = m.weight ?? 0
+            birthDate = m.birthDate ?? ""; bloodPressure = m.bloodPressure ?? 0
+            cholesterol = m.cholesterol ?? 0; bmi = m.bmi ?? 0
+            dailyCaloriesGoal = m.dailyCaloriesGoal ?? 2000; dailyWaterGoal = m.dailyWaterGoal ?? 8
+            hasMeasure = true
+        }
+        dietTypes = diet?.data ?? []
+        dietaryPrefs = prefs?.data ?? []
+        healthConditions = conds?.data ?? []
+        self.diseases = diseases2?.data ?? []
+        diseaseLevels = levels?.data ?? []
+        if let w = wm?.data {
+            weightGoal = w.goal ?? ""; targetWeight = w.targetWeight ?? 0
+            targetDate = w.targetDate ?? ""; weeklyChange = w.weeklyWeightChange ?? 1
         }
     }
 
     func saveMeasures(customBirthDate: String? = nil) async {
+        try? await saveMeasuresThrows(customBirthDate: customBirthDate)
+    }
+    func saveMeasuresThrows(customBirthDate: String? = nil) async throws {
         isLoading = true; defer { isLoading = false }
         guard let uid = tokens.userId else { errorMessage = "Not authenticated"; return }
         let finalBirthDate = customBirthDate ?? birthDate
         let bmiVal = calculateBMI()
         let ageStr = calculateAge(from: finalBirthDate)
-        do {
-            if hasMeasure {
-                let req = BackendUpdateUserMeasureRequest(
-                    age: ageStr, birthDate: finalBirthDate,
-                    bloodPressure: bloodPressure, bmi: bmiVal, cholesterol: cholesterol,
-                    dailyCaloriesGoal: dailyCaloriesGoal, dailyWaterGoal: dailyWaterGoal,
-                    gender: gender, height: height, weight: weight
-                )
-                let resp = try await userSvc.updateMeasure(req)
-                if let d = resp.data { applyMeasureData(d) }
-            } else {
-                let req = BackendUserMeasureRequest(
-                    age: ageStr, birthDate: finalBirthDate,
-                    bloodPressure: bloodPressure, bmi: bmiVal, cholesterol: cholesterol,
-                    dailyCaloriesGoal: dailyCaloriesGoal, dailyWaterGoal: dailyWaterGoal,
-                    gender: gender, height: height, userId: uid, weight: weight
-                )
-                let resp = try await userSvc.createMeasure(req)
-                if let d = resp.data { applyMeasureData(d); hasMeasure = true }
-            }
-            successMessage = "Saved"
-        } catch { errorMessage = error.localizedDescription }
+        if hasMeasure {
+            let req = BackendUpdateUserMeasureRequest(
+                age:               ageStr,
+                birthDate:         finalBirthDate,
+                gender:            gender,
+                bloodPressure:     bloodPressure,
+                bmi:               bmiVal,
+                cholesterol:       cholesterol,
+                dailyCaloriesGoal: dailyCaloriesGoal,
+                dailyWaterGoal:    dailyWaterGoal,
+                height:            height,
+                weight:            weight
+            )
+            let resp = try await userSvc.updateMeasure(req)
+            if let d = resp.data { applyMeasureData(d) }
+        } else {
+            let req = BackendUserMeasureRequest(
+                age:               ageStr,
+                birthDate:         finalBirthDate,
+                gender:            gender,
+                bloodPressure:     bloodPressure,
+                bmi:               bmiVal,
+                cholesterol:       cholesterol,
+                dailyCaloriesGoal: dailyCaloriesGoal,
+                dailyWaterGoal:    dailyWaterGoal,
+                height:            height,
+                userId:            uid,
+                weight:            weight
+            )
+            let resp = try await userSvc.createMeasure(req)
+            if let d = resp.data { applyMeasureData(d); hasMeasure = true }
+        }
+        successMessage = "Saved"
     }
 
     private func applyMeasureData(_ d: BackendUserMeasureData) {
@@ -152,7 +144,6 @@ final class UserProfileViewModel: ObservableObject {
     }
 
     // MARK: - Togg
-
     func toggleDietType(_ item: BackendDietType) async {
         let newActive = !item.isActive
         do {
@@ -162,7 +153,6 @@ final class UserProfileViewModel: ObservableObject {
             }
         } catch { errorMessage = error.localizedDescription }
     }
-
     func toggleDietaryPreference(_ item: BackendDietType) async {
         let newActive = !item.isActive
         do {
@@ -172,7 +162,6 @@ final class UserProfileViewModel: ObservableObject {
             }
         } catch { errorMessage = error.localizedDescription }
     }
-
     func toggleHealthCondition(_ item: BackendDietType) async {
         let newActive = !item.isActive
         do {
@@ -182,7 +171,6 @@ final class UserProfileViewModel: ObservableObject {
             }
         } catch { errorMessage = error.localizedDescription }
     }
-
     func toggleDisease(_ item: BackendDisease, levelId: Int, isActive: Bool) async {
         let isVip = TokenManager.shared.userRole == "vip"
         if !isVip && isActive && !item.isActive {
@@ -201,29 +189,25 @@ final class UserProfileViewModel: ObservableObject {
     func saveWeightManagement() async {
         isLoading = true; defer { isLoading = false }
         do {
-            let normalizedDate = targetDate.isEmpty ? nil : targetDate
             let req = BackendUpdateWeightManagementRequest(
                 goal: weightGoal.isEmpty ? nil : weightGoal,
-                targetDate: normalizedDate,
+                targetDate: targetDate.isEmpty ? nil : targetDate,
                 targetWeight: targetWeight > 0 ? targetWeight : nil,
-                weeklyWeightChange: weeklyChange
-            )
+                weeklyWeightChange: weeklyChange)
             _ = try await userSvc.updateWeightManagement(req)
             successMessage = "Weight management updated"
         } catch { errorMessage = error.localizedDescription }
     }
 
     func refreshTodayCalories() async {
-        do {
-            _ = try await userSvc.refreshTodayCalories()
-            successMessage = "Calories refreshed"
-        } catch { errorMessage = error.localizedDescription }
+        do { _ = try await userSvc.refreshTodayCalories(); successMessage = "Calories refreshed" }
+        catch { errorMessage = error.localizedDescription }
     }
 
     var healthInfoForAI: String {
-        let active = healthConditions.filter(\.isActive).map(\.name)
-            + diseases.filter(\.isActive).map(\.name)
-        return active.isEmpty ? "None reported" : active.joined(separator: ", ")
+        let names: [String] = healthConditions.filter(\.isActive).map(\.name)
+            + diseases.filter(\.isActive).compactMap(\.name)
+        return names.isEmpty ? "None reported" : names.joined(separator: ", ")
     }
 
     private func calculateBMI() -> Int {
@@ -231,11 +215,9 @@ final class UserProfileViewModel: ObservableObject {
         let hm = Double(height) / 100.0
         return Int(Double(weight) / (hm * hm))
     }
-
     private func calculateAge(from dateStr: String) -> String {
         let fmt = DateFormatter(); fmt.dateFormat = "yyyy-MM-dd"
         guard let dob = fmt.date(from: dateStr) else { return "0" }
-        let comps = Calendar.current.dateComponents([.year], from: dob, to: Date())
-        return "\(comps.year ?? 0)"
+        return "\(Calendar.current.dateComponents([.year], from: dob, to: Date()).year ?? 0)"
     }
 }

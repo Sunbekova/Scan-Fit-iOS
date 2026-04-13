@@ -165,12 +165,12 @@ struct DietSelectionView: View {
                 spacing: 12
             ) {
                 let filteredItems = (showSearch && !searchText.isEmpty)
-                    ? items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+                    ? items.filter { $0.displayName.localizedCaseInsensitiveContains(searchText) }
                     : items
                 
                 ForEach(filteredItems) { item in
                     DietChipView(
-                        title: item.name,
+                        title: item.displayName,
                         isSelected: item.isActive
                     ) {
                         onTap(item)
@@ -196,7 +196,7 @@ struct DietSelectionView: View {
 }
 
 
-protocol Nameable { var name: String { get } }
+protocol Nameable { var displayName: String { get } }
 protocol Activeable { var isActive: Bool { get } }
 
 

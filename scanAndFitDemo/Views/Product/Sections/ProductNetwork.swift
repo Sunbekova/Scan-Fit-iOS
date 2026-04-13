@@ -18,9 +18,9 @@ extension ProductDetailView {
             sodium: scaledInt(item.sodium ?? "0"),
             sugar: scaledInt(item.sugars ?? "0"),
             vitaminA: scaledDouble(item.vitaminA),
-            vitaminB12: scaledDouble(item.vitaminB12),
             vitaminB6: scaledDouble(item.vitaminB6),
             vitaminB9: scaledDouble(item.vitaminB9),
+            vitaminB12: scaledDouble(item.vitaminB12),
             vitaminC: scaledDouble(item.vitaminC),
             vitaminD: scaledDouble(item.vitaminD),
             vitaminE: scaledDouble(item.vitaminE)
@@ -31,8 +31,8 @@ extension ProductDetailView {
             proteins: scaledInt(item.proteins), fiber: scaledInt(item.fiber ?? "0"),
             sodium: scaledInt(item.sodium ?? "0"), sugar: scaledInt(item.sugars ?? "0"),
             cholesterol: scaledInt(item.cholesterol ?? "0"),
-            vitaminA: scaledDouble(item.vitaminA), vitaminB12: scaledDouble(item.vitaminB12),
-            vitaminB6: scaledDouble(item.vitaminB6), vitaminB9: scaledDouble(item.vitaminB9),
+            vitaminA: scaledDouble(item.vitaminA),vitaminB6: scaledDouble(item.vitaminB6),
+            vitaminB9: scaledDouble(item.vitaminB9), vitaminB12: scaledDouble(item.vitaminB12),
             vitaminC: scaledDouble(item.vitaminC), vitaminD: scaledDouble(item.vitaminD),
             vitaminE: scaledDouble(item.vitaminE)
         )
@@ -59,9 +59,9 @@ extension ProductDetailView {
             sodium: Int(macros.sodium ?? 0),
             sugar: Int(macros.sugar ?? 0),
             vitaminA: macros.vitaminA,
-            vitaminB12: macros.vitaminB12,
             vitaminB6: macros.vitaminB6,
             vitaminB9: macros.vitaminB9,
+            vitaminB12: macros.vitaminB12,
             vitaminC: macros.vitaminC,
             vitaminD: macros.vitaminD,
             vitaminE: macros.vitaminE
@@ -77,9 +77,9 @@ extension ProductDetailView {
             sugar: Int(macros.sugar ?? 0),
             cholesterol: Int(macros.cholesterol ?? 0),
             vitaminA: macros.vitaminA,
-            vitaminB12: macros.vitaminB12,
             vitaminB6: macros.vitaminB6,
             vitaminB9: macros.vitaminB9,
+            vitaminB12: macros.vitaminB12,
             vitaminC: macros.vitaminC,
             vitaminD: macros.vitaminD,
             vitaminE: macros.vitaminE

@@ -24,7 +24,18 @@ final class BackendAuthViewModel: ObservableObject {
 
 
     func restoreSession() async {
-        guard tokens.isLoggedIn else { state = .unauthenticated; return }
+        guard tokens.accessToken != nil || tokens.refreshToken != nil else {
+            state = .unauthenticated; return
+        }
+        if tokens.isTokenExpired, let rt = tokens.refreshToken {
+            do {
+                let resp = try await auth.refreshToken(rt)
+                if resp.success, let d = resp.data { tokens.saveAuth(d) }
+                else { tokens.clearAll(); state = .unauthenticated; return }
+            } catch { tokens.clearAll(); state = .unauthenticated; return }
+        }
+
+        guard tokens.bearerToken != nil else { state = .unauthenticated; return }
 
         do {
             let me = try await userSvc.getMe()
@@ -33,6 +44,8 @@ final class BackendAuthViewModel: ObservableObject {
             }
             displayName = userData.username ?? userData.email
             state = await resolveProfileState()
+        } catch let err as BackendError where err == BackendError.sessionExpired {
+            tokens.clearAll(); state = .unauthenticated
         } catch {
             await tryRefreshOrLogout()
         }
@@ -42,7 +55,6 @@ final class BackendAuthViewModel: ObservableObject {
         guard validateFields(email: email, password: password) else { return }
         isLoading = true; errorMessage = nil
         defer { isLoading = false }
-
         do {
             let resp = try await auth.login(email: email, password: password)
             guard resp.success, let d = resp.data else {
@@ -51,9 +63,7 @@ final class BackendAuthViewModel: ObservableObject {
             tokens.saveAuth(d)
             displayName = email.components(separatedBy: "@").first ?? email
             state = await resolveProfileState()
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+        } catch { errorMessage = error.localizedDescription }
     }
 
     func signUp(name: String, email: String, password: String) async {
@@ -67,10 +77,10 @@ final class BackendAuthViewModel: ObservableObject {
             }
             tokens.saveAuth(d)
             displayName = name
+            let uid = d.id ?? 0
+            UserDefaults.standard.removeObject(forKey: "profile_completed_\(uid)")
             state = .profileIncomplete
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+        } catch { errorMessage = error.localizedDescription }
     }
 
     func signOut() {
@@ -81,10 +91,18 @@ final class BackendAuthViewModel: ObservableObject {
         }
     }
 
+    //profile bitu
+    func markProfileCompleted() {
+        let uid = tokens.userId ?? 0
+        UserDefaults.standard.set(true, forKey: "profile_completed_\(uid)")
+        // Also tell backend
+        Task { _ = try? await userSvc.updateRegistrationStatus(isFinished: true) }
+        state = .authenticated
+    }
+
     func forgotPassword(email: String) async {
         guard !email.isEmpty else { errorMessage = "Please enter your email"; return }
-        isLoading = true; errorMessage = nil
-        defer { isLoading = false }
+        isLoading = true; errorMessage = nil; defer { isLoading = false }
         do {
             let resp = try await auth.forgotPassword(email: email)
             if resp.success == true { pinSent = true }
@@ -107,28 +125,45 @@ final class BackendAuthViewModel: ObservableObject {
         isLoading = true; errorMessage = nil; defer { isLoading = false }
         do {
             let resp = try await auth.resetPassword(email: email, token: resetToken, newPassword: newPassword)
-            if resp.success == true { pinSent = false; pinVerified = false; resetToken = ""; state = .unauthenticated }
-            else { errorMessage = resp.message ?? "Reset failed" }
+            if resp.success == true {
+                pinSent = false; pinVerified = false; resetToken = ""
+                state = .unauthenticated
+            } else { errorMessage = resp.message ?? "Reset failed" }
         } catch { errorMessage = error.localizedDescription }
     }
+//role refresh
+    func refreshRole() async {
+        guard let resp = try? await userSvc.getUserRole(), resp.success,
+              let role = resp.data?.code else { return }
+        tokens.userRole = role
+    }
 
-    func markProfileCompleted() {
-        UserDefaults.standard.set(true, forKey: "profile_completed_\(tokens.userId ?? 0)")
-        state = .authenticated
+    func handleSessionError(_ error: Error) {
+        if let be = error as? BackendError, case .sessionExpired = be {
+            tokens.clearAll()
+            state = .unauthenticated
+        }
     }
 
     private func resolveProfileState() async -> AuthState {
         let uid = tokens.userId ?? 0
 
-        if UserDefaults.standard.bool(forKey: "profile_completed_\(uid)") {return .authenticated}
-        do {
-            let resp = try await userSvc.getMeasure()
-            if resp.success, let data = resp.data,
-               (data.height ?? 0) > 0 || !(data.age ?? "").isEmpty {
-                UserDefaults.standard.set(true, forKey: "profile_completed_\(uid)")
-                return .authenticated
-            }
-        } catch {}
+        if UserDefaults.standard.bool(forKey: "profile_completed_\(uid)") {
+            return .authenticated
+        }
+        if let statusResp = try? await userSvc.getRegistrationStatus(),
+           statusResp.success,
+           let finished = statusResp.data?.isFinishedRegister, finished {
+            UserDefaults.standard.set(true, forKey: "profile_completed_\(uid)")
+            return .authenticated
+        }
+        if let measureResp = try? await userSvc.getMeasure(),
+           measureResp.success,
+           let data = measureResp.data,
+           (data.height ?? 0) > 0 || !(data.age ?? "").isEmpty {
+            UserDefaults.standard.set(true, forKey: "profile_completed_\(uid)")
+            return .authenticated
+        }
         return .profileIncomplete
     }
 
@@ -149,5 +184,16 @@ final class BackendAuthViewModel: ObservableObject {
         guard password.count >= 6 else {
             errorMessage = "Password must be at least 6 characters"; return false }
         return true
+    }
+}
+
+extension BackendError: Equatable {
+    static func == (lhs: BackendError, rhs: BackendError) -> Bool {
+        switch (lhs, rhs) {
+        case (.notAuthenticated, .notAuthenticated): return true
+        case (.sessionExpired, .sessionExpired):     return true
+        case (.apiError(let a), .apiError(let b)):   return a == b
+        default: return false
+        }
     }
 }

@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Scan&amp;Fit may save scanned food images to your photo library.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Scan&amp;Fit uses your camera to scan food product, meal and labels for nutritional analysis.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Scan&amp;Fit can access your photo library to let you upload a profile picture or scan food images from your gallery.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>

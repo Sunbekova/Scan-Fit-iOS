@@ -36,7 +36,7 @@ struct DiseasesSection: View {
 
         return VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(disease.name).font(.body).fontWeight(.bold)
+                Text(disease.displayName).font(.body).fontWeight(.bold)
                     .foregroundColor(isSelected ? Color(hex: "#163E9F") : .primary)
 
                 Spacer()
@@ -102,7 +102,7 @@ struct DiseaseLevelSheet: View {
         NavigationStack {
             VStack(spacing: 20) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(disease.name).font(.title2).fontWeight(.bold)
+                    Text(disease.displayName).font(.title2).fontWeight(.bold)
                     if let code = disease.code { Text("Code \(code)").font(.caption).foregroundColor(.secondary) }
                     if let desc = disease.description { Text(desc).font(.subheadline).foregroundColor(.secondary) }
                 }
@@ -118,7 +118,7 @@ struct DiseaseLevelSheet: View {
                         Text("Severity Level").font(.headline)
                         Picker("Level", selection: $selectedLevelIdx) {
                             ForEach(Array(levels.enumerated()), id: \.offset) { idx, lvl in
-                                Text(lvl.name).tag(idx)
+                                Text(lvl.name ?? "Unknown Condition").tag(idx)
                             }
                         }
                         .pickerStyle(.wheel)

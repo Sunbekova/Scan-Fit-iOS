@@ -20,9 +20,15 @@ final class TrackerViewModel: ObservableObject {
     @Published var isLoading: Bool = false
 
     @Published var firstAvailableDate: Date? = nil
+    @Published var waterError: String? = nil
+    @Published var isWaterUpdating: Bool = false
 
-    let maxWaterGlasses = 7
     let waterGlassMl = 250
+    private let defaultWaterGlasses = 8
+    var maxWaterGlasses: Int {
+        guard waterGoalMl > 0 else { return defaultWaterGlasses }
+        return max(Int(ceil(Double(waterGoalMl) / Double(waterGlassMl))), 1)
+    }
 
     private let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -36,14 +42,16 @@ final class TrackerViewModel: ObservableObject {
     var fatLeft: Double { max(fatLimit - totalFat, 0) }
     var carbsLeft: Double { max(carbLimit - totalCarbs, 0) }
 
-    var calorieProgress: Double { calorieLimit > 0 ? min(Double(totalCalories) / Double(calorieLimit), 1.0) : 0 }
-    var proteinProgress: Double { proteinLimit > 0 ? min(totalProteins / proteinLimit, 1.0) : 0 }
-    var fatProgress: Double { fatLimit > 0 ? min(totalFat / fatLimit, 1.0) : 0 }
-    var carbProgress: Double { carbLimit > 0 ? min(totalCarbs / carbLimit, 1.0) : 0 }
+    var calorieProgress: Double { calorieLimit > 0 ? min(Double(totalCalories) / Double(calorieLimit), 1) : 0 }
+    var proteinProgress: Double { proteinLimit > 0 ? min(totalProteins / proteinLimit, 1) : 0 }
+    var fatProgress: Double { fatLimit > 0 ? min(totalFat / fatLimit, 1) : 0 }
+    var carbProgress: Double { carbLimit > 0 ? min(totalCarbs / carbLimit, 1) : 0 }
 
     var waterLiters: Double { Double(waterGlasses * waterGlassMl) / 1000.0 }
-    var waterGoalLiters: Double { Double(waterGoalMl) / 1000.0 }
-    var waterProgress: Double { waterGoalMl > 0 ? min(Double(waterGlasses * waterGlassMl) / Double(waterGoalMl), 1.0) : 0 }
+    var waterGoalLiters: Double { Double(waterGoalMl)  / 1000.0 }
+    var waterProgress: Double {
+        waterGoalMl > 0 ? min(Double(waterGlasses * waterGlassMl) / Double(waterGoalMl), 1) : 0
+    }
 
     var isTodaySelected: Bool { isSameDay(selectedDate, Date()) }
 
@@ -83,9 +91,7 @@ final class TrackerViewModel: ObservableObject {
             let resp = isToday
                 ? try await BackendUserService.shared.getTodayCalories()
                 : try await BackendUserService.shared.getCaloriesByDay(day: day)
-            if resp.success, let data = resp.data {
-                applyCaloriesData(data)
-            }
+            if resp.success, let data = resp.data { applyCaloriesData(data) }
         } catch {}
     }
 
@@ -94,54 +100,75 @@ final class TrackerViewModel: ObservableObject {
             let resp = isToday
                 ? try await BackendUserService.shared.getTodayWater()
                 : try await BackendUserService.shared.getWaterByDay(day: day)
-            if resp.success, let data = resp.data {
-                applyWaterData(data)
-            }
+            if resp.success, let data = resp.data { applyWaterData(data) }
         } catch {}
     }
 
     func applyCaloriesData(_ data: BackendUserCaloriesData) {
         calorieLimit = data.calories ?? 2150
-        proteinLimit = data.proteins ?? 150
-        fatLimit = data.fat ?? 70
-        carbLimit = data.carbs ?? 300
+        proteinLimit = Double(data.proteins ?? 150)
+        fatLimit = Double(data.fat ?? 70)
+        carbLimit = Double(data.carbs ?? 300)
         totalCalories = data.daily?.calories ?? 0
-        totalProteins = data.daily?.proteins ?? 0
-        totalFat = data.daily?.fat ?? 0
-        totalCarbs = data.daily?.carbs ?? 0
+        totalProteins = Double(data.daily?.proteins ?? 0)
+        totalFat = Double(data.daily?.fat ?? 0)
+        totalCarbs = Double(data.daily?.carbs ?? 0)
     }
 
     func applyWaterData(_ data: BackendUserWaterData) {
         let consumedMl = data.daily?.water ?? data.water ?? 0
-        let goalMl = data.daily?.goal ?? 1750
-        waterGlasses = consumedMl / waterGlassMl
-        waterGoalMl = goalMl
+        let goalMl     = data.daily?.goal  ?? 1750
+        waterGlasses   = consumedMl / waterGlassMl
+        waterGoalMl    = goalMl
     }
 
+    func tapWaterGlass(at index: Int) {
+        guard isTodaySelected, !isWaterUpdating else { return }
+        let maxGlasses = maxWaterGlasses
+        let safeCount  = waterGlasses.clamped(to: 0...maxGlasses)
+        
+        if index < safeCount {
+            removeWater ()
+        } else { addWater() }
+    }
+        
     func addWater() {
-        guard waterGlasses < maxWaterGlasses, isTodaySelected else { return }
-        let newCount = waterGlasses + 1
-        waterGlasses = newCount
-        syncWater(count: newCount)
+        guard isTodaySelected, !isWaterUpdating else { return }
+        setWaterTo((waterGlasses + 1).clamped(to: 0...maxWaterGlasses))
     }
 
     func removeWater() {
-        guard waterGlasses > 0, isTodaySelected else { return }
-        let newCount = waterGlasses - 1
-        waterGlasses = newCount
-        syncWater(count: newCount)
+        guard isTodaySelected, !isWaterUpdating, waterGlasses > 0 else { return }
+        setWaterTo((waterGlasses - 1).clamped(to: 0...maxWaterGlasses))
     }
 
-    private func syncWater(count: Int) {
+    private func setWaterTo(_ targetCount: Int) {
+        let maxGlasses = maxWaterGlasses
+        let previousCount = waterGlasses.clamped(to: 0...maxGlasses)
+        let clamped = targetCount.clamped(to: 0...maxGlasses)
+        guard clamped != previousCount else { return }
+
+        waterGlasses = clamped
+        waterError = nil
+        isWaterUpdating = true
+
         let day = dateFormatter.string(from: selectedDate)
-        let ml = count * waterGlassMl
+        let totalMl = clamped * waterGlassMl
+
         Task {
+            defer { isWaterUpdating = false }
             do {
-                let resp = try await BackendUserService.shared.updateWater(day: day, water: ml)
+                let resp = try await BackendUserService.shared.updateWater(day: day, water: totalMl)
                 if resp.success, let data = resp.data {
                     applyWaterData(data)
+                } else {
+                    waterGlasses = previousCount
+                    waterError = "Failed to update water"
                 }
-            } catch {}
+            } catch {
+                waterGlasses = previousCount
+                waterError = error.localizedDescription
+            }
         }
     }
 
@@ -153,46 +180,35 @@ final class TrackerViewModel: ObservableObject {
     }
 
     func weekDays(for date: Date) -> [Date] {
-        let calendar = Calendar.current
-        guard let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: date)?.start else { return [] }
-        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: startOfWeek) }
+        let cal = Calendar.current
+        guard let start = cal.dateInterval(of: .weekOfYear, for: date)?.start else { return [] }
+        return (0..<7).compactMap { cal.date(byAdding: .day, value: $0, to: start) }
     }
 
-    func isSameDay(_ d1: Date, _ d2: Date) -> Bool {
-        Calendar.current.isDate(d1, inSameDayAs: d2)
-    }
-
-    func normalizedDay(_ date: Date) -> Date {
-        Calendar.current.startOfDay(for: date)
-    }
-
+    func isSameDay(_ d1: Date, _ d2: Date) -> Bool { Calendar.current.isDate(d1, inSameDayAs: d2) }
+    func normalizedDay(_ date: Date) -> Date { Calendar.current.startOfDay(for: date) }
     var selectedDayString: String { dateFormatter.string(from: selectedDate) }
 }
 
 extension String {
     func toCleanDouble() -> Double {
-        let cleaned = self.replacingOccurrences(of: ",", with: ".")
-            .filter { $0.isNumber || $0 == "." }
-        return Double(cleaned) ?? 0
+        let c = replacingOccurrences(of: ",", with: ".").filter { $0.isNumber || $0 == "." }
+        return Double(c) ?? 0
     }
-
     func toCleanInt() -> Int {
-        let cleaned = self.filter { $0.isNumber }
-        return Int(cleaned) ?? 0
+        let c = filter { $0.isNumber }
+        return Int(c) ?? 0
     }
-
-    func toScaledDouble(multiplier: Double) -> Double {
-        return toCleanDouble() * multiplier
-    }
+    func toScaledDouble(multiplier: Double) -> Double { toCleanDouble() * multiplier }
 }
 
 extension Optional where Wrapped == String {
-    func toCleanInt() -> Int {
-        guard let self = self else { return 0 }
-        return self.toCleanInt()
-    }
-    func toCleanDouble() -> Double {
-        guard let self = self else { return 0 }
-        return self.toCleanDouble()
+    func toCleanInt() -> Int { self?.toCleanInt()    ?? 0 }
+    func toCleanDouble() -> Double { self?.toCleanDouble() ?? 0 }
+}
+
+extension Comparable {
+    func clamped(to range: ClosedRange<Self>) -> Self {
+        min(max(self, range.lowerBound), range.upperBound)
     }
 }
