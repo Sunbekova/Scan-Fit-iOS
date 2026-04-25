@@ -119,9 +119,7 @@ final class TrackerViewModel: ObservableObject {
         let consumedMl = data.daily?.water ?? data.water ?? 0
         let goalMl     = data.daily?.goal  ?? 1750
         let newGlasses = Int(round(Double(consumedMl) / Double(waterGlassMl)))
-        if isWaterUpdating && newGlasses < waterGlasses {
-            return
-        }
+        if isWaterUpdating { return }
         waterGlasses = newGlasses
         waterGoalMl  = goalMl
     }
@@ -152,7 +150,7 @@ final class TrackerViewModel: ObservableObject {
         guard clamped != previousCount else { return }
 
         waterGlasses = clamped
-        waterError = nil
+        waterError = "Network timeout. Try again."
         isWaterUpdating = true
 
         let day = dateFormatter.string(from: selectedDate)
@@ -165,11 +163,9 @@ final class TrackerViewModel: ObservableObject {
                 if resp.success, let data = resp.data {
                     applyWaterData(data)
                 } else {
-                    waterGlasses = previousCount
                     waterError = "Failed to update water"
                 }
             } catch {
-                waterGlasses = previousCount
                 waterError = error.localizedDescription
             }
         }

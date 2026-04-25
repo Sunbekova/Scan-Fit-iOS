@@ -14,7 +14,17 @@ struct DiseasesSection: View {
 
             ForEach(profileVM.diseases) { disease in
                 diseaseCard(disease: disease)
-                    .onTapGesture { selectedDiseaseForEdit = disease }
+                    .onTapGesture {
+                        if disease.isActive {
+                            selectedDiseaseForEdit = disease
+                        } else {
+                            Task {
+                                await profileVM.toggleDisease(disease,
+                                                              levelId: profileVM.diseaseLevels.first?.id ?? 1,
+                                                              isActive: true)
+                            }
+                        }
+                    }
             }
         }
         .padding(.top, 16)
@@ -25,8 +35,8 @@ struct DiseasesSection: View {
             ) { levelId, isActive in
                 Task {
                     await profileVM.toggleDisease(disease, levelId: levelId, isActive: isActive)
+                    selectedDiseaseForEdit = nil
                 }
-                selectedDiseaseForEdit = nil
             }
         }
     }

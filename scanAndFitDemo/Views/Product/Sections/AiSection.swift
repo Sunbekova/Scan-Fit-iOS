@@ -2,6 +2,12 @@
 import SwiftUI
 
 extension ProductDetailView {
+    
+    private var aiDisclaimer: some View {
+        Text("AI may occasionally make mistakes. Always double-check important information. The analysis provided is not 100% accurate and should not be considered medical advice or a substitute for a healthcare professional. We do not guarantee outcomes. Nutritional values (calories, vitamins, and nutrients) are estimates and may vary.")
+            .font(.caption2)
+            .foregroundColor(.secondary)
+    }
 
     var aiVerdictSection: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -37,6 +43,8 @@ extension ProductDetailView {
             if let resp = aiResponse, let verdict = resp.verdict {
                 Text(verdict)
                     .font(.subheadline).foregroundColor(.secondary)
+                Divider().padding(.top, 4)
+                aiDisclaimer
             } else if !isAnalyzing {
                 Text("Tap Analyze with AI to check this product against your profile.")
                     .font(.caption).foregroundColor(.secondary)
