@@ -19,11 +19,11 @@ struct ForgotPasswordView: View {
                     .padding(.bottom, 40)
 
                 VStack(spacing: 12) {
-                    Text("Forgot Password")
+                    Text("Forgot Password".localized)
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(Color(red: 0.1, green: 0.15, blue: 0.2))
 
-                    Text("Enter your email and we'll send a 6-digit verification PIN.")
+                    Text("Enter your email and we'll send a 6-digit verification PIN.".localized)
                         .font(.system(size: 16))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
@@ -31,7 +31,7 @@ struct ForgotPasswordView: View {
                 }
                 .padding(.bottom, 40)
 
-                TextField("Email address", text: $email)
+                TextField("Email address".localized, text: $email)
                     .padding()
                     .frame(height: 55)
                     .background(Color(.systemGray6))
@@ -55,7 +55,7 @@ struct ForgotPasswordView: View {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         } else {
-                            Text("Send PIN")
+                            Text("Send PIN".localized)
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(.white)
                         }
@@ -73,14 +73,14 @@ struct ForgotPasswordView: View {
                 .padding(.top, 30)
 
                 HStack(spacing: 4) {
-                    Text("Remembered your password?")
+                    Text("Remembered your password?".localized)
                         .font(.system(size: 14))
                         .foregroundColor(.black)
                     
                     Button {
                         dismiss()
                     } label: {
-                        Text("Sign in")
+                        Text("Sign in".localized)
                             .font(.system(size: 14, weight: .bold))
                             .foregroundColor(Color(red: 0.9, green: 0.3, blue: 0.1))
                     }

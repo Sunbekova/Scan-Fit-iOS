@@ -46,16 +46,16 @@ struct LoginView: View {
                     
                     Spacer().frame(height: 40)
                     
-                    Text("Welcome Back")
+                    Text("Welcome Back".localized)
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(Color(red: 0.1, green: 0.15, blue: 0.2))
                     
                     Spacer().frame(height: 40)
                     
                     VStack(spacing: 16) {
-                        SFInputField(placeholder: "Email", text: $email, keyboardType: .emailAddress)
+                        SFInputField(placeholder: "Email".localized, text: $email, keyboardType: .emailAddress)
                         
-                        SFInputField(placeholder: "Password", text: $password, isSecure: true)
+                        SFInputField(placeholder: "Password".localized, text: $password, isSecure: true)
                     }
                     .padding(.horizontal, 24)
                     
@@ -69,7 +69,7 @@ struct LoginView: View {
                     
                     Spacer().frame(height: 32)
                     
-                    SFPrimaryButton(title: "Login", isLoading: authVM.isLoading) {
+                    SFPrimaryButton(title: "Login".localized, isLoading: authVM.isLoading) {
                         Task { await authVM.login(email: email, password: password) }
                     }
                     .padding(.horizontal, 24)
@@ -77,7 +77,7 @@ struct LoginView: View {
                     Spacer().frame(height: 32)
                     
                     Button(action: { showForgotPassword = true }) {
-                        Text("Forgot Password?")
+                        Text("Forgot Password?".localized)
                             .font(.system(size: 15))
                             .foregroundColor(.secondary)
                     }
@@ -85,11 +85,11 @@ struct LoginView: View {
                     Spacer().frame(height: 12)
                     
                     HStack(spacing: 4) {
-                        Text("Don't have an account?")
+                        Text("Don't have an account?".localized)
                             .foregroundColor(.secondary)
                         
                         Button(action: { showSignUp = true }) {
-                            Text("Sign up")
+                            Text("Sign up".localized)
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(red: 0.95, green: 0.35, blue: 0.15))
                         }
@@ -137,26 +137,26 @@ struct SignUpView: View {
                     
                     Spacer().frame(height: 40)
                     
-                    Text("Create Account")
+                    Text("Create Account".localized)
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(Color(red: 0.1, green: 0.15, blue: 0.2))
                     
                     Spacer().frame(height: 40)
                     
                     VStack(spacing: 16) {
-                        SFInputField(placeholder: "Name", text: $username)
+                        SFInputField(placeholder: "Name".localized, text: $username)
                         
-                        SFInputField(placeholder: "Email", text: $email, keyboardType: .emailAddress)
+                        SFInputField(placeholder: "Email".localized, text: $email, keyboardType: .emailAddress)
                         
-                        SFInputField(placeholder: "Password", text: $password, isSecure: true)
+                        SFInputField(placeholder: "Password".localized, text: $password, isSecure: true)
                         
-                        SFInputField(placeholder: "Confirm Password", text: $confirmPassword, isSecure: true)
+                        SFInputField(placeholder: "Confirm Password".localized, text: $confirmPassword, isSecure: true)
                     }
                     .padding(.horizontal, 24)
                     
                     if let message = authVM.errorMessage {
                         Text(message)
-                            .foregroundColor(message.contains("signed up") ? .green : .red)
+                            .foregroundColor(message.contains("signed up".localized) ? .green : .red)
                             .font(.caption)
                             .padding(.horizontal, 24)
                             .padding(.top, 16)
@@ -164,10 +164,10 @@ struct SignUpView: View {
                     
                     Spacer().frame(height: 32)
                     
-                    SFPrimaryButton(title: "Register", isLoading: authVM.isLoading) {
+                    SFPrimaryButton(title: "Register".localized, isLoading: authVM.isLoading) {
                         Task {
                             await authVM.signUp(name: username, email: email, password: password)
-                            if authVM.errorMessage == "You are signed up. Please sign in." {
+                            if authVM.errorMessage == "You are signed up. Please sign in.".localized {
                                 dismiss()
                             }
                         }
@@ -177,11 +177,11 @@ struct SignUpView: View {
                     Spacer().frame(height: 32)
                     
                     HStack(spacing: 4) {
-                        Text("Already have an account?")
+                        Text("Already have an account?".localized)
                             .foregroundColor(.secondary)
                         
                         Button(action: { dismiss() }) {
-                            Text("Sign In")
+                            Text("Sign In".localized)
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(red: 0.95, green: 0.35, blue: 0.15))
                         }

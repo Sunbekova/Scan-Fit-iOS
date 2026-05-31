@@ -29,13 +29,13 @@ struct ResetPasswordView: View {
                 
                 Spacer().frame(height: 40)
                 
-                Text("Reset Password")
+                Text("Reset Password".localized)
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(Color(red: 0.1, green: 0.15, blue: 0.2))
                 
                 Spacer().frame(height: 12)
                 
-                Text("Create a new password that is different from previous passwords.")
+                Text("Create a new password that is different from previous passwords.".localized)
                     .font(.system(size: 16))
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -44,16 +44,16 @@ struct ResetPasswordView: View {
                 Spacer().frame(height: 40)
                 
                 VStack(spacing: 16) {
-                    CleanSecureField(placeholder: "New password", text: $newPassword)
+                    CleanSecureField(placeholder: "New password".localized, text: $newPassword)
                         .textContentType(.newPassword)
                     
-                    CleanSecureField(placeholder: "Confirm new password", text: $confirmPassword)
+                    CleanSecureField(placeholder: "Confirm new password".localized, text: $confirmPassword)
                         .textContentType(.newPassword)
                 }
                 .padding(.horizontal, 24)
                 
                 if !confirmPassword.isEmpty && !passwordsMatch {
-                    Text("Passwords do not match")
+                    Text("Passwords do not match".localized)
                         .font(.caption)
                         .foregroundColor(.red)
                         .padding(.top, 8)
@@ -75,7 +75,7 @@ struct ResetPasswordView: View {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     } else {
-                        Text("Reset Password")
+                        Text("Reset Password".localized)
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
                     }

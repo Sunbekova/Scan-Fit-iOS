@@ -1,0 +1,314 @@
+/* 
+  Localizable.strings
+Demo
+  Created by Aisha Suanbekova Bakytjankyzy on 01.06.2026.
+  
+*/
+// Authentication
+"Welcome Back" = "С возвращением";
+"Create Account" = "Создать аккаунт";
+"Login" = "Войти";
+"Register" = "Зарегистрироваться";
+"Sign In" = "Войти";
+"Sign in" = "Войти";
+"Sign up" = "Зарегистрироваться";
+"Sign Out" = "Выйти";
+"Forgot Password?" = "Забыли пароль?";
+"Forgot Password" = "Забыли пароль";
+"Reset Password" = "Сбросить пароль";
+"Don't have an account?" = "Нет аккаунта?";
+"Already have an account?" = "Уже есть аккаунт?";
+"Remembered your password?" = "Вспомнили пароль?";
+"Email" = "Эл. почта";
+"Email address" = "Адрес эл. почты";
+"Password" = "Пароль";
+"Confirm Password" = "Подтвердите пароль";
+"New password" = "Новый пароль";
+"Confirm new password" = "Подтвердите новый пароль";
+"Name" = "Имя";
+"Verify PIN" = "Подтвердить PIN";
+"Verify & Continue" = "Подтвердить и продолжить";
+"Send PIN" = "Отправить PIN";
+"Resend" = "Отправить повторно";
+"Didn't receive the code?" = "Не получили код?";
+"Enter the 6-digit verification code sent to " = "Введите 6-значный код, отправленный на ";
+"Enter your email and we'll send a 6-digit verification PIN." = "Введите вашу почту, и мы отправим 6-значный PIN.";
+"Create a new password that is different from previous passwords." = "Создайте новый пароль, отличный от предыдущих.";
+
+
+// Errors/Validation
+"Please fill in all fields" = "Заполните все поля";
+"Please enter your email" = "Введите адрес эл. почты";
+"Please enter your name" = "Введите ваше имя";
+"Please enter the PIN" = "Введите PIN-код";
+"Password must be at least 6 characters" = "Пароль должен содержать не менее 6 символов";
+"Passwords do not match" = "Пароли не совпадают";
+"You are signed up. Please sign in." = "Вы зарегистрированы. Пожалуйста, войдите.";
+"Login failed" = "Ошибка входа";
+"Registration failed" = "Ошибка регистрации";
+"Reset failed" = "Ошибка сброса";
+"Could not send PIN" = "Не удалось отправить PIN";
+"Invalid PIN" = "Неверный PIN";
+"Not authenticated" = "Не авторизован";
+"Not logged in" = "Не выполнен вход";
+"Analysis failed. Please try again." = "Анализ не выполнен. Попробуйте снова.";
+"Failed to load history" = "Не удалось загрузить историю";
+"Failed to process image" = "Не удалось обработать изображение";
+"Failed to update water" = "Не удалось обновить потребление воды";
+"Failed to upload photo" = "Не удалось загрузить фото";
+"Photo Upload Error" = "Ошибка загрузки фото";
+"Could not load scan limit info" = "Не удалось загрузить информацию о лимите сканирований";
+"Network timeout. Try again." = "Превышено время ожидания. Попробуйте снова.";
+"Invalid birth date" = "Неверная дата рождения";
+"Basic users can activate up to 3 diseases" = "Базовые пользователи могут активировать до 3 болезней";
+"Please enter your height and weight" = "Введите рост и вес";
+"Camera access denied.\nGo to Settings → Privacy → Camera\nand enable access for ScanFit." = "Доступ к камере запрещён.\nПерейдите в Настройки → Конфиденциальность → Камера\nи разрешите доступ для ScanFit.";
+"To scan food products, please allow camera access in Settings." = "Чтобы сканировать продукты, разрешите доступ к камере в Настройках.";
+"Past days are read-only. Water can only be changed for today" = "Прошедшие дни доступны только для чтения. Воду можно изменить только за сегодня";
+"Daily scan limit reached. Upgrade to Pro for unlimited scans." = "Достигнут дневной лимит сканирований. Перейдите на Pro для безлимитных сканирований.";
+"You have used all your daily scans." = "Вы использовали все дневные сканирования.";
+
+
+// Navigation
+"Home" = "Главная";
+"Scan" = "Скан";
+"Favorites" = "Избранное";
+"Recent" = "Недавние";
+"Profile" = "Профиль";
+"Account" = "Аккаунт";
+"Search" = "Поиск";
+
+
+// Profile Setup
+"Tell us about yourself" = "Расскажите о себе";
+"We'll personalise your experience" = "Мы персонализируем ваш опыт";
+"Your Health Profile" = "Ваш профиль здоровья";
+"Finish Setup" = "Завершить настройку";
+"Continue" = "Продолжить";
+"I am a" = "Я";
+"Male" = "Мужчина";
+"Female" = "Женщина";
+"Other" = "Другое";
+"Gender" = "Пол";
+"Date of Birth" = "Дата рождения";
+"Height (cm)" = "Рост (см)";
+"Height" = "Рост";
+"Weight (kg)" = "Вес (кг)";
+"Weight" = "Вес";
+"BMI" = "ИМТ";
+"Goal" = "Цель";
+"Gain" = "Набор веса";
+"Lose" = "Похудение";
+"Maintain" = "Поддержание";
+"Target weight" = "Целевой вес";
+"Target date" = "Целевая дата";
+"Goal, target date, target weight" = "Цель, дата и целевой вес";
+"My Diet" = "Моя диета";
+"Please mark everything you have. This will help us make personalized recommendations when reviewing products." = "Отметьте всё, что у вас есть. Это поможет нам давать персональные рекомендации при оценке продуктов.";
+
+
+//user Profile
+"Body Measurements" = "Параметры тела";
+"Measurements" = "Измерения";
+"Dietary Preferences" = "Диетические предпочтения";
+"Dietary" = "Диета";
+"Diet Preferences" = "Диетические предпочтения";
+"Diet" = "Диета";
+"Health Conditions" = "Состояние здоровья";
+"Health Markers" = "Маркеры здоровья";
+"Disease Management" = "Управление болезнями";
+"Diseases" = "Болезни";
+"Weight Management" = "Управление весом";
+"Weight management updated" = "Управление весом обновлено";
+"Change Photo" = "Изменить фото";
+"Force Logout" = "Принудительный выход";
+"Tap a row to edit" = "Нажмите строку для редактирования";
+"Not set" = "Не задано";
+"Not selected" = "Не выбрано";
+"Select date" = "Выбрать дату";
+"Pick Date" = "Выбрать дату";
+"Select Date" = "Выбрать дату";
+"Done" = "Готово";
+"Save" = "Сохранить";
+"Saved" = "Сохранено";
+"Cancel" = "Отмена";
+"Close" = "Закрыть";
+"Not Now" = "Не сейчас";
+"Choose" = "Выбрать";
+"Manage" = "Управлять";
+"Active" = "Активно";
+"Inactive" = "Неактивно";
+"Condition" = "Состояние";
+"Specify stage / type" = "Укажите стадию / тип";
+"Severity Level" = "Уровень тяжести";
+"Disease Level" = "Уровень болезни";
+"Level" = "Уровень";
+"Health Condition" = "Состояние здоровья";
+"Tap a card to set level" = "Нажмите карточку для установки уровня";
+"This condition is active" = "Это состояние активно";
+"Unknown Condition" = "Неизвестное состояние";
+"Enter value" = "Введите значение";
+"Value" = "Значение";
+"None" = "Нет";
+"None reported" = "Не указано";
+"Unknown" = "Неизвестно";
+"Selected" = "Выбрано";
+"Find allergy or disease..." = "Найти аллергию или болезнь...";
+
+
+
+// Home/Tracker
+"Calories" = "Калории";
+"Carbs" = "Углеводы";
+"Fat" = "Жиры";
+"Protein" = "Белки";
+"Fats" = "Жиры";
+"Fiber" = "Клетчатка";
+"Sugar" = "Сахар";
+"Sodium" = "Натрий";
+"Cholesterol" = "Холестерин";
+"Water balance" = "Баланс воды";
+"Tap an empty cup to add water, or a filled cup to remove it" = "Нажмите пустой стакан, чтобы добавить воду, или полный — чтобы убрать";
+"Saving water…" = "Сохранение воды…";
+"Calories refreshed" = "Калории обновлены";
+"See all history" = "Смотреть всю историю";
+"Start tracking food to see your history here." = "Начните отслеживать питание, чтобы видеть историю здесь.";
+"No history available" = "История недоступна";
+"View Nutrition History" = "Просмотр истории питания";
+"Nutrition History" = "История питания";
+"This Week" = "Эта неделя";
+"Daily Impact" = "Ежедневное влияние";
+"How this product affects your daily goals" = "Как этот продукт влияет на ваши дневные цели";
+"Add to Today's Tracker" = "Добавить в трекер на сегодня";
+"Serving size" = "Размер порции";
+
+
+//Scan
+"Point at a product or label" = "Наведите на продукт или этикетку";
+"Browse" = "Обзор";
+"Type Ingredients" = "Введите ингредиенты";
+"Enter product name or ingredients" = "Введите название продукта или ингредиенты";
+"Allow Camera Access" = "Разрешить доступ к камере";
+"Camera Access Required" = "Требуется доступ к камере";
+"Open Settings" = "Открыть настройки";
+"Scan Error" = "Ошибка сканирования";
+"Scan Limit Reached" = "Лимит сканирований исчерпан";
+"Loading products..." = "Загрузка продуктов...";
+"Searching..." = "Поиск...";
+"Search products..." = "Поиск продуктов...";
+"No products found" = "Продукты не найдены";
+"No results found" = "Результаты не найдены";
+"Try a different search term" = "Попробуйте другой поисковый запрос";
+"No categories found" = "Категории не найдены";
+"Retry" = "Повторить";
+
+
+//Product Detail
+"Nutritional Info" = "Пищевая ценность";
+"Nutrients" = "Питательные вещества";
+"Ingredients" = "Состав";
+"AI Analysis" = "ИИ-анализ";
+"AI Health Analysis" = "ИИ-анализ здоровья";
+"Analyze with AI" = "Анализировать с ИИ";
+"Analyze again" = "Анализировать повторно";
+"Analyzing… 30–40 sec" = "Анализируем… 30–40 сек";
+"Not analyzed yet" = "Ещё не проанализировано";
+"Tap Analyze with AI to check this product against your profile." = "Нажмите «Анализировать с ИИ», чтобы проверить продукт по вашему профилю.";
+"AI Scan" = "ИИ-скан";
+"Health Score" = "Оценка здоровья";
+"Nutri-Score" = "Nutri-Score";
+"General Analysis" = "Общий анализ";
+"Personalized for your health profile" = "Персонализировано для вашего профиля здоровья";
+"What may be a problem" = "Возможные проблемы";
+"Diet conflicts" = "Конфликты диеты";
+"Diet conflict" = "Конфликт диеты";
+"Compared with active diets" = "Сравнение с активными диетами";
+"Healthier options to consider" = "Более здоровые альтернативы";
+"Alternatives" = "Альтернативы";
+"Sources" = "Источники";
+"Evidence used by AI" = "Данные, использованные ИИ";
+"Full + Sources" = "Полностью + источники";
+"May not match one of the selected diets." = "Может не соответствовать одной из выбранных диет.";
+"Needs attention." = "Требует внимания.";
+"Dangerous" = "Опасно";
+"Find on Kaspi →" = "Найти на Kaspi →";
+"Total Carbohydrate" = "Общие углеводы";
+"Total Fat" = "Общие жиры";
+"All Vitamins" = "Все витамины";
+"Vitamin A" = "Витамин A";
+"Vitamin C" = "Витамин C";
+"Vitamin D" = "Витамин D";
+"Vitamin E" = "Витамин E";
+"Vitamin B6" = "Витамин B6";
+"Vitamin B9" = "Витамин B9";
+"Vitamin B9 (Folate)" = "Витамин B9 (Фолиевая кислота)";
+"Vitamin B12" = "Витамин B12";
+"Vitamin Tracking" = "Отслеживание витаминов";
+"Blood Pressure" = "Давление";
+"High Blood Pressure" = "Высокое давление";
+"Cholesterol Tracking" = "Отслеживание холестерина";
+"High Cholesterol" = "Высокий холестерин";
+"Personalized picks" = "Персональный выбор";
+"AI may occasionally make mistakes. Always double-check important information. The analysis provided is not 100% accurate and should not be considered medical advice or a substitute for a healthcare professional. We do not guarantee outcomes. Nutritional values (calories, vitamins, and nutrients) are estimates and may vary." = "ИИ может иногда ошибаться. Всегда проверяйте важную информацию. Анализ не является медицинской консультацией и не заменяет врача. Мы не гарантируем результаты. Пищевая ценность является приблизительной.";
+
+
+// FavoritesRecent
+"No favorites yet" = "Нет избранных";
+"No recent products" = "Нет недавних продуктов";
+"Tap the heart on any product to save it here." = "Нажмите сердечко на любом продукте, чтобы сохранить его здесь.";
+"Clear All" = "Очистить всё";
+
+
+//Pro/Subscription
+"ScanFit Pro" = "ScanFit Pro";
+"Upgrade to ScanFit Pro" = "Перейти на ScanFit Pro";
+"Upgrade to Pro" = "Перейти на Pro";
+"Get Pro" = "Получить Pro";
+"Pro" = "Pro";
+"Basic" = "Базовый";
+"Basic Plan" = "Базовый план";
+"Free" = "Бесплатно";
+"Current Plan" = "Текущий план";
+"Full Access" = "Полный доступ";
+"What's included" = "Что включено";
+"Unlimited scans" = "Безлимитные сканирования";
+"Unlimited" = "Безлимит";
+"Up to 3" = "До 3";
+"Unlimited AI scans & advanced tracking" = "Безлимитные ИИ-сканирования и расширенное отслеживание";
+"Unlimited scans & advanced health insights" = "Безлимитные сканирования и расширенная аналитика здоровья";
+"Unlimited scans & all features" = "Безлимитные сканирования и все функции";
+"Enjoy unlimited scans and all premium features." = "Наслаждайтесь безлимитными сканированиями и всеми премиум-функциями.";
+"Daily AI Scans" = "Ежедневные ИИ-сканирования";
+"Daily Scan Usage" = "Использование дневных сканирований";
+"You're a Pro member!" = "Вы Pro-участник!";
+"Tap to upgrade to Pro" = "Нажмите, чтобы перейти на Pro";
+"Request upgrade (demo)" = "Запросить обновление (демо)";
+"Upgrade requested! We'll confirm soon." = "Запрос отправлен! Мы скоро подтвердим.";
+"Contact support via Telegram or WhatsApp to complete upgrade" = "Свяжитесь с поддержкой через Telegram или WhatsApp для завершения обновления";
+"Contact via Telegram" = "Связаться через Telegram";
+"Contact via WhatsApp" = "Связаться через WhatsApp";
+"Choose how to contact us to complete your upgrade. Once confirmed, your account will be upgraded to Pro." = "Выберите способ связи для завершения обновления. После подтверждения ваш аккаунт будет обновлён до Pro.";
+"Hello! I'd like to upgrade my ScanFit account to Pro." = "Здравствуйте! Я хотел бы обновить мой аккаунт ScanFit до Pro.";
+"Authorization" = "Авторизация";
+"Tap Continue to proceed" = "Нажмите «Продолжить» для продолжения";
+
+
+//Categories
+"Baby Food" = "Детское питание";
+"Beverages" = "Напитки";
+"Bread" = "Хлеб";
+"Cereals" = "Крупы и зерновые";
+"Dairy" = "Молочные продукты";
+"Frozen" = "Замороженные";
+"Fruits & Vegetables" = "Фрукты и овощи";
+"Meat & Fish" = "Мясо и рыба";
+"Sauces" = "Соусы";
+"Snacks" = "Снеки";
+"Error" = "Ошибка";
+"User" = "Пользователь";
+"Guy" = "Человек";
+"15 per day" = "15 в день";
+"No link" = "Нет ссылки";
+"Source" = "Источник";
+"Alternative" = "Альтернатива";
+"Issue" = "Проблема";

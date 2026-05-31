@@ -29,14 +29,14 @@ struct VerifyPinView: View {
                     
                     Spacer().frame(height: 40)
                     
-                    Text("Verify PIN")
+                    Text("Verify PIN".localized)
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(Color(red: 0.1, green: 0.15, blue: 0.2))
                     
                     Spacer().frame(height: 12)
                     
                     Group {
-                        Text("Enter the 6-digit verification code sent to ")
+                        Text("Enter the 6-digit verification code sent to ".localized)
                         + Text(email)
                             .fontWeight(.bold)
                             .foregroundColor(.black)
@@ -71,7 +71,7 @@ struct VerifyPinView: View {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         } else {
-                            Text("Verify & Continue")
+                            Text("Verify & Continue".localized)
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(.white)
                         }
@@ -87,13 +87,13 @@ struct VerifyPinView: View {
                     Spacer().frame(height: 32)
                     
                     HStack(spacing: 4) {
-                        Text("Didn't receive the code?")
+                        Text("Didn't receive the code?".localized)
                             .foregroundColor(.secondary)
                         
                         Button {
                             Task { await authVM.forgotPassword(email: email) }
                         } label: {
-                            Text("Resend")
+                            Text("Resend".localized)
                                 .fontWeight(.bold)
                                 .foregroundColor(appLinkOrange)
                         }

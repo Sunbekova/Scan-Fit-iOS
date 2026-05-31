@@ -1,0 +1,316 @@
+/* 
+  Localizable.strings
+  demo
+
+  Created by Aisha Suanbekova Bakytjankyzy on 01.06.2026.
+  
+*/
+//Authentication
+"Welcome Back" = "Welcome Back";
+"Create Account" = "Create Account";
+"Login" = "Login";
+"Register" = "Register";
+"Sign In" = "Sign In";
+"Sign in" = "Sign in";
+"Sign up" = "Sign up";
+"Sign Out" = "Sign Out";
+"Forgot Password?" = "Forgot Password?";
+"Forgot Password" = "Forgot Password";
+"Reset Password" = "Reset Password";
+"Don't have an account?" = "Don't have an account?";
+"Already have an account?" = "Already have an account?";
+"Remembered your password?" = "Remembered your password?";
+"Email" = "Email";
+"Email address" = "Email address";
+"Password" = "Password";
+"Confirm Password" = "Confirm Password";
+"New password" = "New password";
+"Confirm new password" = "Confirm new password";
+"Name" = "Name";
+"Verify PIN" = "Verify PIN";
+"Verify & Continue" = "Verify & Continue";
+"Send PIN" = "Send PIN";
+"Resend" = "Resend";
+"Didn't receive the code?" = "Didn't receive the code?";
+"Enter the 6-digit verification code sent to " = "Enter the 6-digit verification code sent to ";
+"Enter your email and we'll send a 6-digit verification PIN." = "Enter your email and we'll send a 6-digit verification PIN.";
+"Create a new password that is different from previous passwords." = "Create a new password that is different from previous passwords.";
+
+
+// Errors/Validation
+"Please fill in all fields" = "Please fill in all fields";
+"Please enter your email" = "Please enter your email";
+"Please enter your name" = "Please enter your name";
+"Please enter the PIN" = "Please enter the PIN";
+"Password must be at least 6 characters" = "Password must be at least 6 characters";
+"Passwords do not match" = "Passwords do not match";
+"You are signed up. Please sign in." = "You are signed up. Please sign in.";
+"Login failed" = "Login failed";
+"Registration failed" = "Registration failed";
+"Reset failed" = "Reset failed";
+"Could not send PIN" = "Could not send PIN";
+"Invalid PIN" = "Invalid PIN";
+"Not authenticated" = "Not authenticated";
+"Not logged in" = "Not logged in";
+"Analysis failed. Please try again." = "Analysis failed. Please try again.";
+"Failed to load history" = "Failed to load history";
+"Failed to process image" = "Failed to process image";
+"Failed to update water" = "Failed to update water";
+"Failed to upload photo" = "Failed to upload photo";
+"Photo Upload Error" = "Photo Upload Error";
+"Could not load scan limit info" = "Could not load scan limit info";
+"Network timeout. Try again." = "Network timeout. Try again.";
+"Invalid birth date" = "Invalid birth date";
+"Basic users can activate up to 3 diseases" = "Basic users can activate up to 3 diseases";
+"Please enter your height and weight" = "Please enter your height and weight";
+"Camera access denied.\nGo to Settings → Privacy → Camera\nand enable access for ScanFit." = "Camera access denied.\nGo to Settings → Privacy → Camera\nand enable access for ScanFit.";
+"To scan food products, please allow camera access in Settings." = "To scan food products, please allow camera access in Settings.";
+"Past days are read-only. Water can only be changed for today" = "Past days are read-only. Water can only be changed for today";
+"Daily scan limit reached. Upgrade to Pro for unlimited scans." = "Daily scan limit reached. Upgrade to Pro for unlimited scans.";
+"You have used all your daily scans." = "You have used all your daily scans.";
+
+
+// Navigation
+"Home" = "Home";
+"Scan" = "Scan";
+"Favorites" = "Favorites";
+"Recent" = "Recent";
+"Profile" = "Profile";
+"Account" = "Account";
+"Search" = "Search";
+
+
+// Profile Setup
+"Tell us about yourself" = "Tell us about yourself";
+"We'll personalise your experience" = "We'll personalise your experience";
+"Your Health Profile" = "Your Health Profile";
+"Finish Setup" = "Finish Setup";
+"Continue" = "Continue";
+"I am a" = "I am a";
+"Male" = "Male";
+"Female" = "Female";
+"Other" = "Other";
+"Gender" = "Gender";
+"Date of Birth" = "Date of Birth";
+"Height (cm)" = "Height (cm)";
+"Height" = "Height";
+"Weight (kg)" = "Weight (kg)";
+"Weight" = "Weight";
+"BMI" = "BMI";
+"Goal" = "Goal";
+"Gain" = "Gain";
+"Lose" = "Lose";
+"Maintain" = "Maintain";
+"Target weight" = "Target weight";
+"Target date" = "Target date";
+"Goal, target date, target weight" = "Goal, target date, target weight";
+"My Diet" = "My Diet";
+"Please mark everything you have. This will help us make personalized recommendations when reviewing products." = "Please mark everything you have. This will help us make personalized recommendations when reviewing products.";
+
+
+//user Profile
+"Body Measurements" = "Body Measurements";
+"Measurements" = "Measurements";
+"Dietary Preferences" = "Dietary Preferences";
+"Dietary" = "Dietary";
+"Diet Preferences" = "Diet Preferences";
+"Diet" = "Diet";
+"Health Conditions" = "Health Conditions";
+"Health Markers" = "Health Markers";
+"Disease Management" = "Disease Management";
+"Diseases" = "Diseases";
+"Weight Management" = "Weight Management";
+"Weight management updated" = "Weight management updated";
+"Change Photo" = "Change Photo";
+"Force Logout" = "Force Logout";
+"Tap a row to edit" = "Tap a row to edit";
+"Not set" = "Not set";
+"Not selected" = "Not selected";
+"Select date" = "Select date";
+"Pick Date" = "Pick Date";
+"Select Date" = "Select Date";
+"Done" = "Done";
+"Save" = "Save";
+"Saved" = "Saved";
+"Cancel" = "Cancel";
+"Close" = "Close";
+"Not Now" = "Not Now";
+"Choose" = "Choose";
+"Manage" = "Manage";
+"Active" = "Active";
+"Inactive" = "Inactive";
+"Condition" = "Condition";
+"Specify stage / type" = "Specify stage / type";
+"Severity Level" = "Severity Level";
+"Disease Level" = "Disease Level";
+"Level" = "Level";
+"Health Condition" = "Health Condition";
+"Tap a card to set level" = "Tap a card to set level";
+"This condition is active" = "This condition is active";
+"Unknown Condition" = "Unknown Condition";
+"Enter value" = "Enter value";
+"Value" = "Value";
+"None" = "None";
+"None reported" = "None reported";
+"Unknown" = "Unknown";
+"Selected" = "Selected";
+"Find allergy or disease..." = "Find allergy or disease...";
+
+
+// Home/Tracker
+"Calories" = "Calories";
+"Carbs" = "Carbs";
+"Fat" = "Fat";
+"Protein" = "Protein";
+"Fats" = "Fats";
+"Fiber" = "Fiber";
+"Sugar" = "Sugar";
+"Sodium" = "Sodium";
+"Cholesterol" = "Cholesterol";
+"Water balance" = "Water balance";
+"Tap an empty cup to add water, or a filled cup to remove it" = "Tap an empty cup to add water, or a filled cup to remove it";
+"Saving water…" = "Saving water…";
+"Calories refreshed" = "Calories refreshed";
+"See all history" = "See all history";
+"Start tracking food to see your history here." = "Start tracking food to see your history here.";
+"No history available" = "No history available";
+"View Nutrition History" = "View Nutrition History";
+"Nutrition History" = "Nutrition History";
+"This Week" = "This Week";
+"Daily Impact" = "Daily Impact";
+"How this product affects your daily goals" = "How this product affects your daily goals";
+"Add to Today's Tracker" = "Add to Today's Tracker";
+"Serving size" = "Serving size";
+
+
+//scan
+"Point at a product or label" = "Point at a product or label";
+"Browse" = "Browse";
+"Type Ingredients" = "Type Ingredients";
+"Enter product name or ingredients" = "Enter product name or ingredients";
+"Allow Camera Access" = "Allow Camera Access";
+"Camera Access Required" = "Camera Access Required";
+"Open Settings" = "Open Settings";
+"Scan Error" = "Scan Error";
+"Scan Limit Reached" = "Scan Limit Reached";
+"Loading products..." = "Loading products...";
+"Searching..." = "Searching...";
+"Search products..." = "Search products...";
+"No products found" = "No products found";
+"No results found" = "No results found";
+"Try a different search term" = "Try a different search term";
+"No categories found" = "No categories found";
+"Retry" = "Retry";
+
+
+// Product Detail
+"Nutritional Info" = "Nutritional Info";
+"Nutrients" = "Nutrients";
+"Ingredients" = "Ingredients";
+"AI Analysis" = "AI Analysis";
+"AI Health Analysis" = "AI Health Analysis";
+"Analyze with AI" = "Analyze with AI";
+"Analyze again" = "Analyze again";
+"Analyzing… 30–40 sec" = "Analyzing… 30–40 sec";
+"Not analyzed yet" = "Not analyzed yet";
+"Tap Analyze with AI to check this product against your profile." = "Tap Analyze with AI to check this product against your profile.";
+"AI Scan" = "AI Scan";
+"Health Score" = "Health Score";
+"Nutri-Score" = "Nutri-Score";
+"General Analysis" = "General Analysis";
+"Personalized for your health profile" = "Personalized for your health profile";
+"What may be a problem" = "What may be a problem";
+"Diet conflicts" = "Diet conflicts";
+"Diet conflict" = "Diet conflict";
+"Compared with active diets" = "Compared with active diets";
+"Healthier options to consider" = "Healthier options to consider";
+"Alternatives" = "Alternatives";
+"Sources" = "Sources";
+"Evidence used by AI" = "Evidence used by AI";
+"Full + Sources" = "Full + Sources";
+"May not match one of the selected diets." = "May not match one of the selected diets.";
+"Needs attention." = "Needs attention.";
+"Dangerous" = "Dangerous";
+"Find on Kaspi →" = "Find on Kaspi →";
+"Total Carbohydrate" = "Total Carbohydrate";
+"Total Fat" = "Total Fat";
+"All Vitamins" = "All Vitamins";
+"Vitamin A" = "Vitamin A";
+"Vitamin C" = "Vitamin C";
+"Vitamin D" = "Vitamin D";
+"Vitamin E" = "Vitamin E";
+"Vitamin B6" = "Vitamin B6";
+"Vitamin B9" = "Vitamin B9";
+"Vitamin B9 (Folate)" = "Vitamin B9 (Folate)";
+"Vitamin B12" = "Vitamin B12";
+"Vitamin Tracking" = "Vitamin Tracking";
+"Blood Pressure" = "Blood Pressure";
+"High Blood Pressure" = "High Blood Pressure";
+"Cholesterol Tracking" = "Cholesterol Tracking";
+"High Cholesterol" = "High Cholesterol";
+"Personalized picks" = "Personalized picks";
+"AI may occasionally make mistakes. Always double-check important information. The analysis provided is not 100% accurate and should not be considered medical advice or a substitute for a healthcare professional. We do not guarantee outcomes. Nutritional values (calories, vitamins, and nutrients) are estimates and may vary." = "AI may occasionally make mistakes. Always double-check important information. The analysis provided is not 100% accurate and should not be considered medical advice or a substitute for a healthcare professional. We do not guarantee outcomes. Nutritional values (calories, vitamins, and nutrients) are estimates and may vary.";
+
+
+//Favorites/Recent
+"No favorites yet" = "No favorites yet";
+"No recent products" = "No recent products";
+"Tap the heart on any product to save it here." = "Tap the heart on any product to save it here.";
+"Clear All" = "Clear All";
+
+
+// Pro/subscription
+"ScanFit Pro" = "ScanFit Pro";
+"Upgrade to ScanFit Pro" = "Upgrade to ScanFit Pro";
+"Upgrade to Pro" = "Upgrade to Pro";
+"Get Pro" = "Get Pro";
+"Pro" = "Pro";
+"Basic" = "Basic";
+"Basic Plan" = "Basic Plan";
+"Free" = "Free";
+"Current Plan" = "Current Plan";
+"Full Access" = "Full Access";
+"What's included" = "What's included";
+"Unlimited scans" = "Unlimited scans";
+"Unlimited" = "Unlimited";
+"Up to 3" = "Up to 3";
+"Unlimited AI scans & advanced tracking" = "Unlimited AI scans & advanced tracking";
+"Unlimited scans & advanced health insights" = "Unlimited scans & advanced health insights";
+"Unlimited scans & all features" = "Unlimited scans & all features";
+"Enjoy unlimited scans and all premium features." = "Enjoy unlimited scans and all premium features.";
+"Daily AI Scans" = "Daily AI Scans";
+"Daily Scan Usage" = "Daily Scan Usage";
+"You're a Pro member!" = "You're a Pro member!";
+"Tap to upgrade to Pro" = "Tap to upgrade to Pro";
+"Request upgrade (demo)" = "Request upgrade (demo)";
+"Upgrade requested! We'll confirm soon." = "Upgrade requested! We'll confirm soon.";
+"Contact support via Telegram or WhatsApp to complete upgrade" = "Contact support via Telegram or WhatsApp to complete upgrade";
+"Contact via Telegram" = "Contact via Telegram";
+"Contact via WhatsApp" = "Contact via WhatsApp";
+"Choose how to contact us to complete your upgrade. Once confirmed, your account will be upgraded to Pro." = "Choose how to contact us to complete your upgrade. Once confirmed, your account will be upgraded to Pro.";
+"Hello! I'd like to upgrade my ScanFit account to Pro." = "Hello! I'd like to upgrade my ScanFit account to Pro.";
+"Authorization" = "Authorization";
+"Tap Continue to proceed" = "Tap Continue to proceed";
+
+
+//Categories
+"Baby Food" = "Baby Food";
+"Beverages" = "Beverages";
+"Bread" = "Bread";
+"Cereals" = "Cereals";
+"Dairy" = "Dairy";
+"Frozen" = "Frozen";
+"Fruits & Vegetables" = "Fruits & Vegetables";
+"Meat & Fish" = "Meat & Fish";
+"Sauces" = "Sauces";
+"Snacks" = "Snacks";
+"Error" = "Error";
+"User" = "User";
+"Guy" = "Guy";
+"15 per day" = "15 per day";
+"Tap Continue to proceed" = "Tap Continue to proceed";
+"No link" = "No link";
+"Source" = "Source";
+"Alternative" = "Alternative";
+"Issue" = "Issue";
+"Saving water…" = "Saving water…";

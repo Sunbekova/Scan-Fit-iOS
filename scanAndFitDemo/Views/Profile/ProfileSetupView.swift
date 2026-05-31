@@ -50,13 +50,13 @@ struct ProfileSetupView: View {
                     // Height
                     VStack(alignment: .leading, spacing: 10) {
                         Label("Height (cm)", systemImage: "ruler").font(.subheadline).fontWeight(.semibold)
-                        SFTextField(placeholder: "e.g. 175", text: $heightCm, icon: "ruler").keyboardType(.numberPad)
+                        SFTextField(placeholder: "e.g. 175".localized, text: $heightCm, icon: "ruler").keyboardType(.numberPad)
                     }
                     
                     // Weight
                     VStack(alignment: .leading, spacing: 10) {
                         Label("Weight (kg)", systemImage: "scalemass").font(.subheadline).fontWeight(.semibold)
-                        SFTextField(placeholder: "e.g. 70", text: $weightKg, icon: "scalemass").keyboardType(.numberPad)
+                        SFTextField(placeholder: "e.g. 70".localized, text: $weightKg, icon: "scalemass").keyboardType(.numberPad)
                     }
                     
                     // Birthdate
