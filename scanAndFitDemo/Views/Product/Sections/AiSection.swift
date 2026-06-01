@@ -4,7 +4,7 @@ import SwiftUI
 extension ProductDetailView {
     
     private var aiDisclaimer: some View {
-        Text("AI may occasionally make mistakes. Always double-check important information. The analysis provided is not 100% accurate and should not be considered medical advice or a substitute for a healthcare professional. We do not guarantee outcomes. Nutritional values (calories, vitamins, and nutrients) are estimates and may vary.")
+        Text("AI may occasionally make mistakes. Always double-check important information. The analysis provided is not 100% accurate and should not be considered medical advice or a substitute for a healthcare professional. We do not guarantee outcomes. Nutritional values (calories, vitamins, and nutrients) are estimates and may vary.".localized)
             .font(.caption2)
             .foregroundColor(.secondary)
     }
@@ -13,7 +13,7 @@ extension ProductDetailView {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("AI Analysis").font(.headline)
+                    Text("AI Analysis".localized).font(.headline)
                     if let resp = aiResponse {
                         let riskLabel = resp.riskLevel?.capitalized
                             ?? (( resp.healthScore ?? 0) < 40 ? "Dangerous" : "Safe")
@@ -21,7 +21,7 @@ extension ProductDetailView {
                             .font(.subheadline).fontWeight(.semibold)
                             .foregroundColor(gradeColor(currentGrade))
                     } else {
-                        Text("Not analyzed yet").font(.subheadline).foregroundColor(.secondary)
+                        Text("Not analyzed yet".localized).font(.subheadline).foregroundColor(.secondary)
                     }
                 }
                 Spacer()
@@ -46,7 +46,7 @@ extension ProductDetailView {
                 Divider().padding(.top, 4)
                 aiDisclaimer
             } else if !isAnalyzing {
-                Text("Tap Analyze with AI to check this product against your profile.")
+                Text("Tap Analyze with AI to check this product against your profile.".localized)
                     .font(.caption).foregroundColor(.secondary)
             }
 
@@ -58,7 +58,7 @@ extension ProductDetailView {
 
             // Risks
             if let risks = aiResponse?.risks, !risks.isEmpty {
-                aiSectionCard(title: "Risks", subtitle: "What may be a problem",
+                aiSectionCard(title: "Risks".localized, subtitle: "What may be a problem".localized,
                               bgColor: Color(hex: "#FFF3E8")) {
                     ForEach(risks) { risk in
                         aiIssueRow(title: risk.ingredient ?? "Issue",
@@ -70,7 +70,7 @@ extension ProductDetailView {
             
             // diet conflicts
             if let conflicts = aiResponse?.dietConflicts, !conflicts.isEmpty {
-                aiSectionCard(title: "Diet conflicts", subtitle: "Compared with active diets",
+                aiSectionCard(title: "Diet conflicts".localized, subtitle: "Compared with active diets".localized,
                               bgColor: Color(hex: "#F0F7FF")) {
                     ForEach(conflicts) { conflict in
                         aiIssueRow(title: conflict.dietCode ?? "Diet conflict",
@@ -86,7 +86,7 @@ extension ProductDetailView {
 
             // Alternatives
             if let alternatives = aiResponse?.alternatives, !alternatives.isEmpty {
-                aiSectionCard(title: "Alternatives", subtitle: "Healthier options to consider",
+                aiSectionCard(title: "Alternatives".localized, subtitle: "Healthier options to consider".localized,
                               bgColor: Color(.systemGray6)) {
                     ForEach(alternatives) { alt in
                         VStack(alignment: .leading, spacing: 4) {
@@ -108,7 +108,7 @@ extension ProductDetailView {
 
             // Sources
             if let sources = aiResponse?.sources, !sources.isEmpty {
-                aiSectionCard(title: "Sources", subtitle: "Evidence used by AI",
+                aiSectionCard(title: "Sources".localized, subtitle: "Evidence used by AI".localized,
                               bgColor: Color(.systemGray6)) {
                     ForEach(sources.prefix(4)) { source in
                         VStack(alignment: .leading, spacing: 3) {
@@ -122,7 +122,7 @@ extension ProductDetailView {
             }
 
             if analysisFailed {
-                Text("Analysis failed. Please try again.")
+                Text("Analysis failed. Please try again.".localized)
                     .font(.caption).foregroundColor(.red)
             }
         }
@@ -146,7 +146,7 @@ extension ProductDetailView {
         ].filter { $0.1 != nil }
 
         if !items.isEmpty {
-            aiSectionCard(title: "Daily Impact", subtitle: "How this product affects your daily goals",
+            aiSectionCard(title: "Daily Impact".localized, subtitle: "How this product affects your daily goals".localized,
                           bgColor: Color(hex: "#F0FFF4")) {
                 ForEach(items, id: \.0) { name, item in
                     if let item = item {

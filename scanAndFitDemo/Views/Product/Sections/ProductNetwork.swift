@@ -91,7 +91,7 @@ extension ProductDetailView {
         } catch {
             // Fallback: update local tracker only
             let item = FoodItem(
-                title: resp.productName ?? "AI Scan", subtitle: "AI Scan",
+                title: resp.productName ?? "AI Scan", subtitle: "AI Scan".localized,
                 calories: "\(Int(macros.calories ?? 0)) kcal",
                 proteins: "\(macros.proteins ?? 0)g",
                 fat: "\(macros.resolvedFat ?? 0)g",

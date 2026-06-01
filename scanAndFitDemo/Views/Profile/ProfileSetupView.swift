@@ -27,8 +27,8 @@ struct ProfileSetupView: View {
             ScrollView {
                 VStack(spacing: 28) {
                     VStack(spacing: 6) {
-                        Text("Tell us about yourself").font(.system(size: 26, weight: .bold))
-                        Text("We'll personalise your experience").font(.subheadline).foregroundColor(.secondary)
+                        Text("Tell us about yourself".localized).font(.system(size: 26, weight: .bold))
+                        Text("We'll personalise your experience".localized).font(.subheadline).foregroundColor(.secondary)
                     }
                     .padding(.top, 24)
                     
@@ -82,7 +82,7 @@ struct ProfileSetupView: View {
                         Text(error).font(.caption).foregroundColor(.red).multilineTextAlignment(.center)
                     }
                     
-                    SFPrimaryButton(title: "Continue", isLoading: profileVM.isLoading) {
+                    SFPrimaryButton(title: "Continue".localized, isLoading: profileVM.isLoading) {
                         Task { await saveAndContinue() }
                     }
                     .padding(.top, 8)

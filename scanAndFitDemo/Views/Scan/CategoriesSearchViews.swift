@@ -82,7 +82,7 @@ struct ProductListView: View {
             } else if products.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "tray").font(.system(size: 40)).foregroundColor(.gray)
-                    Text("No products found").font(.headline)
+                    Text("No products found".localized).font(.headline)
                 }
             } else {
                 List(products) { item in
@@ -143,8 +143,8 @@ struct SearchView: View {
                 Spacer()
                 VStack(spacing: 10) {
                     Image(systemName: "magnifyingglass").font(.system(size: 40)).foregroundColor(.gray)
-                    Text("No results found").font(.headline)
-                    Text("Try a different search term").font(.subheadline).foregroundColor(.secondary)
+                    Text("No results found".localized).font(.headline)
+                    Text("Try a different search term".localized).font(.subheadline).foregroundColor(.secondary)
                 }
                 Spacer()
             } else {

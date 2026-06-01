@@ -10,9 +10,9 @@ struct DietSelectionView: View {
         ScrollView {
             VStack(spacing: 24) {
                 VStack(spacing: 12) {
-                    Text("Your Health Profile")
+                    Text("Your Health Profile".localized)
                         .font(.system(size: 26, weight: .bold))
-                    Text("Please mark everything you have. This will help us make personalized recommendations when reviewing products.")
+                    Text("Please mark everything you have. This will help us make personalized recommendations when reviewing products.".localized)
                         .font(.system(size: 14))
                         .foregroundColor(.primary.opacity(0.8))
                         .multilineTextAlignment(.center)
@@ -27,7 +27,7 @@ struct DietSelectionView: View {
                     VStack(spacing: 32) {
                         if !profileVM.healthConditions.isEmpty {
                             categorySection(
-                                title: "Health Conditions",
+                                title: "Health Conditions".localized,
                                 items: profileVM.healthConditions
                             ) { item in
                                 Task { await profileVM.toggleHealthCondition(item) }
@@ -36,7 +36,7 @@ struct DietSelectionView: View {
 
                         if !profileVM.dietTypes.isEmpty {
                             categorySection(
-                                title: "Diet Preferences",
+                                title: "Diet Preferences".localized,
                                 items: profileVM.dietTypes
                             ) { item in
                                 Task { await profileVM.toggleDietType(item) }
@@ -45,7 +45,7 @@ struct DietSelectionView: View {
 
                         if !profileVM.dietaryPrefs.isEmpty {
                             categorySection(
-                                title: "Dietary Preferences",
+                                title: "Dietary Preferences".localized,
                                 items: profileVM.dietaryPrefs
                             ) { item in
                                 Task { await profileVM.toggleDietaryPreference(item) }
@@ -54,7 +54,7 @@ struct DietSelectionView: View {
 
                         if !profileVM.diseases.isEmpty {
                             categorySection(
-                                title: "Specify stage / type",
+                                title: "Specify stage / type".localized,
                                 items: profileVM.diseases,
                                 showSearch: true
                             ) { item in
@@ -86,7 +86,7 @@ struct DietSelectionView: View {
                 Button(action: {
                     authVM.markProfileCompleted()
                 }) {
-                    Text("Finish Setup")
+                    Text("Finish Setup".localized)
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -98,7 +98,7 @@ struct DietSelectionView: View {
                 Button(action: {
                     authVM.markProfileCompleted()
                 }) {
-                    Text("Not Now")
+                    Text("Not Now".localized)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(Color.gray.opacity(0.6))
                 }
@@ -185,9 +185,9 @@ struct DietSelectionView: View {
             Image(systemName: "leaf.circle")
                 .font(.system(size: 40))
                 .foregroundColor(Color.blue.opacity(0.5))
-            Text("No categories found")
+            Text("No categories found".localized)
                 .foregroundColor(.secondary)
-            Text("Tap Continue to proceed")
+            Text("Tap Continue to proceed".localized)
                 .font(.caption)
                 .foregroundColor(.secondary)
         }

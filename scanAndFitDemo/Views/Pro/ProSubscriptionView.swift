@@ -55,7 +55,7 @@ struct ProSubscriptionView: View {
                     .font(.system(size: 52)).foregroundColor(Color(hex: "#FBBF24"))
                 Text("ScanFit Pro")
                     .font(.system(size: 28, weight: .bold)).foregroundColor(.white)
-                Text("Unlimited scans & advanced health insights")
+                Text("Unlimited scans & advanced health insights".localized)
                     .font(.subheadline).foregroundColor(.white.opacity(0.75))
                     .multilineTextAlignment(.center).padding(.horizontal, 32)
             }
@@ -66,7 +66,7 @@ struct ProSubscriptionView: View {
     private var currentPlanCard: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Current Plan").font(.caption).foregroundColor(.secondary)
+                Text("Current Plan".localized).font(.caption).foregroundColor(.secondary)
                 Text(isVip ? "ScanFit Pro" : "Basic")
                     .font(.title3).fontWeight(.bold)
                     .foregroundColor(isVip ? Color(hex: "#0F172A") : .primary)
@@ -78,7 +78,7 @@ struct ProSubscriptionView: View {
                     .padding(.horizontal, 12).padding(.vertical, 6)
                     .background(Color("AppGreen")).cornerRadius(20)
             } else {
-                Text("Free")
+                Text("Free".localized)
                     .font(.caption).fontWeight(.semibold).foregroundColor(.secondary)
                     .padding(.horizontal, 12).padding(.vertical, 6)
                     .background(Color(.systemGray5)).cornerRadius(20)
@@ -90,7 +90,7 @@ struct ProSubscriptionView: View {
 
     private var scanLimitCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Daily Scan Usage").font(.headline)
+            Text("Daily Scan Usage".localized).font(.headline)
             if let limit = scanLimit {
                 let unlimited = limit.isUnlimited ?? false
                 let remaining = limit.remaining ?? 0
@@ -100,7 +100,7 @@ struct ProSubscriptionView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         if unlimited {
-                            Text("Unlimited scans").font(.title3).fontWeight(.bold)
+                            Text("Unlimited scans".localized).font(.title3).fontWeight(.bold)
                                 .foregroundColor(Color("AppGreen"))
                         } else {
                             Text("\(remaining) remaining").font(.title3).fontWeight(.bold)
@@ -124,7 +124,7 @@ struct ProSubscriptionView: View {
             } else if isLoading {
                 ProgressView()
             } else {
-                Text("Could not load scan limit info").font(.caption).foregroundColor(.secondary)
+                Text("Could not load scan limit info".localized).font(.caption).foregroundColor(.secondary)
             }
         }
         .padding(20).background(Color(.systemBackground)).cornerRadius(16)
@@ -133,23 +133,23 @@ struct ProSubscriptionView: View {
 
     private var featuresSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("What's included").font(.headline)
+            Text("What's included".localized).font(.headline)
             VStack(spacing: 0) {
-                featureRow(title: "     Features", basic: "BASIC", pro: "PRO", icon: "crown.fill", highlight: true)
+                featureRow(title: "     Features".localized, basic: "BASIC", pro: "PRO", icon: "crown.fill", highlight: true)
                 Divider().padding(.leading, 48)
-                featureRow(title: "Daily AI Scans", basic: "15 per day", pro: "Unlimited", icon: "barcode.viewfinder", highlight: false)
+                featureRow(title: "Daily AI Scans".localized, basic: "15 per day", pro: "Unlimited", icon: "barcode.viewfinder", highlight: false)
                 Divider().padding(.leading, 48)
-                featureRow(title: "AI Health Analysis", basic: "Basic", pro: "Full + Sources", icon: "brain.head.profile", highlight: false)
+                featureRow(title: "AI Health Analysis".localized, basic: "Basic", pro: "Full + Sources", icon: "brain.head.profile", highlight: false)
                 Divider().padding(.leading, 48)
-                featureRow(title: "Blood Pressure", basic: "—", pro: "✓", icon: "heart.text.square", highlight: false)
+                featureRow(title: "Blood Pressure".localized, basic: "—", pro: "✓", icon: "heart.text.square", highlight: false)
                 Divider().padding(.leading, 48)
-                featureRow(title: "Cholesterol Tracking", basic: "—", pro: "✓", icon: "drop.fill", highlight: false)
+                featureRow(title: "Cholesterol Tracking".localized, basic: "—", pro: "✓", icon: "drop.fill", highlight: false)
                 Divider().padding(.leading, 48)
-                featureRow(title: "Disease Management", basic: "Up to 3", pro: "Unlimited", icon: "cross.case", highlight: false)
+                featureRow(title: "Disease Management".localized, basic: "Up to 3", pro: "Unlimited", icon: "cross.case", highlight: false)
                 Divider().padding(.leading, 48)
-                featureRow(title: "Dietary Preferences", basic: "—", pro: "Full Access", icon: "leaf", highlight: false)
+                featureRow(title: "Dietary Preferences".localized, basic: "—", pro: "Full Access", icon: "leaf", highlight: false)
                 Divider().padding(.leading, 48)
-                featureRow(title: "Vitamin Tracking", basic: "—", pro: "All Vitamins", icon: "pills.fill", highlight: false)
+                featureRow(title: "Vitamin Tracking".localized, basic: "—", pro: "All Vitamins", icon: "pills.fill", highlight: false)
             }
             .background(Color(.systemBackground)).cornerRadius(16)
             .shadow(color: .black.opacity(0.06), radius: 8, y: 2)
@@ -173,7 +173,7 @@ struct ProSubscriptionView: View {
             Button { showBuySheet = true } label: {
                 HStack {
                     Image(systemName: "crown.fill").foregroundColor(Color(hex: "#FBBF24"))
-                    Text("Upgrade to ScanFit Pro").fontWeight(.bold)
+                    Text("Upgrade to ScanFit Pro".localized).fontWeight(.bold)
                 }
                 .font(.headline).foregroundColor(.white)
                 .frame(maxWidth: .infinity).padding(18)
@@ -181,7 +181,7 @@ struct ProSubscriptionView: View {
                                            startPoint: .leading, endPoint: .trailing))
                 .cornerRadius(16)
             }
-            Text("Contact support via Telegram or WhatsApp to complete upgrade")
+            Text("Contact support via Telegram or WhatsApp to complete upgrade".localized)
                 .font(.caption).foregroundColor(.secondary).multilineTextAlignment(.center)
         }
     }
@@ -190,8 +190,8 @@ struct ProSubscriptionView: View {
         HStack(spacing: 16) {
             Image(systemName: "crown.fill").font(.system(size: 32)).foregroundColor(Color(hex: "#FBBF24"))
             VStack(alignment: .leading, spacing: 4) {
-                Text("You're a Pro member!").font(.headline).foregroundColor(Color(hex: "#FBBF24"))
-                Text("Enjoy unlimited scans and all premium features.")
+                Text("You're a Pro member!".localized).font(.headline).foregroundColor(Color(hex: "#FBBF24"))
+                Text("Enjoy unlimited scans and all premium features.".localized)
                     .font(.caption).foregroundColor(Color("AppGreen"))
             }
             Spacer()
@@ -243,9 +243,9 @@ struct BuyVipSheet: View {
                 Image(systemName: "crown.fill")
                     .font(.system(size: 64)).foregroundColor(Color(hex: "#FBBF24"))
 
-                Text("Upgrade to ScanFit Pro").font(.title2).fontWeight(.bold)
+                Text("Upgrade to ScanFit Pro".localized).font(.title2).fontWeight(.bold)
 
-                Text("Choose how to contact us to complete your upgrade. Once confirmed, your account will be upgraded to Pro.")
+                Text("Choose how to contact us to complete your upgrade. Once confirmed, your account will be upgraded to Pro.".localized)
                     .font(.subheadline).foregroundColor(.secondary)
                     .multilineTextAlignment(.center).padding(.horizontal, 24)
                 Button {
@@ -253,7 +253,7 @@ struct BuyVipSheet: View {
                 } label: {
                     HStack(spacing: 12) {
                         Image(systemName: "paperplane.fill")
-                        Text("Contact via Telegram")
+                        Text("Contact via Telegram".localized)
                     }
                     .font(.headline).fontWeight(.semibold).foregroundColor(.white)
                     .frame(maxWidth: .infinity).padding(16)
@@ -265,7 +265,7 @@ struct BuyVipSheet: View {
                 } label: {
                     HStack(spacing: 12) {
                         Image(systemName: "phone.fill")
-                        Text("Contact via WhatsApp")
+                        Text("Contact via WhatsApp".localized)
                     }
                     .font(.headline).fontWeight(.semibold).foregroundColor(.white)
                     .frame(maxWidth: .infinity).padding(16)
@@ -284,7 +284,7 @@ struct BuyVipSheet: View {
                     Button {
                         Task { await requestUpgrade() }
                     } label: {
-                        Text("Request upgrade (demo)")
+                        Text("Request upgrade (demo)".localized)
                             .font(.subheadline).foregroundColor(.secondary)
                     }
                 }

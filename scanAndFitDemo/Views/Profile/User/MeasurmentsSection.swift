@@ -11,12 +11,12 @@ struct MeasurementsSection: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            sectionHeader("Body Measurements", subtitle: "Tap a row to edit")
+            sectionHeader("Body Measurements", subtitle: "Tap a row to edit".localized)
             measurementsCard
 
             let isVip = TokenManager.shared.isVip
 
-            sectionCard(title: "Health Markers") {
+            sectionCard(title: "Health Markers".localized) {
                 VStack(spacing: 0) {
                     VStack(alignment: .leading, spacing: 4) {
                         Toggle("High Blood Pressure", isOn: Binding(
@@ -71,7 +71,7 @@ struct MeasurementsSection: View {
         }
         .padding(.top, 16)
         .sheet(isPresented: $showGenderPicker) {
-            PickerSheet(title: "I am a",
+            PickerSheet(title: "I am a".localized,
                         options: ["Guy", "Gal", "Prefer not to say"],
                         selected: profileVM.gender) { val in
                 profileVM.gender = val

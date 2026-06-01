@@ -125,7 +125,7 @@ struct DiseaseLevelSheet: View {
 
                 if !levels.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Severity Level").font(.headline)
+                        Text("Severity Level".localized).font(.headline)
                         Picker("Level", selection: $selectedLevelIdx) {
                             ForEach(Array(levels.enumerated()), id: \.offset) { idx, lvl in
                                 Text(lvl.name ?? "Unknown Condition").tag(idx)

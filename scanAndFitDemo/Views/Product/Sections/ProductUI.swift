@@ -13,7 +13,7 @@ extension ProductDetailView{
                 Text(grade).font(.system(size: 22, weight: .bold)).foregroundColor(.white)
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text("Nutri-Score").font(.caption).foregroundColor(.secondary)
+                Text("Nutri-Score".localized).font(.caption).foregroundColor(.secondary)
                 Text(gradeLabel(grade)).font(.subheadline).fontWeight(.semibold).foregroundColor(gradeColor(grade))
             }
             Spacer()
@@ -21,7 +21,7 @@ extension ProductDetailView{
                 VStack(spacing: 2) {
                     Text("\(score)").font(.system(size: 22, weight: .bold))
                         .foregroundColor(gradeColor(currentGrade))
-                    Text("Health Score").font(.caption2).foregroundColor(.secondary)
+                    Text("Health Score".localized).font(.caption2).foregroundColor(.secondary)
                 }
             }
         }
@@ -30,7 +30,7 @@ extension ProductDetailView{
     // MARK: - tamaq porcia
     var servingSelector: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Serving size").font(.subheadline).fontWeight(.semibold)
+            Text("Serving size".localized).font(.subheadline).fontWeight(.semibold)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(portionValues, id: \.self) { val in
@@ -58,9 +58,9 @@ extension ProductDetailView{
 
     var macroSection: some View {
         HStack(spacing: 16) {
-            MacroProgressItem(title: "Protein", value: currentProteins, maxValue: 50, color: .green)
-            MacroProgressItem(title: "Carbs", value: currentCarbs, maxValue: 75, color: .orange)
-            MacroProgressItem(title: "Fat", value: currentFat, maxValue: 30, color: .pink)
+            MacroProgressItem(title: "Protein".localized, value: currentProteins, maxValue: 50, color: .green)
+            MacroProgressItem(title: "Carbs".localized, value: currentCarbs, maxValue: 75, color: .orange)
+            MacroProgressItem(title: "Fat".localized, value: currentFat, maxValue: 30, color: .pink)
         }
         .padding(16)
         .background(Color(.systemGray6))
@@ -72,9 +72,9 @@ extension ProductDetailView{
     var nutrientsSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("Nutritional Info").font(.headline)
+                Text("Nutritional Info".localized).font(.headline)
                 Spacer()
-                Text("per serving").font(.caption).foregroundColor(.secondary)
+                Text("per serving".localized).font(.caption).foregroundColor(.secondary)
             }
             .padding(.bottom, 8)
 
@@ -125,7 +125,7 @@ extension ProductDetailView{
             // Ingredients if available
             if let ingredients = foodItem?.ingredients, !ingredients.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Ingredients").font(.subheadline).fontWeight(.bold).padding(.top, 8)
+                    Text("Ingredients".localized).font(.subheadline).fontWeight(.bold).padding(.top, 8)
                     Text(ingredients).font(.caption).foregroundColor(.secondary)
                 }
             }

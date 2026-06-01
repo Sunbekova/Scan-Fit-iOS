@@ -9,7 +9,7 @@ struct CalorieCard: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 6) {
                     Image(systemName: "flame.fill").foregroundColor(.green)
-                    Text("Calories").font(.headline)
+                    Text("Calories".localized).font(.headline)
                     Spacer()
                     Image(systemName: "chevron.right").foregroundColor(.secondary).font(.caption)
                 }

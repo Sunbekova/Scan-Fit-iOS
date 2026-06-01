@@ -9,13 +9,13 @@ struct DietarySection: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            sectionHeader("Weight Management", subtitle: "Goal, target date, target weight")
+            sectionHeader("Weight Management", subtitle: "Goal, target date, target weight".localized)
             weightManagementCard
 
             let grouped = Dictionary(grouping: profileVM.dietTypes) { $0.category ?? "My Diet" }
 
             ForEach(grouped.keys.sorted(), id: \.self) { category in
-                sectionHeader(category, subtitle: "Personalized picks")
+                sectionHeader(category, subtitle: "Personalized picks".localized)
 
                 VStack(spacing: 8) {
                     ForEach(grouped[category] ?? []) { item in
@@ -25,7 +25,7 @@ struct DietarySection: View {
             }
 
             if !profileVM.dietaryPrefs.isEmpty {
-                sectionHeader("Dietary Preferences", subtitle: "Personalized picks")
+                sectionHeader("Dietary Preferences", subtitle: "Personalized picks".localized)
 
                 VStack(spacing: 8) {
                     ForEach(profileVM.dietaryPrefs) { item in
@@ -35,7 +35,7 @@ struct DietarySection: View {
             }
 
             if !profileVM.healthConditions.isEmpty {
-                sectionHeader("Health Condition", subtitle: "Personalized picks")
+                sectionHeader("Health Condition", subtitle: "Personalized picks".localized)
 
                 VStack(spacing: 8) {
                     ForEach(profileVM.healthConditions) { item in
@@ -110,7 +110,7 @@ struct DietarySection: View {
         .cornerRadius(14)
         .sheet(isPresented: $showGoalPicker) {
             PickerSheet(
-                title: "Goal",
+                title: "Goal".localized,
                 options: ["Lose", "Maintain", "Gain"],
                 selected: profileVM.weightGoal.capitalized
             ) { val in
@@ -125,7 +125,7 @@ struct DietarySection: View {
             }
         }
         .sheet(isPresented: $showTargetWeightInput) {
-            NumberInputSheet(title: "Target weight", unit: "kg", current: profileVM.targetWeight) { val in
+            NumberInputSheet(title: "Target weight".localized, unit: "kg", current: profileVM.targetWeight) { val in
                 profileVM.targetWeight = val
                 Task { await profileVM.saveWeightManagement() }
             }

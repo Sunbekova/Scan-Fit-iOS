@@ -112,14 +112,14 @@ struct HomeView: View {
                 .font(.system(size: 24))
                 .foregroundColor(Color(hex: "#FBBF24"))
             VStack(alignment: .leading, spacing: 2) {
-                Text("Upgrade to ScanFit Pro")
+                Text("Upgrade to ScanFit Pro".localized)
                     .font(.subheadline).fontWeight(.bold).foregroundColor(.white)
-                Text("Unlimited AI scans & advanced tracking")
+                Text("Unlimited AI scans & advanced tracking".localized)
                     .font(.caption).foregroundColor(.white.opacity(0.8))
             }
             Spacer()
             Button { showProPage = true } label: {
-                Text("Get Pro")
+                Text("Get Pro".localized)
                     .font(.caption).fontWeight(.bold).foregroundColor(.white)
                     .padding(.horizontal, 14).padding(.vertical, 8)
                     .background(Color(hex: "#17A34A")).cornerRadius(20)
@@ -137,7 +137,7 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Water balance").font(.headline)
+                    Text("Water balance".localized).font(.headline)
                     Text(String(format: "%.2f L", trackerVM.waterLiters))
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.blue)
@@ -191,17 +191,17 @@ struct HomeView: View {
     @ViewBuilder
     private var waterHintText: some View {
         if !trackerVM.isTodaySelected {
-            Text("Past days are read-only. Water can only be changed for today")
+            Text("Past days are read-only. Water can only be changed for today".localized)
                 .font(.caption).foregroundColor(.secondary)
         } else if trackerVM.isWaterUpdating {
             HStack(spacing: 6) {
                 ProgressView().scaleEffect(0.7)
-                Text("Saving water…").font(.caption).foregroundColor(.secondary)
+                Text("Saving water…".localized).font(.caption).foregroundColor(.secondary)
             }
         } else if let err = trackerVM.waterError {
             Text(err).font(.caption).foregroundColor(.red)
         } else {
-            Text("Tap an empty cup to add water, or a filled cup to remove it")
+            Text("Tap an empty cup to add water, or a filled cup to remove it".localized)
                 .font(.caption).foregroundColor(.secondary)
         }
     }
@@ -210,7 +210,7 @@ struct HomeView: View {
         Button { showHistory = true } label: {
             HStack {
                 Image(systemName: "chart.bar.xaxis")
-                Text("View Nutrition History").fontWeight(.semibold)
+                Text("View Nutrition History".localized).fontWeight(.semibold)
                 Spacer()
                 Image(systemName: "chevron.right")
             }

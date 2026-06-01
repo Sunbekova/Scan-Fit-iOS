@@ -6,7 +6,7 @@
   
 */
 //Authentication
-"Welcome Back" = "Қош көрдік";
+"Welcome Back" = "Қош келдіңіз!";
 "Create Account" = "Аккаунт жасау";
 "Login" = "Кіру";
 "Register" = "Тіркелу";
@@ -100,12 +100,12 @@
 "Goal" = "Мақсат";
 "Gain" = "Салмақ қосу";
 "Lose" = "Салмақ тастау";
-"Maintain" = "Ұстап тұру";
+"Maintain" = "Ұстап тұру"; //?
 "Target weight" = "Мақсатты салмақ";
 "Target date" = "Мақсатты мерзім";
-"Goal, target date, target weight" = "Мақсат, мерзім және мақсатты салмақ";
+"Goal, target date, target weight" = "Мақсат, мерзім және мақсатты салмақ"; //?
 "My Diet" = "Менің диетам";
-"Please mark everything you have. This will help us make personalized recommendations when reviewing products." = "Бар нәрселердің барлығын белгілеңіз. Бұл өнімдерді бағалауда жекелендірілген ұсыныстар беруге көмектеседі.";
+"Please mark everything you have. This will help us make personalized recommendations when reviewing products." = "Сізде бар нәрсені белгілеңіз. Бұл өнімді бағалау барысында жеке ұсыныстар беруге септігін тигізеді.";
 
 
 //user Profile
@@ -117,13 +117,13 @@
 "Diet" = "Диета";
 "Health Conditions" = "Денсаулық жағдайлары";
 "Health Markers" = "Денсаулық маркерлері";
-"Disease Management" = "Аурularды басқару";
+"Disease Management" = "Ауруларды басқару";
 "Diseases" = "Аурулар";
 "Weight Management" = "Салмақты басқару";
 "Weight management updated" = "Салмақты басқару жаңартылды";
 "Change Photo" = "Фотоны өзгерту";
 "Force Logout" = "Мәжбүрлі шығу";
-"Tap a row to edit" = "Өңдеу үшін жолды басыңыз";
+"Tap a row to edit" = "Өңдеу үшін басыңыз";
 "Not set" = "Орнатылмаған";
 "Not selected" = "Таңдалмаған";
 "Select date" = "Күнді таңдаңыз";
@@ -132,7 +132,7 @@
 "Done" = "Дайын";
 "Save" = "Сақтау";
 "Saved" = "Сақталды";
-"Cancel" = "Бас тарту";
+"Cancel" = "Жою";
 "Close" = "Жабу";
 "Not Now" = "Қазір емес";
 "Choose" = "Таңдау";
@@ -146,7 +146,7 @@
 "Level" = "Деңгей";
 "Health Condition" = "Денсаулық жағдайы";
 "Tap a card to set level" = "Деңгейді орнату үшін картаны басыңыз";
-"This condition is active" = "Бұл жағдай белсенді";
+"This condition is active" = "Бұл жағдай белсенді";//?
 "Unknown Condition" = "Белгісіз жағдай";
 "Enter value" = "Мән енгізіңіз";
 "Value" = "Мән";
@@ -172,7 +172,7 @@
 "Saving water…" = "Су сақталуда…";
 "Calories refreshed" = "Калориялар жаңартылды";
 "See all history" = "Барлық тарихты қараңыз";
-"Start tracking food to see your history here." = "Тарихты осында көру үшін тамақты бақылауды бастаңыз.";
+"Start tracking food to see your history here." = "Тұтынатын тағамдарыңыздың тарихын көру үшін оларды тіркеуді бастаңыз.";
 "No history available" = "Тарих қол жетімді емес";
 "View Nutrition History" = "Тамақтану тарихын қарау";
 "Nutrition History" = "Тамақтану тарихы";
@@ -180,7 +180,7 @@
 "Daily Impact" = "Күнделікті әсер";
 "How this product affects your daily goals" = "Бұл өнім күнделікті мақсаттарыңызға қалай әсер етеді";
 "Add to Today's Tracker" = "Бүгінгі трекерге қосу";
-"Serving size" = "Порция мөлшері";
+"Serving size" = "мөлшері"; //?
 
 
 //Scan
@@ -204,7 +204,7 @@
 
 
 // Product Detail
-"Nutritional Info" = "Тамақтық құндылық";
+"Nutritional Info" = "Тамақ құндылығы";
 "Nutrients" = "Қоректік заттар";
 "Ingredients" = "Құрамы";
 "AI Analysis" = "ЖИ талдауы";
@@ -231,7 +231,7 @@
 "May not match one of the selected diets." = "Таңдалған диеталардың біріне сәйкес келмеуі мүмкін.";
 "Needs attention." = "Назар аудару қажет.";
 "Dangerous" = "Қауіпті";
-"Find on Kaspi →" = "Kaсpi-де табу →";
+"Find on Kaspi →" = "Каспи-де табу →";
 "Total Carbohydrate" = "Жалпы көмірсулар";
 "Total Fat" = "Жалпы майлар";
 "All Vitamins" = "Барлық витаминдер";
@@ -249,11 +249,11 @@
 "Cholesterol Tracking" = "Холестеринді бақылау";
 "High Cholesterol" = "Жоғары холестерин";
 "Personalized picks" = "Жеке таңдаулар";
-"AI may occasionally make mistakes. Always double-check important information. The analysis provided is not 100% accurate and should not be considered medical advice or a substitute for a healthcare professional. We do not guarantee outcomes. Nutritional values (calories, vitamins, and nutrients) are estimates and may vary." = "ЖИ кейде қателесуі мүмкін. Маңызды ақпаратты әрдайым тексеріңіз. Талдау медициналық кеңес болып табылмайды және дәрігерді алмастырмайды. Нәтижелерге кепілдік берілмейді. Тамақтық құндылық жуықтама болып табылады.";
+"AI may occasionally make mistakes. Always double-check important information. The analysis provided is not 100% accurate and should not be considered medical advice or a substitute for a healthcare professional. We do not guarantee outcomes. Nutritional values (calories, vitamins, and nutrients) are estimates and may vary." = "ЖИ кейде қателесуі мүмкін. Маңызды ақпаратты әрдайым тексеріңіз. Талдау медициналық кеңес болып табылмайды және дәрігерді алмастырмайды. Нәтижелерге кепілдік берілмейді. Тамақ құндылығы жуық мән ретінде берілген.";
 
 
 //Favorites/Recent
-"No favorites yet" = "Таңдаулылар жоқ";
+"No favorites yet" = "Таңдаулы тағамдар жоқ";
 "No recent products" = "Соңғы өнімдер жоқ";
 "Tap the heart on any product to save it here." = "Өнімді осында сақтау үшін жүрекше белгісін басыңыз.";
 "Clear All" = "Барлығын тазалау";
@@ -265,8 +265,8 @@
 "Upgrade to Pro" = "Pro нұсқасына өту";
 "Get Pro" = "Pro алу";
 "Pro" = "Pro";
-"Basic" = "Базалық";
-"Basic Plan" = "Базалық жоспар";
+"Basic" = "Жалпы"; //?
+"Basic Plan" = "Базалық/Жалпы жоспар";
 "Free" = "Тегін";
 "Current Plan" = "Ағымдағы жоспар";
 "Full Access" = "Толық қол жетімділік";
@@ -280,17 +280,17 @@
 "Enjoy unlimited scans and all premium features." = "Шексіз сканерлеулер мен барлық премиум мүмкіндіктерден ләззат алыңыз.";
 "Daily AI Scans" = "Күндік ЖИ сканерлеулері";
 "Daily Scan Usage" = "Күндік сканерлеу пайдалануы";
-"You're a Pro member!" = "Сіз Pro мүшесісіз!";
+"You're a Pro member!" = "Сіз Pro қолданушысыз!";
 "Tap to upgrade to Pro" = "Pro нұсқасына өту үшін басыңыз";
-"Request upgrade (demo)" = "Жаңарту сұрату (демо)";
+"Request upgrade (demo)" = "Pro нұсқасына өту (демо)";
 "Upgrade requested! We'll confirm soon." = "Сұраныс жіберілді! Жақын арада растаймыз.";
 "Contact support via Telegram or WhatsApp to complete upgrade" = "Жаңартуды аяқтау үшін Telegram немесе WhatsApp арқылы қолдауға хабарласыңыз";
 "Contact via Telegram" = "Telegram арқылы байланысу";
 "Contact via WhatsApp" = "WhatsApp арқылы байланысу";
-"Choose how to contact us to complete your upgrade. Once confirmed, your account will be upgraded to Pro." = "Жаңартуды аяқтау үшін байланыс тәсілін таңдаңыз. Растаудан кейін аккаунтыңыз Pro нұсқасына жаңартылады.";
-"Hello! I'd like to upgrade my ScanFit account to Pro." = "Сәлем! ScanFit аккаунтымды Pro нұсқасына жаңартқым келеді.";
+"Choose how to contact us to complete your upgrade. Once confirmed, your account will be upgraded to Pro." = "Pro нұсқасына өтуді аяқтау үшін байланыс тәсілін таңдаңыз. Растаудан кейін аккаунтыңыз Pro нұсқасына жаңартылады.";
+"Hello! I'd like to upgrade my ScanFit account to Pro." = "Сәлеметсіз бе! ScanFit аккаунтымды Pro нұсқасына жаңартқым келеді.";
 "Authorization" = "Авторизация";
-"Tap Continue to proceed" = "Жалғастыру үшін «Жалғастыру» түймесін басыңыз";
+"Tap Continue to proceed" = "Жалғастыру үшін «Жалғастыру» басыңыз";
 
 
 //Categories
@@ -303,7 +303,7 @@
 "Fruits & Vegetables" = "Жемістер мен көкөністер";
 "Meat & Fish" = "Ет пен балық";
 "Sauces" = "Тұздықтар";
-"Snacks" = "Тістеу тағамдар";
+"Snacks" = "Тісбасар тағамдар";
 "Error" = "Қате";
 "User" = "Пайдаланушы";
 "Guy" = "Адам";

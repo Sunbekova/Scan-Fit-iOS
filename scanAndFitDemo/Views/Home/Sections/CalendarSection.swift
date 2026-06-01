@@ -5,7 +5,7 @@ struct CalendarSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("This Week")
+            Text("This Week".localized)
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundColor(.secondary)

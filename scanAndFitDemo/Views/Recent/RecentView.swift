@@ -55,8 +55,8 @@ struct RecentView: View {
         VStack(spacing: 16) {
             Image(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90")
                 .font(.system(size: 60)).foregroundColor(.gray.opacity(0.4))
-            Text("No recent products").font(.headline)
-            Text("Products you view will appear here.")
+            Text("No recent products".localized).font(.headline)
+            Text("Products you view will appear here.".localized)
                 .font(.subheadline).foregroundColor(.secondary)
         }
     }

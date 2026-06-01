@@ -85,7 +85,7 @@ struct NutrientDetailSheet: View {
                         dismiss()
                         onShowHistory?()
                     } label: {
-                        Text("See all history")
+                        Text("See all history".localized)
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)

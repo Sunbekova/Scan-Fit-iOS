@@ -39,7 +39,7 @@ struct ScanView: View {
                         Button { navigateToBrowse = true } label: {
                             HStack(spacing: 4) {
                                 Image(systemName: "square.grid.2x2")
-                                Text("Browse")
+                                Text("Browse".localized)
                             }
                             .font(.subheadline).foregroundColor(.white)
                             .padding(.horizontal, 14).padding(.vertical, 8)
@@ -58,7 +58,7 @@ struct ScanView: View {
                             VStack(spacing: 8) {
                                 Image(systemName: "viewfinder")
                                     .font(.system(size: 40)).foregroundColor(.white.opacity(0.5))
-                                Text("Point at a product or label")
+                                Text("Point at a product or label".localized)
                                     .font(.caption).foregroundColor(.white.opacity(0.7))
                             }
                         )
@@ -69,7 +69,7 @@ struct ScanView: View {
                     if case .analyzing = viewModel.scanState {
                         VStack(spacing: 8) {
                             ProgressView().tint(.white).scaleEffect(1.4)
-                            Text("Analyzing… 30–40 sec")
+                            Text("Analyzing… 30–40 sec".localized)
                                 .foregroundColor(.white).font(.subheadline)
                         }
                         .padding(.bottom, 20)
@@ -178,7 +178,7 @@ struct ScanView: View {
                     Image(systemName: isUnlimited ? "infinity" : "camera.viewfinder")
                         .font(.caption)
                     if isUnlimited {
-                        Text("Pro")
+                        Text("Pro".localized)
                             .font(.caption).fontWeight(.bold)
                     } else {
                         Text("\(remaining) left")
@@ -202,7 +202,7 @@ struct IngredientInputSheet: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                Text("Enter product name or ingredients")
+                Text("Enter product name or ingredients".localized)
                     .font(.subheadline).foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
                 TextEditor(text: $text)
@@ -215,7 +215,7 @@ struct IngredientInputSheet: View {
                     guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
                     onAnalyze()
                 } label: {
-                    Text("Analyze with AI")
+                    Text("Analyze with AI".localized)
                         .font(.headline).foregroundColor(.white)
                         .frame(maxWidth: .infinity).padding(16)
                         .background(Color("AppGreen")).cornerRadius(14)

@@ -78,7 +78,7 @@ struct AccountSection: View {
                 .disabled(isUploadingPhoto)
             }
 
-            Text("Change Photo")
+            Text("Change Photo".localized)
                 .font(.caption)
                 .foregroundColor(Color("AppGreen"))
         }
@@ -146,7 +146,7 @@ struct AccountSection: View {
     private var healthConditionsSection: some View {
         Group {
             if !activeTags.isEmpty {
-                sectionCard(title: "Health Conditions") {
+                sectionCard(title: "Health Conditions".localized) {
                     FlowLayout(spacing: 8) {
                         ForEach(activeTags, id: \.self) { tag in
                             tagView(tag, color: Color("AppGreen"))
@@ -160,7 +160,7 @@ struct AccountSection: View {
     private var dietSection: some View {
         Group {
             if !activeDiets.isEmpty {
-                sectionCard(title: "Diet Preferences") {
+                sectionCard(title: "Diet Preferences".localized) {
                     FlowLayout(spacing: 8) {
                         ForEach(activeDiets, id: \.self) { tag in
                             tagView(tag, color: .blue)

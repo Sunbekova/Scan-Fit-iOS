@@ -25,7 +25,7 @@ struct MacrosRow: View {
     var body: some View {
         HStack(spacing: 10) {
             MacroCard(
-                title: "Proteins",
+                title: "Proteins".localized,
                 imageName: "ic_proteins",
                 value: "\(Int(trackerVM.totalProteins)) g",
                 limit: "\(Int(trackerVM.proteinLimit)) g",
@@ -33,7 +33,7 @@ struct MacrosRow: View {
                 color: .green
             )
             MacroCard(
-                title: "Fat",
+                title: "Fat".localized,
                 imageName: "ic_fat",
                 value: "\(Int(trackerVM.totalFat)) g",
                 limit: "\(Int(trackerVM.fatLimit)) g",
@@ -41,7 +41,7 @@ struct MacrosRow: View {
                 color: .pink
             )
             MacroCard(
-                title: "Carbs",
+                title: "Carbs".localized,
                 imageName: "ic_carbs",
                 value: "\(Int(trackerVM.totalCarbs)) g",
                 limit: "\(Int(trackerVM.carbLimit)) g",

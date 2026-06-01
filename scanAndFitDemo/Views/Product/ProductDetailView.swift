@@ -108,7 +108,7 @@ struct ProductDetailView: View {
                 Task { await addFoodToTracker(item) }
                 dismiss()
             } label: {
-                Text("Add to Today's Tracker")
+                Text("Add to Today's Tracker".localized)
                     .font(.headline).foregroundColor(.white)
                     .frame(maxWidth: .infinity).padding(16)
                     .background(Color("AppGreen"))
@@ -119,7 +119,7 @@ struct ProductDetailView: View {
                 Task { await addAIFoodToTracker() }
                 dismiss()
             } label: {
-                Text("Add to Today's Tracker")
+                Text("Add to Today's Tracker".localized)
                     .font(.headline).foregroundColor(.white)
                     .frame(maxWidth: .infinity).padding(16)
                     .background(Color("AppGreen"))

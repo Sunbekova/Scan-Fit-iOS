@@ -28,7 +28,7 @@ struct FavoritesView: View {
                     .listStyle(.plain)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("Clear All", role: .destructive) { deleteAll() }
+                            Button("Clear All".localized, role: .destructive) { deleteAll() }
                                 .foregroundColor(.red).font(.subheadline)
                         }
                     }
@@ -45,8 +45,8 @@ struct FavoritesView: View {
         VStack(spacing: 16) {
             Image(systemName: "heart.slash")
                 .font(.system(size: 60)).foregroundColor(.gray.opacity(0.4))
-            Text("No favorites yet").font(.headline)
-            Text("Tap the heart on any product to save it here.")
+            Text("No favorites yet".localized).font(.headline)
+            Text("Tap the heart on any product to save it here.".localized)
                 .font(.subheadline).foregroundColor(.secondary)
                 .multilineTextAlignment(.center).padding(.horizontal, 40)
         }
