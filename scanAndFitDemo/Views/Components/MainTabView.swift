@@ -10,20 +10,20 @@ struct MainTabView: View {
             HomeView()
                 .environmentObject(trackerVM)
                 .environmentObject(authVM)
-                .tabItem { Label("Home", systemImage: "house.fill") }
+                .tabItem { Label("Home".localized, systemImage: "house.fill") }
                 .tag(0)
 
             ScanView()
                 .environmentObject(trackerVM)
-                .tabItem { Label("Scan", systemImage: "barcode.viewfinder") }
+                .tabItem { Label("Scan".localized, systemImage: "barcode.viewfinder") }
                 .tag(1)
 
             FavoritesView()
-                .tabItem { Label("Favorites", systemImage: "heart.fill") }
+                .tabItem { Label("Favorites".localized, systemImage: "heart.fill") }
                 .tag(2)
 
             RecentView()
-                .tabItem { Label("Recent", systemImage: "clock.fill") }
+                .tabItem { Label("Recent".localized, systemImage: "clock.fill") }
                 .tag(3)
         }
         .accentColor(Color("AppGreen"))

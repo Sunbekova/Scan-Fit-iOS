@@ -34,7 +34,7 @@ struct FavoritesView: View {
                     }
                 }
             }
-            .navigationTitle("Favorites")
+            .navigationTitle("Favorites".localized)
             .navigationDestination(item: $selectedItem) { item in
                 ProductDetailView(foodItem: item).environmentObject(trackerVM)
             }
@@ -57,7 +57,7 @@ struct FavoritesView: View {
     }
 
     private func deleteItems(at offsets: IndexSet) {
-        for index in offsets { modelContext.delete(favorites[index]) }
+        offsets.map { favorites[$0] }.forEach { modelContext.delete($0) }
         try? modelContext.save()
     }
 

@@ -12,6 +12,8 @@ struct UserProfileView: View {
         case measurements = "Measurements"
         case dietary = "Dietary"
         case diseases = "Diseases"
+
+        var localized: String { rawValue.localized }
     }
 
     var body: some View {
@@ -23,7 +25,7 @@ struct UserProfileView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(ProfileTab.allCases, id: \.self) { tab in
-                        Button(tab.rawValue) { selectedTab = tab }
+                        Button(tab.localized) { selectedTab = tab }
                             .font(.subheadline)
                             .fontWeight(selectedTab == tab ? .bold : .regular)
                             .padding(.horizontal, 16).padding(.vertical, 8)
@@ -60,7 +62,7 @@ struct UserProfileView: View {
                 }
             }
         }
-        .navigationTitle("Profile")
+        .navigationTitle("Profile".localized)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -74,11 +76,11 @@ struct UserProfileView: View {
                 }
             }
         }
-        .alert("Error", isPresented: Binding(
+        .alert("Error".localized, isPresented: Binding(
             get: { profileVM.errorMessage != nil },
             set: { if !$0 { profileVM.errorMessage = nil } }
         )) {
-            Button("OK", role: .cancel) { profileVM.errorMessage = nil }
+            Button("OK".localized, role: .cancel) { profileVM.errorMessage = nil }
         } message: { Text(profileVM.errorMessage ?? "") }
         .task { await profileVM.loadAll() }
     }
@@ -98,11 +100,11 @@ struct UserProfileView: View {
                 } else { defaultProfileAvatar }
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text(profileVM.username.isEmpty ? "User" : profileVM.username)
+                Text(profileVM.username.isEmpty ? "User".localized : profileVM.username)
                     .font(.title3).fontWeight(.bold)
                 Text(profileVM.email)
                     .font(.subheadline).foregroundColor(.secondary)
-                let roleText = TokenManager.shared.userRole == "vip" ? "ScanFit Pro" : "Basic"
+                let roleText = TokenManager.shared.userRole == "vip" ? "ScanFit Pro" : "Basic".localized
                 Text(roleText)
                     .font(.caption).fontWeight(.semibold)
                     .foregroundColor(roleText == "ScanFit Pro" ? Color(hex: "#FBBF24") : .secondary)

@@ -1,10 +1,10 @@
 import Foundation
 
 struct AppConfig {
-    static let backendBaseURL = "http://46.101.137.109:3000"
+    static let backendBaseURL = "http://167.172.177.180:3000"
     static let aiServiceBaseURL: String = {
         if let saved = UserDefaults.standard.string(forKey: "ai_service_url"), !saved.isEmpty { return saved }
-        return "http://46.101.137.109:8001"
+        return "http://167.172.177.180:3000"
     }()
 }
 

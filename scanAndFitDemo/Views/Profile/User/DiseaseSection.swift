@@ -8,9 +8,11 @@ struct DiseasesSection: View {
         VStack(spacing: 16) {
             let isVip = TokenManager.shared.userRole == "vip"
             let activeCount = profileVM.diseases.filter(\.isActive).count
-            let subtitle = isVip ? "Tap a card to set level" : "Selected \(activeCount) of 3"
+            let subtitle = isVip
+                ? "Tap a card to set level".localized
+                : String(format: "Selected %d of 3".localized, activeCount)
 
-            sectionHeader("Diseases", subtitle: subtitle)
+            sectionHeader("Diseases".localized, subtitle: subtitle)
 
             ForEach(profileVM.diseases) { disease in
                 diseaseCard(disease: disease)
@@ -51,37 +53,34 @@ struct DiseasesSection: View {
 
                 Spacer()
 
-                Text(isSelected ? (disease.diseaseLevel?.name ?? "Selected") : "Not selected")
+                Text(isSelected
+                     ? (disease.diseaseLevel?.name ?? "Selected".localized)
+                     : "Not selected".localized)
                     .font(.caption).fontWeight(.semibold)
                     .foregroundColor(isSelected ? .white : .blue)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 5)
+                    .padding(.horizontal, 12).padding(.vertical, 5)
                     .background(isSelected ? Color.blue : Color.blue.opacity(0.1))
                     .cornerRadius(50)
             }
 
             if let desc = disease.description {
                 Text(desc)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
+                    .font(.caption).foregroundColor(.secondary).lineLimit(2)
             }
 
             HStack {
-                Text(disease.code.map { "Code \($0)" } ?? "Condition")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Text(disease.code.map { String(format: "Code %@".localized, $0) } ?? "Condition".localized)
+                    .font(.caption).foregroundColor(.secondary)
 
                 Spacer()
 
-                Text(isSelected ? "Active" : "Inactive")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Text(isSelected ? "Active".localized : "Inactive".localized)
+                    .font(.caption).foregroundColor(.secondary)
 
-                Text(isSelected ? "Selected" : (TokenManager.shared.userRole == "vip" ? "Manage" : "Choose"))
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .foregroundColor(.blue)
+                Text(isSelected
+                     ? "Selected".localized
+                     : (TokenManager.shared.userRole == "vip" ? "Manage".localized : "Choose".localized))
+                    .font(.caption).fontWeight(.bold).foregroundColor(.blue)
             }
         }
         .padding(16)
@@ -113,12 +112,17 @@ struct DiseaseLevelSheet: View {
             VStack(spacing: 20) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(disease.displayName).font(.title2).fontWeight(.bold)
-                    if let code = disease.code { Text("Code \(code)").font(.caption).foregroundColor(.secondary) }
-                    if let desc = disease.description { Text(desc).font(.subheadline).foregroundColor(.secondary) }
+                    if let code = disease.code {
+                        Text(String(format: "Code %@".localized, code))
+                            .font(.caption).foregroundColor(.secondary)
+                    }
+                    if let desc = disease.description {
+                        Text(desc).font(.subheadline).foregroundColor(.secondary)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                Toggle("This condition is active", isOn: $isActive)
+                Toggle("This condition is active".localized, isOn: $isActive)
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(12)
@@ -126,9 +130,9 @@ struct DiseaseLevelSheet: View {
                 if !levels.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Severity Level".localized).font(.headline)
-                        Picker("Level", selection: $selectedLevelIdx) {
+                        Picker("Level".localized, selection: $selectedLevelIdx) {
                             ForEach(Array(levels.enumerated()), id: \.offset) { idx, lvl in
-                                Text(lvl.name ?? "Unknown Condition").tag(idx)
+                                Text(lvl.name ?? "Unknown Condition".localized).tag(idx)
                             }
                         }
                         .pickerStyle(.wheel)
@@ -137,13 +141,17 @@ struct DiseaseLevelSheet: View {
                 }
             }
             .padding()
-            .navigationTitle("Disease Level")
+            .navigationTitle("Disease Level".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel".localized) { dismiss() }
+                }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        let levelId = levels.indices.contains(selectedLevelIdx) ? levels[selectedLevelIdx].id : (levels.first?.id ?? 1)
+                    Button("Save".localized) {
+                        let levelId = levels.indices.contains(selectedLevelIdx)
+                            ? levels[selectedLevelIdx].id
+                            : (levels.first?.id ?? 1)
                         onSave(levelId, isActive)
                         dismiss()
                     }

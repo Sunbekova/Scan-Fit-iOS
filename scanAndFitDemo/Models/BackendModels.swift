@@ -1,8 +1,7 @@
 import Foundation
 
 // MARK: - Backend Base URL
-// Backend Gateway runs at: http://46.101.137.109:3000
-
+// Backend Gateway runs at: http://167.172.177.180:3000/swagger/index.html
 
 struct BackendRegisterRequest: Codable {
     let username, email, password, passwordConfirmation: String

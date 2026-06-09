@@ -1,11 +1,11 @@
 import Foundation
 
-// Backend base: http://46.101.137.109:3000
+// Backend base: http://167.172.177.180:3000/swagger/
 
 actor BackendAuthService {
     static let shared = BackendAuthService()
 
-    private let baseURL = "http://46.101.137.109:3000"
+    private let baseURL = "http://167.172.177.180:3000"
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default

@@ -31,13 +31,13 @@ struct ProSubscriptionView: View {
                 }
             }
         }
-        .navigationTitle(isVip ? "ScanFit Pro" : "Upgrade to Pro")
+        .navigationTitle(isVip ? "ScanFit Pro".localized : "Upgrade to Pro".localized)
         .navigationBarTitleDisplayMode(.inline)
-        .alert("Error", isPresented: Binding(
+        .alert("Error".localized, isPresented: Binding(
             get: { errorMessage != nil },
             set: { if !$0 { errorMessage = nil } }
         )) {
-            Button("OK", role: .cancel) { errorMessage = nil }
+            Button("OK".localized, role: .cancel) { errorMessage = nil }
         } message: { Text(errorMessage ?? "") }
         .sheet(isPresented: $showBuySheet) { BuyVipSheet(isPresented: $showBuySheet, onPurchased: onPurchased) }
         .task {
@@ -53,7 +53,7 @@ struct ProSubscriptionView: View {
             VStack(spacing: 12) {
                 Image(systemName: "crown.fill")
                     .font(.system(size: 52)).foregroundColor(Color(hex: "#FBBF24"))
-                Text("ScanFit Pro")
+                Text("ScanFit Pro".localized)
                     .font(.system(size: 28, weight: .bold)).foregroundColor(.white)
                 Text("Unlimited scans & advanced health insights".localized)
                     .font(.subheadline).foregroundColor(.white.opacity(0.75))
@@ -67,13 +67,13 @@ struct ProSubscriptionView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Current Plan".localized).font(.caption).foregroundColor(.secondary)
-                Text(isVip ? "ScanFit Pro" : "Basic")
+                Text(isVip ? "ScanFit Pro" : "Basic".localized)
                     .font(.title3).fontWeight(.bold)
                     .foregroundColor(isVip ? Color(hex: "#0F172A") : .primary)
             }
             Spacer()
             if isVip {
-                Label("Active", systemImage: "checkmark.seal.fill")
+                Label("Active".localized, systemImage: "checkmark.seal.fill")
                     .font(.caption).fontWeight(.semibold).foregroundColor(.white)
                     .padding(.horizontal, 12).padding(.vertical, 6)
                     .background(Color("AppGreen")).cornerRadius(20)
@@ -105,7 +105,7 @@ struct ProSubscriptionView: View {
                         } else {
                             Text("\(remaining) remaining").font(.title3).fontWeight(.bold)
                                 .foregroundColor(remaining > 0 ? .primary : .red)
-                            Text("Used \(used) of \(total) today")
+                            Text(String(format: "Used %d of %d today".localized, used, total))
                                 .font(.caption).foregroundColor(.secondary)
                         }
                     }
@@ -118,13 +118,15 @@ struct ProSubscriptionView: View {
                     ProgressView(value: Double(used), total: Double(total))
                         .accentColor(remaining > 0 ? Color("AppGreen") : .red)
                     if let resetsAt = limit.resetsAtUtc {
-                        Text("Resets at: \(formattedResetTime(resetsAt))").font(.caption2).foregroundColor(.secondary)
+                        Text(String(format: "Resets at: %@".localized, formattedResetTime(resetsAt)))
+                            .font(.caption2).foregroundColor(.secondary)
                     }
                 }
             } else if isLoading {
                 ProgressView()
             } else {
-                Text("Could not load scan limit info".localized).font(.caption).foregroundColor(.secondary)
+                Text("Could not load scan limit info".localized)
+                    .font(.caption).foregroundColor(.secondary)
             }
         }
         .padding(20).background(Color(.systemBackground)).cornerRadius(16)
@@ -135,21 +137,21 @@ struct ProSubscriptionView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("What's included".localized).font(.headline)
             VStack(spacing: 0) {
-                featureRow(title: "     Features".localized, basic: "BASIC", pro: "PRO", icon: "crown.fill", highlight: true)
+                featureRow(title: "     Features",            basic: "BASIC",                        pro: "PRO",                     icon: "crown.fill",          highlight: true)
                 Divider().padding(.leading, 48)
-                featureRow(title: "Daily AI Scans".localized, basic: "15 per day", pro: "Unlimited", icon: "barcode.viewfinder", highlight: false)
+                featureRow(title: "Daily AI Scans".localized, basic: "15 per day".localized,        pro: "Unlimited".localized,     icon: "barcode.viewfinder",  highlight: false)
                 Divider().padding(.leading, 48)
-                featureRow(title: "AI Health Analysis".localized, basic: "Basic", pro: "Full + Sources", icon: "brain.head.profile", highlight: false)
+                featureRow(title: "AI Health Analysis".localized, basic: "Basic".localized,         pro: "Full + Sources".localized,icon: "brain.head.profile",  highlight: false)
                 Divider().padding(.leading, 48)
-                featureRow(title: "Blood Pressure".localized, basic: "—", pro: "✓", icon: "heart.text.square", highlight: false)
+                featureRow(title: "Blood Pressure".localized, basic: "—",                          pro: "✓",                       icon: "heart.text.square",   highlight: false)
                 Divider().padding(.leading, 48)
-                featureRow(title: "Cholesterol Tracking".localized, basic: "—", pro: "✓", icon: "drop.fill", highlight: false)
+                featureRow(title: "Cholesterol Tracking".localized, basic: "—",                    pro: "✓",                       icon: "drop.fill",           highlight: false)
                 Divider().padding(.leading, 48)
-                featureRow(title: "Disease Management".localized, basic: "Up to 3", pro: "Unlimited", icon: "cross.case", highlight: false)
+                featureRow(title: "Disease Management".localized, basic: "Up to 3".localized,      pro: "Unlimited".localized,     icon: "cross.case",          highlight: false)
                 Divider().padding(.leading, 48)
-                featureRow(title: "Dietary Preferences".localized, basic: "—", pro: "Full Access", icon: "leaf", highlight: false)
+                featureRow(title: "Dietary Preferences".localized, basic: "—",                     pro: "Full Access".localized,   icon: "leaf",                highlight: false)
                 Divider().padding(.leading, 48)
-                featureRow(title: "Vitamin Tracking".localized, basic: "—", pro: "All Vitamins", icon: "pills.fill", highlight: false)
+                featureRow(title: "Vitamin Tracking".localized, basic: "—",                        pro: "All Vitamins".localized,  icon: "pills.fill",          highlight: false)
             }
             .background(Color(.systemBackground)).cornerRadius(16)
             .shadow(color: .black.opacity(0.06), radius: 8, y: 2)
@@ -277,7 +279,8 @@ struct BuyVipSheet: View {
                 if isLoading {
                     ProgressView()
                 } else if showSuccess {
-                    Label("Upgrade requested! We'll confirm soon.", systemImage: "checkmark.circle.fill")
+                    Label("Upgrade requested! We'll confirm soon.".localized,
+                          systemImage: "checkmark.circle.fill")
                         .font(.subheadline).foregroundColor(Color("AppGreen"))
                         .padding(.horizontal, 24)
                 } else {
@@ -295,11 +298,11 @@ struct BuyVipSheet: View {
 
                 Spacer()
             }
-            .navigationTitle("Pro Upgrade")
+            .navigationTitle("ScanFit Pro")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Close") { isPresented = false }
+                    Button("Close".localized) { isPresented = false }
                 }
             }
         }
@@ -313,7 +316,8 @@ struct BuyVipSheet: View {
 
     private func openWhatsApp() {
         let number = whatsappNumber.replacingOccurrences(of: "+", with: "")
-        let msg = "Hello! I'd like to upgrade my ScanFit account to Pro.".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let msg    = "Hello! I'd like to upgrade my ScanFit account to Pro.".localized
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let urlStr = "https://wa.me/\(number)?text=\(msg)"
         if let url = URL(string: urlStr) { UIApplication.shared.open(url) }
     }
@@ -322,7 +326,7 @@ struct BuyVipSheet: View {
         defer { isLoading = false }
         guard let url = URL(string: AppConfig.backendBaseURL + "/api/v1/user/buy-vip"),
               let bearer = TokenManager.shared.bearerToken else {
-            errorMsg = "Not logged in"; return
+            errorMsg = "Not logged in".localized; return
         }
         var req = URLRequest(url: url)
         req.httpMethod = "POST"

@@ -7,15 +7,12 @@ struct RootViewBackend: View {
         switch authVM.state {
         case .loading:
             SplashView()
-
         case .unauthenticated:
             LoginView()
                 .environmentObject(authVM)
-
         case .profileIncomplete:
             ProfileSetupBackendView()
                 .environmentObject(authVM)
-
         case .authenticated:
             MainTabView()
                 .environmentObject(authVM)
@@ -53,21 +50,21 @@ private struct ProfileSetupContent: View {
                 dietStep
             }
         }
-        .navigationTitle(step == 0 ? "Your Measurements" : "Health Profile")
+        .navigationTitle(step == 0 ? "Your Measurements".localized : "Health Profile".localized)
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private var measureStep: some View {
         ScrollView {
             VStack(spacing: 20) {
-                Text("Tell us about yourself")
+                Text("Tell us about yourself".localized)
                     .font(.title2.bold())
                     .padding(.top)
 
                 Group {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Age").font(.caption).foregroundColor(.secondary)
-                        TextField("Your age", text: $age)
+                        Text("Age".localized).font(.caption).foregroundColor(.secondary)
+                        TextField("Your age".localized, text: $age)
                             .keyboardType(.numberPad)
                             .padding()
                             .background(Color(.systemGray6))
@@ -75,23 +72,25 @@ private struct ProfileSetupContent: View {
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Gender").font(.caption).foregroundColor(.secondary)
-                        Picker("Gender", selection: $gender) {
-                            Text("Male").tag("Male")
-                            Text("Female").tag("Female")
-                            Text("Other").tag("Other")
+                        Text("Gender".localized).font(.caption).foregroundColor(.secondary)
+                        Picker("Gender".localized, selection: $gender) {
+                            Text("Male".localized).tag("Male")
+                            Text("Female".localized).tag("Female")
+                            Text("Other".localized).tag("Other")
                         }
                         .pickerStyle(.segmented)
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Height: \(Int(height)) cm").font(.caption).foregroundColor(.secondary)
+                        Text(String(format: "Height: %d cm".localized, Int(height)))
+                            .font(.caption).foregroundColor(.secondary)
                         Slider(value: $height, in: 140...220, step: 1)
                             .accentColor(.green)
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Weight: \(Int(weight)) kg").font(.caption).foregroundColor(.secondary)
+                        Text(String(format: "Weight: %d kg".localized, Int(weight)))
+                            .font(.caption).foregroundColor(.secondary)
                         Slider(value: $weight, in: 40...150, step: 1)
                             .accentColor(.green)
                     }
@@ -112,7 +111,7 @@ private struct ProfileSetupContent: View {
                         step = 1
                     }
                 } label: {
-                    Text("Continue")
+                    Text("Continue".localized)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -129,12 +128,12 @@ private struct ProfileSetupContent: View {
     private var dietStep: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Your Health Profile")
+                Text("Your Health Profile".localized)
                     .font(.title2.bold())
                     .padding([.top, .horizontal])
 
                 if !profileVM.dietTypes.isEmpty {
-                    sectionHeader("Diet Type")
+                    sectionHeader("Diet Type".localized, subtitle: "")
                     ForEach(profileVM.dietTypes) { item in
                         toggleRow(name: item.name, isActive: item.isActive) {
                             Task { await profileVM.toggleDietType(item) }
@@ -143,7 +142,7 @@ private struct ProfileSetupContent: View {
                 }
 
                 if !profileVM.healthConditions.isEmpty {
-                    sectionHeader("Health Conditions")
+                    sectionHeader("Health Conditions".localized, subtitle: "")
                     ForEach(profileVM.healthConditions) { item in
                         toggleRow(name: item.name, isActive: item.isActive) {
                             Task { await profileVM.toggleHealthCondition(item) }
@@ -158,7 +157,7 @@ private struct ProfileSetupContent: View {
                 Button {
                     authVM.markProfileCompleted()
                 } label: {
-                    Text("Finish Setup")
+                    Text("Finish Setup".localized)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -172,17 +171,9 @@ private struct ProfileSetupContent: View {
         }
     }
 
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.headline)
-            .padding(.horizontal)
-            .padding(.top, 8)
-    }
-
     private func toggleRow(name: String, isActive: Bool, action: @escaping () -> Void) -> some View {
         HStack {
-            Text(name)
-                .font(.body)
+            Text(name).font(.body)
             Spacer()
             Toggle("", isOn: .init(get: { isActive }, set: { _ in action() }))
                 .tint(.green)

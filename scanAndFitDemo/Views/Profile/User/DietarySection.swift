@@ -9,14 +9,13 @@ struct DietarySection: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            sectionHeader("Weight Management", subtitle: "Goal, target date, target weight".localized)
+            sectionHeader("Weight Management".localized, subtitle: "Goal, target date, target weight".localized)
             weightManagementCard
 
-            let grouped = Dictionary(grouping: profileVM.dietTypes) { $0.category ?? "My Diet" }
+            let grouped = Dictionary(grouping: profileVM.dietTypes) { $0.category ?? "My Diet".localized }
 
             ForEach(grouped.keys.sorted(), id: \.self) { category in
                 sectionHeader(category, subtitle: "Personalized picks".localized)
-
                 VStack(spacing: 8) {
                     ForEach(grouped[category] ?? []) { item in
                         dietToggleRow(item: item, type: .diet)
@@ -25,8 +24,7 @@ struct DietarySection: View {
             }
 
             if !profileVM.dietaryPrefs.isEmpty {
-                sectionHeader("Dietary Preferences", subtitle: "Personalized picks".localized)
-
+                sectionHeader("Dietary Preferences".localized, subtitle: "Personalized picks".localized)
                 VStack(spacing: 8) {
                     ForEach(profileVM.dietaryPrefs) { item in
                         dietToggleRow(item: item, type: .preference)
@@ -35,8 +33,7 @@ struct DietarySection: View {
             }
 
             if !profileVM.healthConditions.isEmpty {
-                sectionHeader("Health Condition", subtitle: "Personalized picks".localized)
-
+                sectionHeader("Health Condition".localized, subtitle: "Personalized picks".localized)
                 VStack(spacing: 8) {
                     ForEach(profileVM.healthConditions) { item in
                         dietToggleRow(item: item, type: .condition)
@@ -53,15 +50,20 @@ struct DietarySection: View {
         let isVip = TokenManager.shared.userRole == "vip"
         let canToggle = type == .diet || isVip
 
+        let typeLabel: String = {
+            switch type {
+            case .diet:       return "Diet".localized
+            case .preference: return "Preference".localized
+            case .condition:  return "Condition".localized
+            }
+        }()
+
         return HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.name).font(.body).fontWeight(.semibold)
-                Text(type == .diet ? "Diet" : type == .preference ? "Preference" : "Condition")
-                    .font(.caption).foregroundColor(.secondary)
+                Text(typeLabel).font(.caption).foregroundColor(.secondary)
             }
-
             Spacer()
-
             Toggle("", isOn: Binding(
                 get: { item.isActive },
                 set: { _ in
@@ -88,22 +90,26 @@ struct DietarySection: View {
     private var weightManagementCard: some View {
         VStack(spacing: 0) {
             weightManagementRow(
-                label: "Goal",
-                value: profileVM.weightGoal.isEmpty ? "Not set" : profileVM.weightGoal.capitalized
+                label: "Goal".localized,
+                value: profileVM.weightGoal.isEmpty
+                    ? "Not set".localized
+                    : profileVM.weightGoal.capitalized.localized
             ) { showGoalPicker = true }
 
             Divider().padding(.leading, 16)
 
             weightManagementRow(
-                label: "Target date",
+                label: "Target date".localized,
                 value: profileVM.targetDateDisplay
             ) { showTargetDatePicker = true }
 
             Divider().padding(.leading, 16)
 
             weightManagementRow(
-                label: "Target weight",
-                value: profileVM.targetWeight > 0 ? "\(profileVM.targetWeight) kg" : "Not set"
+                label: "Target weight".localized,
+                value: profileVM.targetWeight > 0
+                    ? "\(profileVM.targetWeight) kg"
+                    : "Not set".localized
             ) { showTargetWeightInput = true }
         }
         .background(Color(.systemGray6))
@@ -111,10 +117,15 @@ struct DietarySection: View {
         .sheet(isPresented: $showGoalPicker) {
             PickerSheet(
                 title: "Goal".localized,
-                options: ["Lose", "Maintain", "Gain"],
-                selected: profileVM.weightGoal.capitalized
+                options: ["Lose".localized, "Maintain".localized, "Gain".localized],
+                selected: profileVM.weightGoal.capitalized.localized
             ) { val in
-                profileVM.weightGoal = val.lowercased()
+                // Map localized back to English API key
+                let apiVal: String
+                if val == "Lose".localized{ apiVal = "lose" }
+                else if val == "Gain".localized { apiVal = "gain" }
+                else{ apiVal = "maintain" }
+                profileVM.weightGoal = apiVal
                 Task { await profileVM.saveWeightManagement() }
             }
         }

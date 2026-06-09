@@ -31,13 +31,13 @@ struct RecentView: View {
                     .listStyle(.plain)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("Clear All", role: .destructive) { clearAll() }
+                            Button("Clear All".localized, role: .destructive) { clearAll() }
                                 .foregroundColor(.red).font(.subheadline)
                         }
                     }
                 }
             }
-            .navigationTitle("Recent")
+            .navigationTitle("Recent".localized)
             .navigationDestination(item: $selectedItem) { item in
                 ProductDetailView(foodItem: item).environmentObject(trackerVM)
             }
@@ -53,11 +53,9 @@ struct RecentView: View {
 
     private var emptyState: some View {
         VStack(spacing: 16) {
-            Image(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+            Image(systemName: "clock.badge.xmark")
                 .font(.system(size: 60)).foregroundColor(.gray.opacity(0.4))
             Text("No recent products".localized).font(.headline)
-            Text("Products you view will appear here.".localized)
-                .font(.subheadline).foregroundColor(.secondary)
         }
     }
 
@@ -65,7 +63,8 @@ struct RecentView: View {
         if isFavorite {
             if let fav = favorites.first(where: { $0.id == recent.id }) { modelContext.delete(fav) }
         } else {
-            modelContext.insert(FavoriteProductEntity(from: recent.toFoodItem(isFavorite: true)))
+            let fav = FavoriteProductEntity(from: recent.toFoodItem(isFavorite: true))
+            modelContext.insert(fav)
         }
         try? modelContext.save()
     }

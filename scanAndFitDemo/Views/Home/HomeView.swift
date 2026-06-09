@@ -58,7 +58,7 @@ struct HomeView: View {
     private var headerSection: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Hi, \(authVM.displayName)")
+                Text(String(format: "Hi, %@".localized, authVM.displayName))
                     .font(.system(size: 22, weight: .bold))
                 Button { showDatePicker = true } label: {
                     Text(trackerVM.selectedDate, style: .date)
@@ -223,5 +223,26 @@ struct HomeView: View {
               let userData = resp.data else { return }
         userPhotoURL = userData.photo?.isEmpty == false ? userData.photo : nil
         isVip        = TokenManager.shared.isVip
+    }
+}
+
+// MARK: - CalorieCard helper (loadAndShowNutrients lives here)
+
+extension HomeView {
+    func loadAndShowNutrients() {
+        let day = trackerVM.selectedDayString
+        Task {
+            do {
+                let resp = try await BackendUserService.shared.getCaloriesByDay(day: day)
+                if resp.success {
+                    await MainActor.run {
+                        nutrientCaloriesData = resp.data
+                        showNutrientSheet = true
+                    }
+                }
+            } catch {
+                await MainActor.run { showNutrientSheet = true }
+            }
+        }
     }
 }

@@ -15,12 +15,6 @@ struct ConsumptionHistoryView: View {
         return f
     }()
 
-    private let displayFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "dd MMM yyyy"
-        return f
-    }()
-
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
@@ -32,11 +26,9 @@ struct ConsumptionHistoryView: View {
                             .font(.system(size: 48))
                             .foregroundColor(.secondary.opacity(0.5))
                         Text("No history available".localized)
-                            .font(.headline)
-                            .foregroundColor(.secondary)
+                            .font(.headline).foregroundColor(.secondary)
                         Text("Start tracking food to see your history here.".localized)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(.caption).foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                     }
                     .padding(.top, 60)
@@ -49,7 +41,7 @@ struct ConsumptionHistoryView: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 32)
         }
-        .navigationTitle("Nutrition History")
+        .navigationTitle("Nutrition History".localized)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -58,11 +50,11 @@ struct ConsumptionHistoryView: View {
                 }
             }
         }
-        .alert("Error", isPresented: Binding(
+        .alert("Error".localized, isPresented: Binding(
             get: { errorMessage != nil },
             set: { if !$0 { errorMessage = nil } }
         )) {
-            Button("OK", role: .cancel) { errorMessage = nil }
+            Button("OK".localized, role: .cancel) { errorMessage = nil }
         } message: {
             Text(errorMessage ?? "")
         }
@@ -72,7 +64,6 @@ struct ConsumptionHistoryView: View {
     private func loadHistory() async {
         isLoading = true
         defer { isLoading = false }
-        // Load 30 days of history ending on selected date
         let calendar = Calendar.current
         let endDate = selectedDate
         let startDate = calendar.date(byAdding: .day, value: -29, to: endDate) ?? endDate
@@ -80,10 +71,10 @@ struct ConsumptionHistoryView: View {
         let to = dateFormatter.string(from: endDate)
         do {
             let resp = try await BackendUserService.shared.getConsumptionHistory(from: from, to: to)
-            if resp.success {
-                historyItems = (resp.data ?? []).sorted { ($0.date ?? "") > ($1.date ?? "") }
+            if resp.success, let items = resp.data {
+                historyItems = items.sorted { $0.date ?? "" > $1.date ?? "" }
             } else {
-                errorMessage = resp.message ?? "Failed to load history"
+                errorMessage = "Failed to load history".localized
             }
         } catch {
             errorMessage = error.localizedDescription

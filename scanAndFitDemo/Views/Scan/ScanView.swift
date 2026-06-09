@@ -20,7 +20,6 @@ struct ScanView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Camera preview
                 CameraRepresentable(capturedImage: $capturedForCamera, coordinator: $cameraCoordinator)
                     .ignoresSafeArea()
 
@@ -33,7 +32,6 @@ struct ScanView: View {
                                 .padding(10).background(.ultraThinMaterial).cornerRadius(10)
                         }
                         Spacer()
-                        // Scan limit badge
                         scanLimitBadge
                         Spacer()
                         Button { navigateToBrowse = true } label: {
@@ -65,7 +63,6 @@ struct ScanView: View {
 
                     Spacer()
 
-                    // Loading
                     if case .analyzing = viewModel.scanState {
                         VStack(spacing: 8) {
                             ProgressView().tint(.white).scaleEffect(1.4)
@@ -124,22 +121,22 @@ struct ScanView: View {
                 default: break
                 }
             }
-            .alert("Scan Error", isPresented: .init(
+            .alert("Scan Error".localized, isPresented: .init(
                 get: { if case .error = viewModel.scanState { return true }; return false },
                 set: { if !$0 { viewModel.reset() } }
             )) {
-                Button("OK") { viewModel.reset() }
+                Button("OK".localized) { viewModel.reset() }
             } message: {
                 if case .error(let msg) = viewModel.scanState { Text(msg) }
             }
-            .alert("Scan Limit Reached", isPresented: Binding(
+            .alert("Scan Limit Reached".localized, isPresented: Binding(
                 get: { limitAlert != nil },
                 set: { if !$0 { limitAlert = nil; viewModel.reset() } }
             )) {
-                Button("Upgrade to Pro") { showProPage = true; viewModel.reset() }
-                Button("Cancel", role: .cancel) { viewModel.reset() }
+                Button("Upgrade to Pro".localized) { showProPage = true; viewModel.reset() }
+                Button("Cancel".localized, role: .cancel) { viewModel.reset() }
             } message: {
-                Text(limitAlert ?? "You have used all your daily scans.")
+                Text(limitAlert ?? "You have used all your daily scans.".localized)
             }
             .sheet(isPresented: $showIngredientInput) {
                 IngredientInputSheet(text: $ingredientText) {
@@ -181,7 +178,7 @@ struct ScanView: View {
                         Text("Pro".localized)
                             .font(.caption).fontWeight(.bold)
                     } else {
-                        Text("\(remaining) left")
+                        Text(String(format: "%d left".localized, remaining))
                             .font(.caption).fontWeight(.semibold)
                     }
                 }
@@ -223,11 +220,11 @@ struct IngredientInputSheet: View {
                 .disabled(text.trimmingCharacters(in: .whitespaces).isEmpty)
             }
             .padding(20)
-            .navigationTitle("Type Ingredients")
+            .navigationTitle("Type Ingredients".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel".localized) { dismiss() }
                 }
             }
         }

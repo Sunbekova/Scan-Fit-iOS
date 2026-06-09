@@ -11,7 +11,7 @@ struct MeasurementsSection: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            sectionHeader("Body Measurements", subtitle: "Tap a row to edit".localized)
+            sectionHeader("Body Measurements".localized, subtitle: "Tap a row to edit".localized)
             measurementsCard
 
             let isVip = TokenManager.shared.isVip
@@ -19,7 +19,7 @@ struct MeasurementsSection: View {
             sectionCard(title: "Health Markers".localized) {
                 VStack(spacing: 0) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Toggle("High Blood Pressure", isOn: Binding(
+                        Toggle("High Blood Pressure".localized, isOn: Binding(
                             get: { profileVM.bloodPressure == 1 },
                             set: { newVal in
                                 guard isVip else { return }
@@ -31,7 +31,7 @@ struct MeasurementsSection: View {
                         .opacity(isVip ? 1 : 0.55)
 
                         if !isVip {
-                            Label("Pro feature", systemImage: "crown.fill")
+                            Label("Pro feature".localized, systemImage: "crown.fill")
                                 .font(.caption2)
                                 .foregroundColor(Color(hex: "#FBBF24"))
                         }
@@ -43,8 +43,9 @@ struct MeasurementsSection: View {
 
                     Divider()
 
+                    // Cholesterol
                     VStack(alignment: .leading, spacing: 4) {
-                        Toggle("High Cholesterol", isOn: Binding(
+                        Toggle("High Cholesterol".localized, isOn: Binding(
                             get: { profileVM.cholesterol == 1 },
                             set: { newVal in
                                 guard isVip else { return }
@@ -56,7 +57,7 @@ struct MeasurementsSection: View {
                         .opacity(isVip ? 1 : 0.55)
 
                         if !isVip {
-                            Label("Pro feature", systemImage: "crown.fill")
+                            Label("Pro feature".localized, systemImage: "crown.fill")
                                 .font(.caption2)
                                 .foregroundColor(Color(hex: "#FBBF24"))
                         }
@@ -71,9 +72,11 @@ struct MeasurementsSection: View {
         }
         .padding(.top, 16)
         .sheet(isPresented: $showGenderPicker) {
-            PickerSheet(title: "I am a".localized,
-                        options: ["Guy", "Gal", "Prefer not to say"],
-                        selected: profileVM.gender) { val in
+            PickerSheet(
+                title: "I am a".localized,
+                options: ["Guy".localized, "Gal".localized, "Prefer not to say".localized],
+                selected: profileVM.gender
+            ) { val in
                 profileVM.gender = val
                 Task { await saveMeasureHandlingErrors() }
             }
@@ -93,9 +96,7 @@ struct MeasurementsSection: View {
             cholError = nil
         } catch let err as BackendError {
             switch err {
-            case .sessionExpired:
-                authVM.handleSessionError(err)
-            case .notAuthenticated:
+            case .sessionExpired, .notAuthenticated:
                 authVM.handleSessionError(err)
             case .apiError(let msg):
                 bpError = msg
@@ -107,27 +108,36 @@ struct MeasurementsSection: View {
 
     private var measurementsCard: some View {
         VStack(spacing: 0) {
-            measureRow(label: "Gender",
-                       value: profileVM.gender.isEmpty ? "Not set" : profileVM.gender) {
-                showGenderPicker = true
-            }
+            measureRow(
+                label: "Gender".localized,
+                value: profileVM.gender.isEmpty ? "Not set".localized : profileVM.gender
+            ) { showGenderPicker = true }
+
             Divider().padding(.leading, 16)
-            measureRow(label: "Date of Birth",
-                       value: profileVM.birthDate.isEmpty ? "Not set" : profileVM.birthDate) {
-                showBirthPicker = true
-            }
+
+            measureRow(
+                label: "Date of Birth".localized,
+                value: profileVM.birthDate.isEmpty ? "Not set".localized : profileVM.birthDate
+            ) { showBirthPicker = true }
+
             Divider().padding(.leading, 16)
-            EditableMeasureRow(label: "Height", value: "\(profileVM.height)", unit: "cm") { val in
+
+            EditableMeasureRow(
+                label: "Height".localized,
+                value: "\(profileVM.height)",
+                unit: "cm"
+            ) { val in
                 profileVM.height = Int(val) ?? profileVM.height
                 Task { await saveMeasureHandlingErrors() }
             }
             Divider().padding(.leading, 16)
-            EditableMeasureRow(label: "Weight", value: "\(profileVM.weight)", unit: "kg") { val in
+            EditableMeasureRow(label: "Weight".localized, value: "\(profileVM.weight)", unit: "kg") { val in
                 profileVM.weight = Int(val) ?? profileVM.weight
                 Task { await saveMeasureHandlingErrors() }
             }
             Divider().padding(.leading, 16)
-            measureRow(label: "BMI", value: profileVM.bmiString, action: nil)
+
+            measureRow(label: "BMI".localized, value: profileVM.bmiString, action: nil)
         }
         .background(Color(.systemGray6))
         .cornerRadius(14)

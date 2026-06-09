@@ -5,7 +5,7 @@ import Foundation
 actor BackendUserService {
     static let shared = BackendUserService()
 
-    private let baseURL = "http://46.101.137.109:3000"
+    private let baseURL = "http://167.172.177.180:3000"
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default

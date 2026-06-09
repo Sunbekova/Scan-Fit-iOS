@@ -39,17 +39,33 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "457C1F86-30D6-4323-8735-DF69AAC247C9"
+            uuid = "58EBE78E-BC9C-48C9-83DA-26165EF825BE"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "scanAndFitDemo/Views/Pro/ProSubscriptionView.swift"
+            filePath = "scanAndFitDemo/ViewModels/BackendAuthViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "189"
-            endingLineNumber = "189"
-            landmarkName = "vipActiveCard"
-            landmarkType = "24">
+            startingLineNumber = "132"
+            endingLineNumber = "132"
+            landmarkName = "resetPassword(email:newPassword:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "73DEEC46-A3CF-493F-A0B8-3203624A1D3D"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "scanAndFitDemo/Views/Profile/User/DiseaseSection.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "97"
+            endingLineNumber = "97"
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

@@ -73,7 +73,8 @@ final class CameraViewController: UIViewController {
 
     private func showPermissionDeniedUI() {
         let label = UILabel()
-        label.text = "Camera access denied.\nGo to Settings → Privacy → Camera\nand enable access for ScanFit."
+        // Use the localized string from LanguageManager (UIKit context)
+        label.text = "Camera access denied.\nGo to Settings → Privacy → Camera\nand enable access for ScanFit.".localized
         label.numberOfLines = 0
         label.textAlignment = .center
         label.textColor = .white
@@ -122,7 +123,6 @@ struct CameraView: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {}
-
     func makeCoordinator() -> Coordinator { Coordinator() }
 
     final class Coordinator {
@@ -138,7 +138,7 @@ struct CameraPermissionView: View {
         case .authorized:
             EmptyView()
         case .notDetermined:
-            Button("Allow Camera Access") {
+            Button("Allow Camera Access".localized) {
                 AVCaptureDevice.requestAccess(for: .video) { granted in
                     DispatchQueue.main.async {
                         status = granted ? .authorized : .denied
@@ -157,7 +157,7 @@ struct CameraPermissionView: View {
                     .font(.subheadline)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.secondary)
-                Button("Open Settings") {
+                Button("Open Settings".localized) {
                     if let url = URL(string: UIApplication.openSettingsURLString) {
                         UIApplication.shared.open(url)
                     }

@@ -91,7 +91,6 @@ struct ForgotPasswordView: View {
                 Spacer()
             }
             .background(Color.white.ignoresSafeArea())
-            
             .onChange(of: authVM.pinSent) { sent in
                 if sent { showVerifyPin = true }
             }

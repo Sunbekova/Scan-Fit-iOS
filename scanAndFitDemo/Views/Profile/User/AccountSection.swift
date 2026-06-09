@@ -22,24 +22,23 @@ struct AccountSection: View {
 
     var body: some View {
         VStack(spacing: 20) {
-
             avatarSection
             proCard
+            languageSection
             healthConditionsSection
             dietSection
             refreshButton
             signOutButton
-            
         }
         .padding(.top, 16)
         .onChange(of: selectedPhoto) { _, item in
             Task { await uploadPhoto(item: item) }
         }
-        .alert("Photo Upload Error", isPresented: Binding(
+        .alert("Photo Upload Error".localized, isPresented: Binding(
             get: { photoUploadError != nil },
             set: { if !$0 { photoUploadError = nil } }
         )) {
-            Button("OK", role: .cancel) {}
+            Button("OK".localized, role: .cancel) {}
         } message: {
             Text(photoUploadError ?? "")
         }
@@ -103,10 +102,10 @@ struct AccountSection: View {
                     .font(.system(size: 22))
                     .foregroundColor(isVip ? Color(hex: "#FBBF24") : .secondary)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(isVip ? "ScanFit Pro" : "Basic Plan")
+                    Text(isVip ? "ScanFit Pro".localized : "Basic Plan".localized)
                         .font(.subheadline).fontWeight(.bold)
                         .foregroundColor(isVip ? Color(hex: "#FBBF24") : .primary)
-                    Text(isVip ? "Unlimited scans & all features" : "Tap to upgrade to Pro")
+                    Text(isVip ? "Unlimited scans & all features".localized : "Tap to upgrade to Pro".localized)
                         .font(.caption).foregroundColor(Color("AppGreen"))
                 }
                 Spacer()
@@ -122,25 +121,8 @@ struct AccountSection: View {
         }
     }
 
-    private func uploadPhoto(item: PhotosPickerItem?) async {
-        guard let item = item else { return }
-        isUploadingPhoto = true
-        defer { isUploadingPhoto = false }
-        do {
-            guard let data = try await item.loadTransferable(type: Data.self) else { return }
-            let resp = try await BackendUserService.shared.changeProfilePicture(
-                imageData: data,
-                filename: "profile_\(Date().timeIntervalSince1970).jpg"
-            )
-            if resp.success == true {
-                // Reload user data to update photo URL
-                await profileVM.loadAll()
-            } else {
-                photoUploadError = resp.message ?? "Failed to upload photo"
-            }
-        } catch {
-            photoUploadError = error.localizedDescription
-        }
+    private var languageSection: some View {
+        LanguageRow()
     }
     
     private var healthConditionsSection: some View {
@@ -184,7 +166,7 @@ struct AccountSection: View {
         Button {
             Task { await profileVM.refreshTodayCalories() }
         } label: {
-            Label("Refresh Today's Calories", systemImage: "arrow.clockwise")
+            Label("Refresh Today's Calories".localized, systemImage: "arrow.clockwise")
                 .frame(maxWidth: .infinity)
                 .padding()
                 .background(Color("AppGreen").opacity(0.1))
@@ -197,7 +179,7 @@ struct AccountSection: View {
         Button(role: .destructive) {
             authVM.signOut()
         } label: {
-            Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+            Label("Sign Out".localized, systemImage: "rectangle.portrait.and.arrow.right")
                 .frame(maxWidth: .infinity)
                 .padding()
                 .background(Color.red.opacity(0.1))
@@ -205,5 +187,27 @@ struct AccountSection: View {
                 .cornerRadius(14)
         }
         .padding(.top, 8)
+    }
+
+    // MARK: - Photo upload
+
+    private func uploadPhoto(item: PhotosPickerItem?) async {
+        guard let item = item else { return }
+        isUploadingPhoto = true
+        defer { isUploadingPhoto = false }
+        do {
+            guard let data = try await item.loadTransferable(type: Data.self) else { return }
+            let resp = try await BackendUserService.shared.changeProfilePicture(
+                imageData: data,
+                filename: "profile_\(Date().timeIntervalSince1970).jpg"
+            )
+            if resp.success == true {
+                await profileVM.loadAll()
+            } else {
+                photoUploadError = resp.message ?? "Failed to upload photo".localized
+            }
+        } catch {
+            photoUploadError = error.localizedDescription
+        }
     }
 }

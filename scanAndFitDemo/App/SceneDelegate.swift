@@ -28,6 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             .environmentObject(authViewModel)
             .environmentObject(trackerViewModel)
             .modelContainer(modelContainer)
+            .languageAware()
 
         let hostingController = UIHostingController(rootView: rootView)
 
