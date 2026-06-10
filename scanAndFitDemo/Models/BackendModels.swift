@@ -294,3 +294,79 @@ extension BackendDisease: Nameable, Activeable {
         return self.name ?? "Unknown Condition"
     }
 }
+
+// MARK: - NEW: Likes (Favorites on backend)
+struct BackendLikeItem: Codable, Identifiable {
+    let id: Int
+    let productName: String
+    let productData: String
+    let source: String
+    let createdAt: String?
+    enum CodingKeys: String, CodingKey {
+        case id; case productName = "product_name"; case productData = "product_data"
+        case source; case createdAt = "created_at"
+    }
+}
+struct BackendLikeListResponse: Codable { let data: [BackendLikeItem]?; let message: String?; let success: Bool }
+struct BackendLikeResponse: Codable { let data: BackendLikeItem?; let message: String?; let success: Bool }
+struct BackendCreateLikeRequest: Codable {
+    let productName: String; let productData: String; let source: String
+    enum CodingKeys: String, CodingKey {
+        case productName = "product_name"; case productData = "product_data"; case source
+    }
+}
+
+// MARK: - NEW: Product view history (Recent on backend)
+struct BackendHistoryItem: Codable, Identifiable {
+    let id: Int
+    let productName: String
+    let productData: String
+    let source: String
+    let createdAt: String?
+    enum CodingKeys: String, CodingKey {
+        case id; case productName = "product_name"; case productData = "product_data"
+        case source; case createdAt = "created_at"
+    }
+}
+struct BackendHistoryListResponse: Codable { let data: [BackendHistoryItem]?; let message: String?; let success: Bool }
+struct BackendCreateHistoryRequest: Codable {
+    let productName: String; let productData: String; let source: String
+    enum CodingKeys: String, CodingKey {
+        case productName = "product_name"; case productData = "product_data"; case source
+    }
+}
+
+// MARK: - NEW: Push notification device token
+struct BackendRegisterDeviceTokenRequest: Codable {
+    let token: String
+    let platform: String
+    init(token: String) { self.token = token; self.platform = "ios" }
+}
+
+// MARK: - NEW: Compare products
+struct CompareProductsResponse: Codable {
+    let nameA: String?; let nameB: String?
+    let verdictA: String?; let verdictB: String?
+    let winner: String?; let winnerName: String?
+    let healthScoreA: Int?; let healthScoreB: Int?
+    let recommendation: String?
+    let nutrientComparison: [NutrientComparison]?
+    let risksA: [AnalysisRisk]?; let risksB: [AnalysisRisk]?
+    enum CodingKeys: String, CodingKey {
+        case nameA = "name_a"; case nameB = "name_b"
+        case verdictA = "verdict_a"; case verdictB = "verdict_b"
+        case winner; case winnerName = "winner_name"
+        case healthScoreA = "health_score_a"; case healthScoreB = "health_score_b"
+        case recommendation
+        case nutrientComparison = "nutrient_comparison"
+        case risksA = "risks_a"; case risksB = "risks_b"
+    }
+}
+struct NutrientComparison: Codable, Identifiable {
+    var id: String { nutrient ?? UUID().uuidString }
+    let nutrient: String?; let valueA: String?; let valueB: String?
+    let better: String?; let note: String?
+    enum CodingKeys: String, CodingKey {
+        case nutrient; case valueA = "value_a"; case valueB = "value_b"; case better; case note
+    }
+}

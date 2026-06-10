@@ -43,7 +43,6 @@ struct MacrosRow: View {
         HStack(spacing: 10) {
             MacroCard(
                 title: "Proteins".localized,
-                imageName: "ic_proteins",
                 value: "\(Int(trackerVM.totalProteins)) g",
                 limit: "\(Int(trackerVM.proteinLimit)) g",
                 progress: trackerVM.proteinProgress,
@@ -51,7 +50,6 @@ struct MacrosRow: View {
             )
             MacroCard(
                 title: "Fat".localized,
-                imageName: "ic_fat",
                 value: "\(Int(trackerVM.totalFat)) g",
                 limit: "\(Int(trackerVM.fatLimit)) g",
                 progress: trackerVM.fatProgress,
@@ -59,7 +57,6 @@ struct MacrosRow: View {
             )
             MacroCard(
                 title: "Carbs".localized,
-                imageName: "ic_carbs",
                 value: "\(Int(trackerVM.totalCarbs)) g",
                 limit: "\(Int(trackerVM.carbLimit)) g",
                 progress: trackerVM.carbProgress,
@@ -71,7 +68,6 @@ struct MacrosRow: View {
 
 struct MacroCard: View {
     let title: String
-    let imageName: String
     let value: String
     let limit: String
     let progress: Double
@@ -80,10 +76,6 @@ struct MacroCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Image(imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 18, height: 18)
                 Text(title)
                     .font(.caption)
                     .fontWeight(.bold)

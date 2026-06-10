@@ -6,6 +6,7 @@ actor BackendUserService {
     static let shared = BackendUserService()
 
     private let baseURL = "http://167.172.177.180:3000"
+    private let aiBaseURL = "http://167.172.177.180:8001"
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
@@ -154,6 +155,10 @@ actor BackendUserService {
         req.httpBody = try encoder.encode(body)
         return try await execute(req)
     }
+    private func delete<R: Decodable>(path: String) async throws -> R {
+        let req = try buildRequest(path: path, method: "DELETE")
+        return try await execute(req)
+    }
 
     private func buildRequest(path: String, method: String) throws -> URLRequest {
         guard let url = URL(string: baseURL + path) else { throw NetworkError.invalidURL }
@@ -211,4 +216,77 @@ actor BackendUserService {
         } catch {}
         return false
     }
+
+    // MARK: - NEW: Likes (Favorites on backend)
+    func getUserLikes() async throws -> BackendLikeListResponse {
+        try await get(path: "/api/v1/user/like/list")
+    }
+    func createLike(_ req: BackendCreateLikeRequest) async throws -> BackendLikeResponse {
+        try await post(path: "/api/v1/user/like/create", body: req)
+    }
+    func deleteLike(id: Int) async throws -> BackendBaseResponse {
+        try await delete(path: "/api/v1/user/like/delete/\(id)")
+    }
+
+    // MARK: - NEW: Product view history (Recent on backend)
+    func getUserHistory() async throws -> BackendHistoryListResponse {
+        try await get(path: "/api/v1/user/history/list")
+    }
+    func createHistory(_ req: BackendCreateHistoryRequest) async throws -> BackendBaseResponse {
+        try await post(path: "/api/v1/user/history/create", body: req)
+    }
+
+    // MARK: - NEW: Push notification device token
+    func registerDeviceToken(_ req: BackendRegisterDeviceTokenRequest) async throws -> BackendBaseResponse {
+        try await post(path: "/api/v1/user/device-token/register", body: req)
+    }
+
+    // MARK: - NEW: Export report PDF
+    func downloadConsumptionReportPdf(from: String, to: String) async throws -> Data {
+        guard let bearer = TokenManager.shared.bearerToken else { throw BackendError.notAuthenticated }
+        guard let url = URL(string: baseURL + "/api/v1/user/user-calories/report/pdf?from=\(from)&to=\(to)") else {
+            throw NetworkError.invalidURL
+        }
+        var req = URLRequest(url: url)
+        req.httpMethod = "GET"
+        req.setValue(bearer, forHTTPHeaderField: "Authorization")
+        let (data, response) = try await session.data(for: req)
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            throw NetworkError.invalidResponse
+        }
+        return data
+    }
+
+    // MARK: - NEW: Compare products via AI (two images)
+    func compareProductImages(imageA: Data, imageB: Data, userInfo: String) async throws -> CompareProductsResponse {
+        guard let bearer = TokenManager.shared.bearerToken else { throw BackendError.notAuthenticated }
+        guard let url = URL(string: aiBaseURL + "/compare-products-images") else { throw NetworkError.invalidURL }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(bearer, forHTTPHeaderField: "Authorization")
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        var body = Data()
+        func appendPart(_ name: String, _ filename: String, _ data: Data) {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(filename)\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+            body.append(data)
+            body.append("\r\n".data(using: .utf8)!)
+        }
+        appendPart("image_a", "image_a.jpg", imageA)
+        appendPart("image_b", "image_b.jpg", imageB)
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"user_information\"\r\n\r\n".data(using: .utf8)!)
+        body.append(userInfo.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            throw NetworkError.invalidResponse
+        }
+        return try decoder.decode(CompareProductsResponse.self, from: data)
+    }
+
 }

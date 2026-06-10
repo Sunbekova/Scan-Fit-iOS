@@ -16,31 +16,28 @@ struct BackendProductScanLimitData: Codable {
 }
 // MARK: - Consumption History
 
-struct BackendConsumptionHistoryResponse: Codable { let data: [BackendConsumptionHistoryItem]?; let message: String?; let success: Bool }
-
+struct BackendConsumptionHistoryResponse: Codable {
+    let data: [BackendConsumptionHistoryItem]?; let message: String?; let success: Bool
+}
 struct BackendConsumptionHistoryItem: Codable, Identifiable {
     var id: String { date ?? UUID().uuidString }
-    
-    let calories, caloriesGoal, carbs, carbsGoal, cholesterol, cholesterolGoal: Int?
-    let fat, fatGoal, fiber, fiberGoal, proteinGoal, proteins, sodium, sodiumGoal, sugar, sugarGoal, water, waterGoal: Int?
-    let vitaminA, vitaminAGoal, vitaminB6, vitaminB6Goal, vitaminB9, vitaminB9Goal: Double?
-    let vitaminB12, vitaminB12Goal, vitaminC, vitaminCGoal, vitaminD, vitaminDGoal, vitaminE, vitaminEGoal: Double?
     let date: String?
+    let calories, caloriesGoal: Int?
+    let proteins, proteinGoal: Int?
+    let carbs, carbsGoal: Int?
+    let fat, fatGoal: Int?
+    let water, waterGoal: Int?
+    let fiber, sodium, sugar, cholesterol: Int?
+    let vitaminA, vitaminB6, vitaminB9, vitaminB12, vitaminC, vitaminD, vitaminE: Double?
     enum CodingKeys: String, CodingKey {
-        case calories; case caloriesGoal = "calories_goal"
+        case date; case calories; case caloriesGoal = "calories_goal"
+        case proteins; case proteinGoal = "protein_goal"
         case carbs; case carbsGoal = "carbs_goal"
-        case cholesterol; case cholesterolGoal = "cholesterol_goal"
-        case fat; case fatGoal = "fat_goal"; case fiber; case fiberGoal = "fiber_goal"
-        case proteinGoal = "protein_goal"; case proteins; case sodium; case sodiumGoal = "sodium_goal"
-        case sugar; case sugarGoal = "sugar_goal"; case water; case waterGoal = "water_goal"
-        case vitaminA = "vitamin_a"; case vitaminAGoal = "vitamin_a_goal"
-        case vitaminB6 = "vitamin_b6"; case vitaminB6Goal = "vitamin_b6_goal"
-        case vitaminB9 = "vitamin_b9"; case vitaminB9Goal = "vitamin_b9_goal"
-        case vitaminB12 = "vitamin_b12"; case vitaminB12Goal = "vitamin_b12_goal"
-        case vitaminC = "vitamin_c"; case vitaminCGoal = "vitamin_c_goal"
-        case vitaminD = "vitamin_d"; case vitaminDGoal = "vitamin_d_goal"
-        case vitaminE = "vitamin_e"; case vitaminEGoal = "vitamin_e_goal"
-        case date
+        case fat; case fatGoal = "fat_goal"
+        case water; case waterGoal = "water_goal"
+        case fiber; case sodium; case sugar; case cholesterol
+        case vitaminA = "vitamin_a"; case vitaminB6 = "vitamin_b6"; case vitaminB9 = "vitamin_b9"
+        case vitaminB12 = "vitamin_b12"; case vitaminC = "vitamin_c"; case vitaminD = "vitamin_d"; case vitaminE = "vitamin_e"
     }
 }
 

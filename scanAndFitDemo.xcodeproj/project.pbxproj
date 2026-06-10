@@ -152,6 +152,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = scanAndFitDemo/App/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Scan&Fit uses your camera to scan food product, meal and labels for nutritional analysis.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Scan&Fit may save scanned food images to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Scan&Fit can access your photo library to let you upload a profile picture or scan food images from your gallery.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -179,6 +182,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = scanAndFitDemo/App/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Scan&Fit uses your camera to scan food product, meal and labels for nutritional analysis.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Scan&Fit may save scanned food images to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Scan&Fit can access your photo library to let you upload a profile picture or scan food images from your gallery.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

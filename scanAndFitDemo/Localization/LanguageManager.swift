@@ -27,8 +27,6 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     }
 }
 
-//LanguageManager
-
 final class LanguageManager: ObservableObject {
 
     static let shared = LanguageManager()
@@ -42,12 +40,26 @@ final class LanguageManager: ObservableObject {
         }
     }
 
-    /// The bundle that contains the active language's .strings file
     private(set) var bundle: Bundle = .main
 
     private init() {
-        let saved = UserDefaults.standard.string(forKey: "app_language") ?? ""
-        current = AppLanguage(rawValue: saved) ?? .english
+        // If user has previously chosen a language, use it.
+        // Otherwise, detect from iPhone system language settings.
+        if let saved = UserDefaults.standard.string(forKey: "app_language"),
+           let lang = AppLanguage(rawValue: saved) {
+            current = lang
+        } else {
+            // Auto-detect from device preferred languages
+            let preferred = Locale.preferredLanguages.first ?? "en"
+            let code = String(preferred.prefix(2)).lowercased()
+            if code == "ru" {
+                current = .russian
+            } else if code == "kk" {
+                current = .kazakh
+            } else {
+                current = .english
+            }
+        }
         updateBundle()
     }
 
@@ -71,14 +83,8 @@ final class LanguageManager: ObservableObject {
 // MARK: - String extension
 
 extension String {
-    /// Returns a localized string using the currently active LanguageManager bundle.
     var localized: String {
         LanguageManager.shared.bundle.localizedString(forKey: self, value: self, table: nil)
-    }
-
-    /// Localized with printf-style format arguments.
-    func localized(_ args: CVarArg...) -> String {
-        String(format: localized, arguments: args)
     }
 }
 
@@ -86,16 +92,12 @@ extension String {
 
 struct LanguageAwareModifier: ViewModifier {
     @ObservedObject var lm = LanguageManager.shared
-
     func body(content: Content) -> some View {
-        content
-            // Changing the ID forces SwiftUI to rebuild the entire tree
-            .id(lm.current.rawValue)
+        content.id(lm.current)
     }
 }
 
 extension View {
-    /// Apply this once at the root view to make the whole app react to language changes.
     func languageAware() -> some View {
         modifier(LanguageAwareModifier())
     }

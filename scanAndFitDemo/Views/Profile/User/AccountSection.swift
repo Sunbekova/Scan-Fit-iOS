@@ -27,6 +27,7 @@ struct AccountSection: View {
             languageSection
             healthConditionsSection
             dietSection
+            notificationsButton
             refreshButton
             signOutButton
         }
@@ -175,6 +176,23 @@ struct AccountSection: View {
         }
     }
     
+    // MARK: - Notifications
+
+    private var notificationsButton: some View {
+        NavigationLink(destination: NotificationsSettingsView()) {
+            HStack {
+                Label("Notifications".localized, systemImage: "bell.fill")
+                Spacer()
+                Image(systemName: "chevron.right").font(.caption).foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color(.systemGray6))
+            .foregroundColor(.primary)
+            .cornerRadius(14)
+        }
+    }
+
     private var signOutButton: some View {
         Button(role: .destructive) {
             authVM.signOut()

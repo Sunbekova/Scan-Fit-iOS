@@ -60,6 +60,7 @@ struct ProductDetailView: View {
             if let item = foodItem {
                 isFavorite = LocalStorageService.isFavorite(id: item.id, context: modelContext)
                 LocalStorageService.saveRecent(item: item, context: modelContext)
+                saveToRecentHistory(item)
                 if analysisResponse == nil {
                     Task { await loadSavedProductScan(for: item) }}
             }

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import SwiftUI
 
 struct FoodItem: Identifiable, Codable, Hashable {
     let id: String
@@ -18,6 +19,7 @@ struct FoodItem: Identifiable, Codable, Hashable {
     let sugars: String?
     let fiber: String?
     let ingredients: String?
+    let source: String?   // "scan" | "openfoodfacts"
     let vitaminA: String?
     let vitaminB12: String?
     let vitaminB6: String?
@@ -43,6 +45,7 @@ struct FoodItem: Identifiable, Codable, Hashable {
         sugars: String? = "0g",
         fiber: String? = "0g",
         ingredients: String? = nil,
+        source: String? = nil,
         vitaminA: String? = nil,
         vitaminB12: String? = nil,
         vitaminB6: String? = nil,
@@ -67,6 +70,7 @@ struct FoodItem: Identifiable, Codable, Hashable {
         self.sugars = sugars
         self.fiber = fiber
         self.ingredients = ingredients
+        self.source = source
         self.vitaminA = vitaminA; self.vitaminB12 = vitaminB12; self.vitaminB6 = vitaminB6
         self.vitaminB9 = vitaminB9; self.vitaminC = vitaminC; self.vitaminD = vitaminD; self.vitaminE = vitaminE
     }
@@ -430,5 +434,3 @@ extension Color {
         self.init(red: r, green: g, blue: b)
     }
 }
-
-import SwiftUI

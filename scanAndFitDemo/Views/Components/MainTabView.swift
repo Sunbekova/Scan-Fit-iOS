@@ -19,10 +19,12 @@ struct MainTabView: View {
                 .tag(1)
 
             FavoritesView()
+                .environmentObject(trackerVM)
                 .tabItem { Label("Favorites".localized, systemImage: "heart.fill") }
                 .tag(2)
 
             RecentView()
+                .environmentObject(trackerVM)
                 .tabItem { Label("Recent".localized, systemImage: "clock.fill") }
                 .tag(3)
         }
@@ -30,6 +32,8 @@ struct MainTabView: View {
         .task {
             trackerVM.loadForDate(trackerVM.selectedDate)
             await trackerVM.loadFirstAvailableDay()
+            // Request notification permission
+            NotificationManager.shared.requestPermission()
         }
     }
 }

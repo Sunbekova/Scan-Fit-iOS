@@ -4,7 +4,7 @@ struct AppConfig {
     static let backendBaseURL = "http://167.172.177.180:3000"
     static let aiServiceBaseURL: String = {
         if let saved = UserDefaults.standard.string(forKey: "ai_service_url"), !saved.isEmpty { return saved }
-        return "http://167.172.177.180:3000"
+        return "http://167.172.177.180:8001/"
     }()
 }
 

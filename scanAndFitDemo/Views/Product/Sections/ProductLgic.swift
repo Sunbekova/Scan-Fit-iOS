@@ -106,8 +106,32 @@ extension ProductDetailView{
     }
     
     func toggleFavorite() {
-            guard let item = foodItem else { return }
-            LocalStorageService.toggleFavorite(item: item, context: modelContext)
-            isFavorite.toggle()
+        guard let item = foodItem else { return }
+        LocalStorageService.toggleFavorite(item: item, context: modelContext)
+        isFavorite.toggle()
+        // Sync with backend
+        Task {
+            if let jsonData = try? JSONEncoder().encode(item),
+               let productDataStr = String(data: jsonData, encoding: .utf8) {
+                let source = item.subtitle?.lowercased().contains("ai") == true ? "scan" : "openfoodfacts"
+                if isFavorite {
+                    // was just toggled to favorite → create
+                    let req = BackendCreateLikeRequest(productName: item.title, productData: productDataStr, source: source)
+                    _ = try? await BackendUserService.shared.createLike(req)
+                }
+                // deletion by name not supported without ID; will be pruned on next sync
+            }
         }
+    }
+
+    func saveToRecentHistory(_ item: FoodItem) {
+        Task {
+            if let jsonData = try? JSONEncoder().encode(item),
+               let productDataStr = String(data: jsonData, encoding: .utf8) {
+                let source = item.subtitle?.lowercased().contains("ai") == true ? "scan" : "openfoodfacts"
+                let req = BackendCreateHistoryRequest(productName: item.title, productData: productDataStr, source: source)
+                _ = try? await BackendUserService.shared.createHistory(req)
+            }
+        }
+    }
 }

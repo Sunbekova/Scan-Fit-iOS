@@ -12,10 +12,9 @@ struct ScanView: View {
     @State private var analysisResult: AnalysisResponse?
     @State private var navigateToBrowse = false
     @State private var navigateToSearch = false
-    @State private var showIngredientInput = false
-    @State private var ingredientText = ""
     @State private var showProPage = false
     @State private var limitAlert: String?
+    @State private var showCompareSheet = false
 
     var body: some View {
         NavigationStack {
@@ -43,6 +42,11 @@ struct ScanView: View {
                             .padding(.horizontal, 14).padding(.vertical, 8)
                             .background(.ultraThinMaterial).cornerRadius(10)
                         }
+//                        Button { showCompareSheet = true } label: {
+//                            Image(systemName: "arrow.left.arrow.right.circle.fill")
+//                                .font(.title2).foregroundColor(.white)
+//                                .padding(10).background(.ultraThinMaterial).cornerRadius(10)
+//                        }
                     }
                     .padding(.horizontal, 20).padding(.top, 60)
 
@@ -88,12 +92,10 @@ struct ScanView: View {
                             }
                         }
                         .disabled(viewModel.scanState == .analyzing)
-
-                        Button { showIngredientInput = true } label: {
-                            Image(systemName: "text.cursor")
-                                .font(.title).foregroundColor(.white)
-                                .frame(width: 52, height: 52)
-                                .background(.ultraThinMaterial).cornerRadius(14)
+                        Button { showCompareSheet = true } label: {
+                            Image(systemName: "arrow.left.arrow.right.circle.fill")
+                                .font(.title2).foregroundColor(.white)
+                                .padding(10).background(.ultraThinMaterial).cornerRadius(10)
                         }
                     }
                     .padding(.bottom, 50)
@@ -138,12 +140,7 @@ struct ScanView: View {
             } message: {
                 Text(limitAlert ?? "You have used all your daily scans.".localized)
             }
-            .sheet(isPresented: $showIngredientInput) {
-                IngredientInputSheet(text: $ingredientText) {
-                    showIngredientInput = false
-                    Task { await viewModel.analyzeIngredients(ingredientText) }
-                }
-            }
+
             .navigationDestination(isPresented: $navigateToResult) {
                 if let result = analysisResult {
                     ProductDetailView(analysisResponse: result)
@@ -159,6 +156,9 @@ struct ScanView: View {
             }
             .navigationDestination(isPresented: $showProPage) {
                 ProSubscriptionView()
+            }
+            .sheet(isPresented: $showCompareSheet) {
+                CompareProductsView()
             }
         }
         .task { await viewModel.loadScanLimit() }
@@ -191,46 +191,6 @@ struct ScanView: View {
     }
 }
 
-struct IngredientInputSheet: View {
-    @Binding var text: String
-    let onAnalyze: () -> Void
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Text("Enter product name or ingredients".localized)
-                    .font(.subheadline).foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                TextEditor(text: $text)
-                    .frame(height: 180)
-                    .padding(12)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(14)
-                    .font(.body)
-                Button {
-                    guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                    onAnalyze()
-                } label: {
-                    Text("Analyze with AI".localized)
-                        .font(.headline).foregroundColor(.white)
-                        .frame(maxWidth: .infinity).padding(16)
-                        .background(Color("AppGreen")).cornerRadius(14)
-                }
-                .disabled(text.trimmingCharacters(in: .whitespaces).isEmpty)
-            }
-            .padding(20)
-            .navigationTitle("Type Ingredients".localized)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel".localized) { dismiss() }
-                }
-            }
-        }
-        .presentationDetents([.medium])
-    }
-}
 //camera
 
 private struct CameraRepresentable: UIViewControllerRepresentable {
